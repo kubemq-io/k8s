@@ -42,7 +42,10 @@ func (d *DeployerService) Apply(ctx context.Context, manifest string) error {
 		return objects.NewCrd(d.cfg).Apply(ctx, manifest)
 	case "v1/ServiceAccount":
 		return objects.NewServiceAccount(d.cfg).Apply(ctx, manifest)
-
+	case "v1/ConfigMap":
+		return objects.NewConfigMap(d.cfg).Apply(ctx, manifest)
+	case "v1/Service":
+		return objects.NewConfigMap(d.cfg).Apply(ctx, manifest)
 	default:
 		return fmt.Errorf("unknown object to apply")
 	}
@@ -66,6 +69,10 @@ func (d *DeployerService) Delete(ctx context.Context, manifest string) error {
 		return objects.NewCrd(d.cfg).Delete(ctx, manifest)
 	case "v1/ServiceAccount":
 		return objects.NewServiceAccount(d.cfg).Delete(ctx, manifest)
+	case "v1/ConfigMap":
+		return objects.NewConfigMap(d.cfg).Delete(ctx, manifest)
+	case "v1/Service":
+		return objects.NewConfigMap(d.cfg).Delete(ctx, manifest)
 	default:
 		return fmt.Errorf("unknown object to apply")
 	}
