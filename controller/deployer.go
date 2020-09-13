@@ -38,6 +38,11 @@ func (d *DeployerService) Apply(ctx context.Context, manifest string) error {
 		return objects.NewDashboard(d.cfg).Apply(ctx, manifest)
 	case "core.k8s.kubemq.io/v1alpha1/KubemqConnector":
 		return objects.NewConnector(d.cfg).Apply(ctx, manifest)
+	case "apiextensions.k8s.io/v1beta1/CustomResourceDefinition":
+		return objects.NewCrd(d.cfg).Apply(ctx, manifest)
+	case "v1/ServiceAccount":
+		return objects.NewServiceAccount(d.cfg).Apply(ctx, manifest)
+
 	default:
 		return fmt.Errorf("unknown object to apply")
 	}
@@ -57,6 +62,10 @@ func (d *DeployerService) Delete(ctx context.Context, manifest string) error {
 		return objects.NewDashboard(d.cfg).Delete(ctx, manifest)
 	case "core.k8s.kubemq.io/v1alpha1/KubemqConnector":
 		return objects.NewConnector(d.cfg).Delete(ctx, manifest)
+	case "apiextensions.k8s.io/v1beta1/CustomResourceDefinition":
+		return objects.NewCrd(d.cfg).Delete(ctx, manifest)
+	case "v1/ServiceAccount":
+		return objects.NewServiceAccount(d.cfg).Delete(ctx, manifest)
 	default:
 		return fmt.Errorf("unknown object to apply")
 	}
