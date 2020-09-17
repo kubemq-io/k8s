@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/ghodss/yaml"
+	"github.com/go-logr/logr"
 	"github.com/kubemq-io/k8s/controller/config"
 	"github.com/kubemq-io/k8s/pkg/subset"
 	appsv1 "k8s.io/api/apps/v1"
@@ -13,11 +14,13 @@ import (
 
 type Deployment struct {
 	*config.Configuration
+	Log logr.Logger
 }
 
 func NewDeployment(cfg *config.Configuration) *Deployment {
 	return &Deployment{
 		Configuration: cfg,
+		Log:           cfg.Log.WithValues("api-version", "apps/v1", "kind", "Deployment"),
 	}
 }
 func (d *Deployment) Apply(ctx context.Context, manifest string) error {
@@ -33,10 +36,10 @@ func (d *Deployment) Apply(ctx context.Context, manifest string) error {
 			parsed.Namespace = d.Namespace
 			err = d.Client.Create(ctx, parsed)
 			if err != nil {
-				d.Log.Error(err, "create object error", "name", parsed.Name, "namespace", d.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
+				d.Log.Error(err, "create object error", "name", parsed.Name, "namespace", d.Namespace)
 				return fmt.Errorf("create deployment error, %w", err)
 			}
-			d.Log.Info("object created", "name", parsed.Name, "namespace", d.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
+			d.Log.Info("object created", "name", parsed.Name, "namespace", d.Namespace)
 			return nil
 		} else {
 			return err
@@ -46,13 +49,13 @@ func (d *Deployment) Apply(ctx context.Context, manifest string) error {
 			parsed.ResourceVersion = found.ResourceVersion
 			err = d.Client.Update(ctx, parsed)
 			if err != nil {
-				d.Log.Error(err, "update object error", "name", parsed.Name, "namespace", d.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
+				d.Log.Error(err, "update object error", "name", parsed.Name, "namespace", d.Namespace)
 				return fmt.Errorf("update deployment error, %w", err)
 			}
-			d.Log.Info("object configured", "name", parsed.Name, "namespace", d.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
+			d.Log.Info("object configured", "name", parsed.Name, "namespace", d.Namespace)
 			return nil
 		} else {
-			d.Log.Info("object unchanged", "name", parsed.Name, "namespace", d.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
+			d.Log.Info("object unchanged", "name", parsed.Name, "namespace", d.Namespace)
 			return nil
 		}
 	}
@@ -66,15 +69,15 @@ func (d *Deployment) Delete(ctx context.Context, manifest string) error {
 	parsed.Namespace = d.Namespace
 	err := d.Reader.Get(ctx, types.NamespacedName{Name: parsed.Name, Namespace: parsed.Namespace}, found)
 	if err != nil {
-		d.Log.Error(err, "delete object error", "name", parsed.Name, "namespace", d.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
+		d.Log.Error(err, "delete object error", "name", parsed.Name, "namespace", d.Namespace)
 		return fmt.Errorf("delete deployment error, %w", err)
 	} else {
 		err := d.Client.Delete(ctx, found)
 		if err != nil {
-			d.Log.Error(err, "delete object error", "name", parsed.Name, "namespace", d.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
+			d.Log.Error(err, "delete object error", "name", parsed.Name, "namespace", d.Namespace)
 			return fmt.Errorf("delete deployment error, %w", err)
 		}
-		d.Log.Info("object deleted", "name", parsed.Name, "namespace", d.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
+		d.Log.Info("object deleted", "name", parsed.Name, "namespace", d.Namespace)
 		return nil
 	}
 }
