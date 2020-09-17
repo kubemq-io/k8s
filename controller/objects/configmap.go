@@ -64,8 +64,8 @@ func (c *ConfigMap) Delete(ctx context.Context, manifest string) error {
 		return fmt.Errorf("parsing manifest error, %w", err)
 	}
 	parsed.Namespace = c.Namespace
-	err := c.Reader.Get(ctx, types.NamespacedName{Name: parsed.Name}, found)
-	if err != nil && client.IgnoreNotFound(err) == nil {
+	err := c.Reader.Get(ctx, types.NamespacedName{Name: parsed.Name, Namespace: parsed.Namespace}, found)
+	if err != nil {
 		c.Log.Error(err, "delete object error", "name", parsed.Name, "namespace", c.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
 		return fmt.Errorf("delete configmap error, %w", err)
 

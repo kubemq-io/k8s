@@ -20,23 +20,23 @@ func NewDeployment(cfg *config.Configuration) *Deployment {
 		Configuration: cfg,
 	}
 }
-func (c *Deployment) Apply(ctx context.Context, manifest string) error {
+func (d *Deployment) Apply(ctx context.Context, manifest string) error {
 	parsed := &appsv1.Deployment{}
 	found := &appsv1.Deployment{}
 	if err := yaml.Unmarshal([]byte(manifest), parsed); err != nil {
 		return fmt.Errorf("parsing manifest error, %w", err)
 	}
-	parsed.Namespace = c.Namespace
-	err := c.Reader.Get(ctx, types.NamespacedName{Name: parsed.Name, Namespace: parsed.Namespace}, found)
+	parsed.Namespace = d.Namespace
+	err := d.Reader.Get(ctx, types.NamespacedName{Name: parsed.Name, Namespace: parsed.Namespace}, found)
 	if err != nil {
 		if client.IgnoreNotFound(err) == nil {
-			parsed.Namespace = c.Namespace
-			err = c.Client.Create(ctx, parsed)
+			parsed.Namespace = d.Namespace
+			err = d.Client.Create(ctx, parsed)
 			if err != nil {
-				c.Log.Error(err, "create object error", "name", parsed.Name, "namespace", c.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
+				d.Log.Error(err, "create object error", "name", parsed.Name, "namespace", d.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
 				return fmt.Errorf("create deployment error, %w", err)
 			}
-			c.Log.Info("object created", "name", parsed.Name, "namespace", c.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
+			d.Log.Info("object created", "name", parsed.Name, "namespace", d.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
 			return nil
 		} else {
 			return err
@@ -44,39 +44,37 @@ func (c *Deployment) Apply(ctx context.Context, manifest string) error {
 	} else {
 		if !subset.SubsetEqual(parsed.Spec, found.Spec) {
 			parsed.ResourceVersion = found.ResourceVersion
-			err = c.Client.Update(ctx, parsed)
+			err = d.Client.Update(ctx, parsed)
 			if err != nil {
-				c.Log.Error(err, "update object error", "name", parsed.Name, "namespace", c.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
+				d.Log.Error(err, "update object error", "name", parsed.Name, "namespace", d.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
 				return fmt.Errorf("update deployment error, %w", err)
 			}
-			c.Log.Info("object configured", "name", parsed.Name, "namespace", c.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
+			d.Log.Info("object configured", "name", parsed.Name, "namespace", d.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
 			return nil
 		} else {
-			c.Log.Info("object unchanged", "name", parsed.Name, "namespace", c.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
+			d.Log.Info("object unchanged", "name", parsed.Name, "namespace", d.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
 			return nil
 		}
 	}
 }
-func (c *Deployment) Delete(ctx context.Context, manifest string) error {
+func (d *Deployment) Delete(ctx context.Context, manifest string) error {
 	parsed := &appsv1.Deployment{}
 	found := &appsv1.Deployment{}
 	if err := yaml.Unmarshal([]byte(manifest), parsed); err != nil {
 		return fmt.Errorf("parsing manifest error, %w", err)
 	}
-	parsed.Namespace = c.Namespace
-	err := c.Reader.Get(ctx, types.NamespacedName{Name: parsed.Name}, found)
-	if err != nil && client.IgnoreNotFound(err) == nil {
-		c.Log.Error(err, "delete object error", "name", parsed.Name, "namespace", c.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
+	parsed.Namespace = d.Namespace
+	err := d.Reader.Get(ctx, types.NamespacedName{Name: parsed.Name, Namespace: parsed.Namespace}, found)
+	if err != nil {
+		d.Log.Error(err, "delete object error", "name", parsed.Name, "namespace", d.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
 		return fmt.Errorf("delete deployment error, %w", err)
-
 	} else {
-
-		err := c.Client.Delete(ctx, found)
+		err := d.Client.Delete(ctx, found)
 		if err != nil {
-			c.Log.Error(err, "delete object error", "name", parsed.Name, "namespace", c.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
-			return fmt.Errorf("delte deployment error, %w", err)
+			d.Log.Error(err, "delete object error", "name", parsed.Name, "namespace", d.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
+			return fmt.Errorf("delete deployment error, %w", err)
 		}
-		c.Log.Info("object deleted", "name", parsed.Name, "namespace", c.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
+		d.Log.Info("object deleted", "name", parsed.Name, "namespace", d.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
 		return nil
 	}
 }

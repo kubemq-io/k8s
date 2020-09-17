@@ -15,7 +15,7 @@ import (
 var (
 	scheme     *runtime.Scheme = runtime.NewScheme()
 	testLog                    = ctrl.Log.WithName("objects_tests")
-	namespace                  = "test-ns1"
+	namespace                  = "default"
 	mgr        ctrl.Manager
 	testConfig *config.Configuration
 )

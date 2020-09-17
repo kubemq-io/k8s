@@ -65,7 +65,7 @@ func (c *Cluster) Delete(ctx context.Context, manifest string) error {
 	}
 	parsed.Namespace = c.Namespace
 	err := c.Reader.Get(ctx, types.NamespacedName{Name: parsed.Name, Namespace: parsed.Namespace}, found)
-	if err != nil && client.IgnoreNotFound(err) == nil {
+	if err != nil {
 		c.Log.Error(err, "delete object error", "name", parsed.Name, "namespace", c.Namespace, "api-version", parsed.APIVersion, "kind", parsed.Kind)
 		return fmt.Errorf("delete cluster error, %w", err)
 
