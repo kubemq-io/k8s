@@ -63,6 +63,7 @@ type KubemqConnectorStatus struct {
 // +kubebuilder:subresource:status
 // +kubebuilder:resource:path=kubemqconnectors,scope=Namespaced
 // +kubebuilder:subresource:scale:specpath=.spec.replicas,statuspath=.status.replicas,selectorpath=.status.selector
+// +kubebuilder:printcolumn:JSONPath=".status.replicas",name=Replicas,type=string
 // +kubebuilder:printcolumn:JSONPath=".status.type",name=Type,type=string
 // +kubebuilder:printcolumn:JSONPath=".status.image",name=Image,type=string
 // +kubebuilder:printcolumn:JSONPath=".status.api",name=API,type=string

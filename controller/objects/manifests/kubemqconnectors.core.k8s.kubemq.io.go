@@ -10,6 +10,9 @@ spec:
   additionalPrinterColumns:
     - JSONPath: .status.type
       name: Type
+      type: string    
+    - JSONPath: .status.replicas
+      name: Replicas
       type: string
     - JSONPath: .status.image
       name: Image
