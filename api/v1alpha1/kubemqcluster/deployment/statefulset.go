@@ -32,7 +32,7 @@ spec:
         prometheus.io/path: '/metrics'
     spec:
 {{ .NodeSelectors }}
-      serviceAccountName: kubemq-cluster
+      serviceAccountName: {{.ServiceAccount}}
       securityContext:
         fsGroup: 200
       containers:
@@ -98,6 +98,7 @@ type StatefulSetConfig struct {
 	Resources       string
 	NodeSelectors   string
 	Image           string
+	ServiceAccount  string
 }
 
 func DefaultStatefulSetConfig(id, name, namespace string) *StatefulSetConfig {
@@ -114,6 +115,7 @@ func DefaultStatefulSetConfig(id, name, namespace string) *StatefulSetConfig {
 		Resources:       "",
 		NodeSelectors:   "",
 		Image:           "",
+		ServiceAccount:  "kubemq-cluster",
 	}
 }
 
@@ -160,6 +162,10 @@ func (sc *StatefulSetConfig) SetResources(value string) *StatefulSetConfig {
 }
 func (sc *StatefulSetConfig) SetNodeSelectors(value string) *StatefulSetConfig {
 	sc.NodeSelectors = value
+	return sc
+}
+func (sc *StatefulSetConfig) SetServiceAccount(value string) *StatefulSetConfig {
+	sc.ServiceAccount = value
 	return sc
 }
 

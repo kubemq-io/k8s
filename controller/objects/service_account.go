@@ -6,7 +6,6 @@ import (
 	"github.com/ghodss/yaml"
 	"github.com/go-logr/logr"
 	"github.com/kubemq-io/k8s/controller/config"
-	"github.com/kubemq-io/k8s/pkg/subset"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -45,19 +44,8 @@ func (s *ServiceAccount) Apply(ctx context.Context, manifest string) error {
 			return err
 		}
 	} else {
-		if !subset.SubsetEqual(parsed, found) {
-			parsed.ResourceVersion = found.ResourceVersion
-			err = s.Client.Update(ctx, parsed)
-			if err != nil {
-				s.Log.Error(err, "update object error", "name", parsed.Name, "namespace", s.Namespace)
-				return fmt.Errorf("update service account error, %w", err)
-			}
-			s.Log.Info("object configured", "name", parsed.Name, "namespace", s.Namespace)
-			return nil
-		} else {
-			s.Log.Info("object unchanged", "name", parsed.Name, "namespace", s.Namespace)
-			return nil
-		}
+		s.Log.Info("object unchanged", "name", parsed.Name, "namespace", s.Namespace)
+		return nil
 	}
 }
 func (s *ServiceAccount) Delete(ctx context.Context, manifest string) error {
