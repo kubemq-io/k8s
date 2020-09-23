@@ -67,7 +67,7 @@ func (s *ServiceAccount) Delete(ctx context.Context, manifest string) error {
 		return fmt.Errorf("parsing manifest error, %w", err)
 	}
 	parsed.Namespace = s.Namespace
-	err := s.Reader.Get(ctx, types.NamespacedName{Name: parsed.Name}, found)
+	err := s.Reader.Get(ctx, types.NamespacedName{Name: parsed.Name, Namespace: parsed.Namespace}, found)
 	if err != nil && client.IgnoreNotFound(err) == nil {
 		s.Log.Error(err, "delete object error", "name", parsed.Name, "namespace", s.Namespace)
 		return fmt.Errorf("delete service account error, %w", err)
