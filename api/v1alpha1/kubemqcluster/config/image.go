@@ -15,16 +15,6 @@ type ImageConfig struct {
 	PullPolicy string `json:"pullPolicy,omitempty"`
 }
 
-func (c *ImageConfig) getFromEnv(currentValue string, envKey string, def string) string {
-	if currentValue != "" {
-		return currentValue
-	}
-	fromEnv := os.Getenv(envKey)
-	if fromEnv != "" {
-		return fromEnv
-	}
-	return def
-}
 func (c *ImageConfig) GetImage() string {
 	if c.Image == "" {
 		imageFromEnv := os.Getenv("RELATED_IMAGE_KUBEMQ_CLUSTER")
