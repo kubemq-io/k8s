@@ -43,6 +43,8 @@ spec:
               value: 'true'
             - name: CLUSTER_ROUTES
               value: '{{.Name}}:5228'
+            - name: CHECKSUM
+              value: {{.ConfigCheckSum}}
           envFrom:
             - secretRef:
                 name: {{.Name}}
@@ -99,6 +101,7 @@ type StatefulSetConfig struct {
 	NodeSelectors   string
 	Image           string
 	ServiceAccount  string
+	ConfigCheckSum  string
 }
 
 func DefaultStatefulSetConfig(id, name, namespace string) *StatefulSetConfig {
@@ -166,6 +169,10 @@ func (sc *StatefulSetConfig) SetNodeSelectors(value string) *StatefulSetConfig {
 }
 func (sc *StatefulSetConfig) SetServiceAccount(value string) *StatefulSetConfig {
 	sc.ServiceAccount = value
+	return sc
+}
+func (sc *StatefulSetConfig) SetConfigChecksum(value string) *StatefulSetConfig {
+	sc.ConfigCheckSum = value
 	return sc
 }
 
