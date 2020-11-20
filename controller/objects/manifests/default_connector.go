@@ -16,7 +16,7 @@ spec:
 apiVersion: core.k8s.kubemq.io/v1alpha1
 kind: KubemqConnector
 metadata:
-  name: kubemq-bridges
+  name: kubemq-targets
 spec:
   type: targets
   replicas: 1
@@ -27,7 +27,7 @@ spec:
 apiVersion: core.k8s.kubemq.io/v1alpha1
 kind: KubemqConnector
 metadata:
-  name: kubemq-bridges
+  name: kubemq-sources
 spec:
   type: sources
   replicas: 1

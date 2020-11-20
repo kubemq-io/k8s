@@ -4,7 +4,7 @@ version: '2'
 
 vars:
   BINARY_NAME: k8s
-  VERSION: v1.0.4
+  VERSION: v1.0.5
 
 tasks:
   check_update:
