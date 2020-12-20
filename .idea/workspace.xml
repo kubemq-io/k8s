@@ -30,10 +30,6 @@
   <component name="GoVcsConfiguration">
     <option name="GO_FMT" value="false" />
   </component>
-  <component name="KubernetesApiPersistence">
-    <option name="context" value="gke_kubemq_us-central1-c_kubemq-poc-1" />
-    <option name="namespace" value="default" />
-  </component>
   <component name="ProjectId" id="1hRjn5vVtbDtXmMQsY9toNsCs90" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -42,7 +38,6 @@
   <component name="PropertiesComponent">
     <property name="DefaultGoTemplateProperty" value="Go File" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="go.import.settings.migrated" value="true" />
     <property name="go.sdk.automatically.set" value="true" />

@@ -21,11 +21,9 @@ func (o *ResourceConfig) SetConfig(config *deployment.Config) *ResourceConfig {
             limits:	
               cpu: %s
               memory: %s
-              ephemeral-storage: "80Gi"
             requests:
               cpu: %s
               memory: %s
-              ephemeral-storage: "40Gi"
 `
 
 	resources := fmt.Sprintf(tmpl,
