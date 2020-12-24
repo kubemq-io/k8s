@@ -155,9 +155,9 @@ spec:
             key:
               type: string
             statefulsetConfigData:
-              type: boolean
-            Standalone:
               type: string
+            standalone:
+              type: boolean
             log:
               properties:
                 file:

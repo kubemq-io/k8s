@@ -3,15 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="1751179a-a2e5-46e7-9519-8017170a815c" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/config/resources.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/config/resources.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/config.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/configmap.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/configmap.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/service_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/service_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/statefulset.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/statefulset.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/statefulset_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/statefulset_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster_types.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster_types.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/objects/manifests/kubemqclusters.core.k8s.kubemq.io.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/objects/manifests/kubemqclusters.core.k8s.kubemq.io.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -244,7 +235,14 @@
       <option name="project" value="LOCAL" />
       <updated>1608463034629</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="change to cluster spec">
+      <created>1608802801403</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1608802801403</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -265,7 +263,8 @@
     <MESSAGE value="fix create service account and update statefulset.go" />
     <MESSAGE value="add checksum for statefulset" />
     <MESSAGE value="revert to resources" />
-    <option name="LAST_COMMIT_MESSAGE" value="revert to resources" />
+    <MESSAGE value="change to cluster spec" />
+    <option name="LAST_COMMIT_MESSAGE" value="change to cluster spec" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
