@@ -11,9 +11,15 @@ type ResourceConfig struct {
 	// +optional
 	LimitsMemory string `json:"limitsMemory,omitempty"`
 	// +optional
+	LimitsEphemeralStorage string `json:"limitsEphemeralStorage,omitempty"`
+
+	// +optional
 	RequestsCpu string `json:"requestsCpu,omitempty"`
 	// +optional
 	RequestsMemory string `json:"requestsMemory,omitempty"`
+
+	// +optional
+	RequestsEphemeralStorage string `json:"requestsEphemeralStorage,omitempty"`
 }
 
 func (o *ResourceConfig) SetConfig(config *deployment.Config) *ResourceConfig {
@@ -21,16 +27,20 @@ func (o *ResourceConfig) SetConfig(config *deployment.Config) *ResourceConfig {
             limits:	
               cpu: %s
               memory: %s
+              ephemeral-storage: %s
             requests:
               cpu: %s
               memory: %s
+              ephemeral-storage: %s
 `
 
 	resources := fmt.Sprintf(tmpl,
 		o.LimitsCpu,
 		o.LimitsMemory,
+		o.LimitsEphemeralStorage,
 		o.RequestsCpu,
-		o.RequestsMemory)
+		o.RequestsMemory,
+		o.RequestsEphemeralStorage)
 	config.StatefulSet.SetResources(resources)
 	return o
 }

@@ -22,7 +22,11 @@ spec:
       targetPort: {{.TargetPort}}
       nodePort: {{.NodePort}}
   sessionAffinity: None
+{{ if not .Headless }}
   type: {{.Expose}}
+{{else}}
+  clusterIP: None
+{{end}}
   selector:
     app: {{.AppName}}
 `
@@ -37,6 +41,7 @@ type ServiceConfig struct {
 	TargetPort    int32
 	PortName      string
 	NodePort      int32
+	Headless      bool
 	service       *apiv1.Service
 }
 
@@ -71,6 +76,7 @@ func NewServiceConfig(id, name, namespace, appName string) *ServiceConfig {
 		PortName:      "",
 		NodePort:      0,
 		service:       nil,
+		Headless:      false,
 	}
 }
 
@@ -87,6 +93,7 @@ func DefaultServiceConfig(id, namespace, appName string) map[string]*ServiceConf
 		PortName:      "grpc-port",
 		NodePort:      0,
 		service:       nil,
+		Headless:      false,
 	}
 	list["rest"] = &ServiceConfig{
 		Id:            id,
@@ -99,6 +106,7 @@ func DefaultServiceConfig(id, namespace, appName string) map[string]*ServiceConf
 		PortName:      "rest-port",
 		NodePort:      0,
 		service:       nil,
+		Headless:      false,
 	}
 	list["api"] = &ServiceConfig{
 		Id:            id,
@@ -111,6 +119,7 @@ func DefaultServiceConfig(id, namespace, appName string) map[string]*ServiceConf
 		PortName:      "api-port",
 		NodePort:      0,
 		service:       nil,
+		Headless:      false,
 	}
 	list["internal"] = &ServiceConfig{
 		Id:            id,
@@ -122,12 +131,92 @@ func DefaultServiceConfig(id, namespace, appName string) map[string]*ServiceConf
 		TargetPort:    5228,
 		PortName:      "cluster-port",
 		NodePort:      0,
-
-		service: nil,
+		service:       nil,
 	}
 	return list
 }
-
+func DefaultServiceConfigWithHeadless(id, namespace, appName string) map[string]*ServiceConfig {
+	list := map[string]*ServiceConfig{}
+	list["grpc"] = &ServiceConfig{
+		Id:            id,
+		Name:          appName + "-grpc",
+		Namespace:     namespace,
+		AppName:       appName,
+		Expose:        "ClusterIP",
+		ContainerPort: 50000,
+		TargetPort:    50000,
+		PortName:      "grpc-port",
+		NodePort:      0,
+		service:       nil,
+		Headless:      false,
+	}
+	list["rest"] = &ServiceConfig{
+		Id:            id,
+		Name:          appName + "-rest",
+		Namespace:     namespace,
+		AppName:       appName,
+		Expose:        "ClusterIP",
+		ContainerPort: 9090,
+		TargetPort:    9090,
+		PortName:      "rest-port",
+		NodePort:      0,
+		service:       nil,
+		Headless:      false,
+	}
+	list["api"] = &ServiceConfig{
+		Id:            id,
+		Name:          appName + "-api",
+		Namespace:     namespace,
+		AppName:       appName,
+		Expose:        "ClusterIP",
+		ContainerPort: 8080,
+		TargetPort:    8080,
+		PortName:      "api-port",
+		NodePort:      0,
+		service:       nil,
+		Headless:      false,
+	}
+	list["grpc-headless"] = &ServiceConfig{
+		Id:            id,
+		Name:          appName + "-grpc-headless",
+		Namespace:     namespace,
+		AppName:       appName,
+		Expose:        "ClusterIP",
+		ContainerPort: 50000,
+		TargetPort:    50000,
+		PortName:      "grpc-port",
+		NodePort:      0,
+		service:       nil,
+		Headless:      true,
+	}
+	list["rest-headless"] = &ServiceConfig{
+		Id:            id,
+		Name:          appName + "-rest-headless",
+		Namespace:     namespace,
+		AppName:       appName,
+		Expose:        "ClusterIP",
+		ContainerPort: 9090,
+		TargetPort:    9090,
+		PortName:      "rest-port",
+		NodePort:      0,
+		service:       nil,
+		Headless:      true,
+	}
+	list["api-headless"] = &ServiceConfig{
+		Id:            id,
+		Name:          appName + "-api-headless",
+		Namespace:     namespace,
+		AppName:       appName,
+		Expose:        "ClusterIP",
+		ContainerPort: 8080,
+		TargetPort:    8080,
+		PortName:      "api-port",
+		NodePort:      0,
+		service:       nil,
+		Headless:      true,
+	}
+	return list
+}
 func (s *ServiceConfig) SetExpose(value string) *ServiceConfig {
 	s.Expose = value
 	return s
@@ -148,6 +237,11 @@ func (s *ServiceConfig) SetPortName(value string) *ServiceConfig {
 	s.PortName = value
 	return s
 }
+func (s *ServiceConfig) SetHeadless(value bool) *ServiceConfig {
+	s.Headless = value
+	return s
+}
+
 func (s *ServiceConfig) Spec() ([]byte, error) {
 	if s.service == nil {
 		t := template.NewTemplate(defaultKubeMQServiceTemplate, s)

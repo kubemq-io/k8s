@@ -27,16 +27,29 @@ func NewKubeMQManifestConfig(id, name, namespace string) *Config {
 	}
 }
 
-func DefaultKubeMQManifestConfig(id, name, namespace string) *Config {
-	return &Config{
-		Id:          id,
-		Name:        name,
-		Namespace:   namespace,
-		StatefulSet: DefaultStatefulSetConfig(id, name, namespace),
-		Services:    DefaultServiceConfig(id, namespace, name),
-		ConfigMaps:  DefaultConfigMap(id, name, namespace),
-		Secrets:     DefaultSecretConfig(id, name, namespace),
+func DefaultKubeMQManifestConfig(id, name, namespace string, standalone bool) *Config {
+	if standalone {
+		return &Config{
+			Id:          id,
+			Name:        name,
+			Namespace:   namespace,
+			StatefulSet: DefaultStatefulSetConfig(id, name, namespace),
+			Services:    DefaultServiceConfigWithHeadless(id, namespace, name),
+			ConfigMaps:  DefaultConfigMap(id, name, namespace),
+			Secrets:     DefaultSecretConfig(id, name, namespace),
+		}
+	} else {
+		return &Config{
+			Id:          id,
+			Name:        name,
+			Namespace:   namespace,
+			StatefulSet: DefaultStatefulSetConfig(id, name, namespace),
+			Services:    DefaultServiceConfig(id, namespace, name),
+			ConfigMaps:  DefaultConfigMap(id, name, namespace),
+			Secrets:     DefaultSecretConfig(id, name, namespace),
+		}
 	}
+
 }
 
 func (c *Config) SetSecretStringValues(secName, key, value string) {

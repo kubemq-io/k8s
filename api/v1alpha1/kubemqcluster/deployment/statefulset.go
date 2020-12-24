@@ -37,12 +37,14 @@ spec:
         fsGroup: 200
       containers:
         - env:
+{{ if not .Standalone }} 
             - name: CLUSTER_NAME
               value: {{.Name}}
-            - name: CLUSTER_ENABLE
-              value: 'true'
             - name: CLUSTER_ROUTES
               value: '{{.Name}}:5228'
+            - name: CLUSTER_ENABLE
+              value: 'true'
+{{end}}
             - name: CHECKSUM
               value: {{.ConfigCheckSum}}
           envFrom:
@@ -65,9 +67,11 @@ spec:
             - containerPort: 9090
               name: rest-port
               protocol: TCP
+{{ if not .Standalone }} 
             - containerPort: 5228
               name: cluster-port
               protocol: TCP
+{{end}}
 {{if .Volume  }}
           volumeMounts:
             - name: {{.Name}}-vol
@@ -86,39 +90,54 @@ spec:
             storage: {{.Volume}}
 {{end}}
 `
+var kubeMQStatefulSetWithTemplate = `
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{.Name}}
+  namespace: {{.Namespace}}
+  labels:
+    app: {{.Name}}
+{{ .StatefulSetConfigData }}
+`
 
 type StatefulSetConfig struct {
-	Id              string
-	Name            string
-	Namespace       string
-	ImagePullPolicy string
-	Replicas        int
-	Volume          string
-	StorageClass    string
-	statefulset     *appsv1.StatefulSet
-	Health          string
-	Resources       string
-	NodeSelectors   string
-	Image           string
-	ServiceAccount  string
-	ConfigCheckSum  string
+	Id                    string
+	Name                  string
+	Namespace             string
+	ImagePullPolicy       string
+	Replicas              int
+	Volume                string
+	StorageClass          string
+	statefulset           *appsv1.StatefulSet
+	Health                string
+	Resources             string
+	NodeSelectors         string
+	Image                 string
+	ServiceAccount        string
+	ConfigCheckSum        string
+	Standalone            bool
+	StatefulSetConfigData string
 }
 
 func DefaultStatefulSetConfig(id, name, namespace string) *StatefulSetConfig {
 	return &StatefulSetConfig{
-		Id:              id,
-		Name:            name,
-		Namespace:       namespace,
-		ImagePullPolicy: "Always",
-		Replicas:        3,
-		Volume:          "",
-		StorageClass:    "",
-		statefulset:     nil,
-		Health:          "",
-		Resources:       "",
-		NodeSelectors:   "",
-		Image:           "",
-		ServiceAccount:  "kubemq-cluster",
+		Id:                    id,
+		Name:                  name,
+		Namespace:             namespace,
+		ImagePullPolicy:       "Always",
+		Replicas:              3,
+		Volume:                "",
+		StorageClass:          "",
+		statefulset:           nil,
+		Health:                "",
+		Resources:             "",
+		NodeSelectors:         "",
+		Image:                 "",
+		ServiceAccount:        "kubemq-cluster",
+		ConfigCheckSum:        "",
+		Standalone:            false,
+		StatefulSetConfigData: "",
 	}
 }
 
@@ -175,14 +194,25 @@ func (sc *StatefulSetConfig) SetConfigChecksum(value string) *StatefulSetConfig 
 	sc.ConfigCheckSum = value
 	return sc
 }
+func (sc *StatefulSetConfig) SetStandalone(value bool) *StatefulSetConfig {
+	sc.Standalone = value
+	return sc
+}
+func (sc *StatefulSetConfig) SetStatefulsetConfigData(value string) *StatefulSetConfig {
+	sc.StatefulSetConfigData = value
+	return sc
+}
 
 func (sc *StatefulSetConfig) Spec() ([]byte, error) {
 	if sc.statefulset == nil {
-		t := template.NewTemplate(defaultKubeMQStatefulSetTemplate, sc)
+		tmpl := defaultKubeMQStatefulSetTemplate
+		if sc.StatefulSetConfigData != "" {
+			tmpl = kubeMQStatefulSetWithTemplate
+		}
+		t := template.NewTemplate(tmpl, sc)
 		data, err := t.Get()
 		return data, err
 	}
-
 	return yaml.Marshal(sc.statefulset)
 }
 func (sc *StatefulSetConfig) Set(value *appsv1.StatefulSet) *StatefulSetConfig {

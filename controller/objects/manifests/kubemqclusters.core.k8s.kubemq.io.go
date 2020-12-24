@@ -1,7 +1,7 @@
 package manifests
 
 const (
-	KubemqClustersCustomResourceDefinition =`
+	KubemqClustersCustomResourceDefinition = `
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
@@ -152,6 +152,12 @@ spec:
               type: object
             license:
               type: string
+            key:
+              type: string
+            statefulsetConfigData:
+              type: boolean
+            Standalone:
+              type: string
             log:
               properties:
                 file:
@@ -221,9 +227,13 @@ spec:
                   type: string
                 limitsMemory:
                   type: string
+                limitsEphemeralStorage:
+                  type: string
                 requestsCpu:
                   type: string
                 requestsMemory:
+                  type: string
+                requestsEphemeralStorage:
                   type: string
               type: object
             rest:

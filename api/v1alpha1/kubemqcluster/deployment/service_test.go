@@ -1,6 +1,8 @@
 package deployment
 
 import (
+	"fmt"
+	"github.com/ghodss/yaml"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -16,6 +18,7 @@ func TestServiceConfig_Spec(t *testing.T) {
 		ContainerPort int32
 		TargetPort    int32
 		PortName      string
+		Headless      bool
 	}
 	tests := []struct {
 		name    string
@@ -33,6 +36,22 @@ func TestServiceConfig_Spec(t *testing.T) {
 				ContainerPort: 5000,
 				TargetPort:    6000,
 				PortName:      "kube-rest",
+				Headless:      false,
+			},
+			wantErr: false,
+		},
+		{
+			name: "full",
+			fields: fields{
+				Id:            "some-id",
+				Name:          "kubemq",
+				Namespace:     "kubemq-namespace",
+				AppName:       "svc",
+				Type:          "NodePort",
+				ContainerPort: 5000,
+				TargetPort:    6000,
+				PortName:      "kube-rest",
+				Headless:      true,
 			},
 			wantErr: false,
 		},
@@ -48,20 +67,18 @@ func TestServiceConfig_Spec(t *testing.T) {
 				ContainerPort: tt.fields.ContainerPort,
 				TargetPort:    tt.fields.TargetPort,
 				PortName:      tt.fields.PortName,
+				NodePort:      0,
+				Headless:      tt.fields.Headless,
+				service:       nil,
 			}
 			svc, err := s.Get()
 			if tt.wantErr {
 				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
-				deploymentId := svc.Labels["deployment.id"]
-				assert.EqualValues(t, tt.fields.Id, deploymentId)
 				assert.EqualValues(t, tt.fields.Name, svc.Name)
-				assert.EqualValues(t, tt.fields.Namespace, svc.Namespace)
-				assert.EqualValues(t, tt.fields.Type, svc.Spec.Type)
-				assert.EqualValues(t, tt.fields.ContainerPort, svc.Spec.Ports[0].Port)
-				assert.EqualValues(t, tt.fields.TargetPort, svc.Spec.Ports[0].TargetPort.IntVal)
-				assert.EqualValues(t, tt.fields.PortName, svc.Spec.Ports[0].Name)
+				data, _ := yaml.Marshal(svc)
+				fmt.Println(string(data))
 			}
 		})
 	}

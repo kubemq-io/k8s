@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1751179a-a2e5-46e7-9519-8017170a815c" name="Default Changelist" comment="fix create service account and update statefulset.go">
+    <list default="true" id="1751179a-a2e5-46e7-9519-8017170a815c" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/config/resources.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/config/resources.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/config.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/configmap.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/configmap.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/service_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/service_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/statefulset.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/statefulset.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/statefulset_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/statefulset_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster_types.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster_types.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller/objects/manifests/kubemqclusters.core.k8s.kubemq.io.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/objects/manifests/kubemqclusters.core.k8s.kubemq.io.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,28 +50,28 @@
     <property name="go.import.settings.migrated" value="true" />
     <property name="go.sdk.automatically.set" value="true" />
     <property name="go.vendoring.notification.had.been.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/controller/objects" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="settings.editor.selected.configurable" value="watcher.settings" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Development\bitbucket\go\projects\kubemq\k8s" />
+      <recent name="D:\Development\bitbucket\go\projects\kubemq\k8s\controller\objects" />
+      <recent name="D:\Development\bitbucket\go\projects\kubemq\k8s\controller\objects\manifests" />
+      <recent name="D:\Development\bitbucket\go\projects\kubemq\k8s\manager" />
+      <recent name="D:\Development\bitbucket\go\projects\kubemq\k8s\pkg" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Development\bitbucket\go\projects\kubemq\k8s\controller\objects\manifests" />
       <recent name="D:\Development\bitbucket\go\projects\kubemq\k8s\controller" />
       <recent name="D:\Development\bitbucket\go\projects\kubemq\k8s\manager\config" />
       <recent name="D:\Development\bitbucket\go\projects\kubemq\k8s" />
     </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="D:\Development\bitbucket\go\projects\kubemq\k8s\controller\objects" />
-      <recent name="D:\Development\bitbucket\go\projects\kubemq\k8s\controller\objects\manifests" />
-      <recent name="D:\Development\bitbucket\go\projects\kubemq\k8s\manager" />
-      <recent name="D:\Development\bitbucket\go\projects\kubemq\k8s\pkg" />
-      <recent name="D:\Development\bitbucket\go\projects\kubemq\k8s\pkg\template" />
-    </key>
   </component>
-  <component name="RunManager" selected="Go Test.TestDeployment_ApplyDelete in github.com/kubemq-io/k8s/controller/objects (1)">
+  <component name="RunManager" selected="Go Test.TestServiceConfig_Spec/full#01 in github.com/kubemq-io/k8s/api/v1alpha1/kubemqcluster/deployment">
     <configuration name="TestDeployment_ApplyDelete in github.com/kubemq-io/k8s/controller/objects (1)" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="k8s" />
       <working_directory value="$PROJECT_DIR$/controller/objects" />
@@ -75,21 +83,57 @@
       <pattern value="^\QTestDeployment_ApplyDelete\E$" />
       <method v="2" />
     </configuration>
-    <configuration name="TestDeployment_ApplyDelete in github.com/kubemq-io/k8s/controller/objects" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+    <configuration name="TestServiceConfig_Spec/full#01 in github.com/kubemq-io/k8s/api/v1alpha1/kubemqcluster/deployment" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="k8s" />
-      <working_directory value="$PROJECT_DIR$/controller/objects" />
+      <working_directory value="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment" />
       <framework value="gotest" />
       <kind value="PACKAGE" />
-      <package value="github.com/kubemq-io/k8s/controller/objects" />
+      <package value="github.com/kubemq-io/k8s/api/v1alpha1/kubemqcluster/deployment" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$" />
-      <pattern value="^\QTestDeployment_ApplyDelete\E$" />
+      <pattern value="^\QTestServiceConfig_Spec\E$/^\Qfull#01\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestStatefulSetConfig_Spec/full in github.com/kubemq-io/k8s/api/v1alpha1/kubemqcluster/deployment" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="k8s" />
+      <working_directory value="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="github.com/kubemq-io/k8s/api/v1alpha1/kubemqcluster/deployment" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <pattern value="^\QTestStatefulSetConfig_Spec\E$/^\Qfull\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestStatefulSetConfig_Spec/stand_alone in github.com/kubemq-io/k8s/api/v1alpha1/kubemqcluster/deployment" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="k8s" />
+      <working_directory value="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="github.com/kubemq-io/k8s/api/v1alpha1/kubemqcluster/deployment" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <pattern value="^\QTestStatefulSetConfig_Spec\E$/^\Qstand_alone\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestStatefulSetConfig_Spec/with_template in github.com/kubemq-io/k8s/api/v1alpha1/kubemqcluster/deployment" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="k8s" />
+      <working_directory value="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="github.com/kubemq-io/k8s/api/v1alpha1/kubemqcluster/deployment" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <pattern value="^\QTestStatefulSetConfig_Spec\E$/^\Qwith_template\E$" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Test.TestServiceConfig_Spec/full#01 in github.com/kubemq-io/k8s/api/v1alpha1/kubemqcluster/deployment" />
+        <item itemvalue="Go Test.TestStatefulSetConfig_Spec/stand_alone in github.com/kubemq-io/k8s/api/v1alpha1/kubemqcluster/deployment" />
+        <item itemvalue="Go Test.TestStatefulSetConfig_Spec/with_template in github.com/kubemq-io/k8s/api/v1alpha1/kubemqcluster/deployment" />
+        <item itemvalue="Go Test.TestStatefulSetConfig_Spec/full in github.com/kubemq-io/k8s/api/v1alpha1/kubemqcluster/deployment" />
         <item itemvalue="Go Test.TestDeployment_ApplyDelete in github.com/kubemq-io/k8s/controller/objects (1)" />
-        <item itemvalue="Go Test.TestDeployment_ApplyDelete in github.com/kubemq-io/k8s/controller/objects" />
       </list>
     </recent_temporary>
   </component>
@@ -193,7 +237,14 @@
       <option name="project" value="LOCAL" />
       <updated>1605093368130</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="revert to resources">
+      <created>1608463034629</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1608463034629</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -213,87 +264,10 @@
     <MESSAGE value="fix delete service account error" />
     <MESSAGE value="fix create service account and update statefulset.go" />
     <MESSAGE value="add checksum for statefulset" />
-    <option name="LAST_COMMIT_MESSAGE" value="add checksum for statefulset" />
+    <MESSAGE value="revert to resources" />
+    <option name="LAST_COMMIT_MESSAGE" value="revert to resources" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="4704" y="289" key="CommitChangelistDialog2" timestamp="1605093367587">
-      <screen x="3840" y="1" width="2560" height="1400" />
-    </state>
-    <state x="1037" y="347" key="CommitChangelistDialog2/-3840.0.3072.1688/3840.0.3072.1688/0.0.3072.1688@0.0.3072.1688" timestamp="1600006059081" />
-    <state x="4877" y="347" key="CommitChangelistDialog2/-3840.0.3072.1688/3840.0.3072.1688/0.0.3072.1688@3840.0.3072.1688" timestamp="1600870619289" />
-    <state x="4704" y="289" key="CommitChangelistDialog2/0.-2160.1920.1055/3840.1.2560.1400/0.0.3072.1688@3840.1.2560.1400" timestamp="1605093367587" />
-    <state x="4877" y="347" key="CommitChangelistDialog2/0.0.3072.1688/3840.0.3072.1688/-3840.0.3072.1688@3840.0.3072.1688" timestamp="1600186682282" />
-    <state x="-2803" y="347" key="CommitChangelistDialog2/3840.0.3072.1688/0.0.3072.1688/-3840.0.3072.1688@-3840.0.3072.1688" timestamp="1600231792837" />
-    <state x="1037" y="347" key="CommitChangelistDialog2/3840.0.3072.1688/0.0.3072.1688/-3840.0.3072.1688@0.0.3072.1688" timestamp="1600347416068" />
-    <state x="1310" y="599" key="FileChooserDialogImpl" timestamp="1600348463774">
-      <screen x="0" y="0" width="3072" height="1688" />
-    </state>
-    <state x="1310" y="599" key="FileChooserDialogImpl/3840.0.3072.1688/0.0.3072.1688/-3840.0.3072.1688@0.0.3072.1688" timestamp="1600348463774" />
-    <state width="3031" height="602" key="GridCell.Tab.0.bottom" timestamp="1600408493565">
-      <screen x="0" y="0" width="3072" height="1688" />
-    </state>
-    <state width="3031" height="602" key="GridCell.Tab.0.bottom/3840.0.3072.1688/0.0.3072.1688/-3840.0.3072.1688@0.0.3072.1688" timestamp="1600408493565" />
-    <state width="3031" height="602" key="GridCell.Tab.0.center" timestamp="1600408493565">
-      <screen x="0" y="0" width="3072" height="1688" />
-    </state>
-    <state width="3031" height="602" key="GridCell.Tab.0.center/3840.0.3072.1688/0.0.3072.1688/-3840.0.3072.1688@0.0.3072.1688" timestamp="1600408493565" />
-    <state width="3031" height="602" key="GridCell.Tab.0.left" timestamp="1600408493565">
-      <screen x="0" y="0" width="3072" height="1688" />
-    </state>
-    <state width="3031" height="602" key="GridCell.Tab.0.left/3840.0.3072.1688/0.0.3072.1688/-3840.0.3072.1688@0.0.3072.1688" timestamp="1600408493565" />
-    <state width="3031" height="602" key="GridCell.Tab.0.right" timestamp="1600408493565">
-      <screen x="0" y="0" width="3072" height="1688" />
-    </state>
-    <state width="3031" height="602" key="GridCell.Tab.0.right/3840.0.3072.1688/0.0.3072.1688/-3840.0.3072.1688@0.0.3072.1688" timestamp="1600408493565" />
-    <state width="3031" height="602" key="GridCell.Tab.1.bottom" timestamp="1600408493565">
-      <screen x="0" y="0" width="3072" height="1688" />
-    </state>
-    <state width="3031" height="602" key="GridCell.Tab.1.bottom/3840.0.3072.1688/0.0.3072.1688/-3840.0.3072.1688@0.0.3072.1688" timestamp="1600408493565" />
-    <state width="3031" height="602" key="GridCell.Tab.1.center" timestamp="1600408493565">
-      <screen x="0" y="0" width="3072" height="1688" />
-    </state>
-    <state width="3031" height="602" key="GridCell.Tab.1.center/3840.0.3072.1688/0.0.3072.1688/-3840.0.3072.1688@0.0.3072.1688" timestamp="1600408493565" />
-    <state width="3031" height="602" key="GridCell.Tab.1.left" timestamp="1600408493565">
-      <screen x="0" y="0" width="3072" height="1688" />
-    </state>
-    <state width="3031" height="602" key="GridCell.Tab.1.left/3840.0.3072.1688/0.0.3072.1688/-3840.0.3072.1688@0.0.3072.1688" timestamp="1600408493565" />
-    <state width="3031" height="602" key="GridCell.Tab.1.right" timestamp="1600408493565">
-      <screen x="0" y="0" width="3072" height="1688" />
-    </state>
-    <state width="3031" height="602" key="GridCell.Tab.1.right/3840.0.3072.1688/0.0.3072.1688/-3840.0.3072.1688@0.0.3072.1688" timestamp="1600408493565" />
-    <state x="1060" y="489" key="SettingsEditor" timestamp="1600004697066">
-      <screen x="0" y="0" width="3072" height="1688" />
-    </state>
-    <state x="1060" y="489" key="SettingsEditor/-3840.0.3072.1688/3840.0.3072.1688/0.0.3072.1688@0.0.3072.1688" timestamp="1600004697066" />
-    <state x="4900" y="489" key="SettingsEditor/-3840.0.3072.1688/3840.0.3072.1688/0.0.3072.1688@3840.0.3072.1688" timestamp="1599981318567" />
-    <state width="548" height="445" key="SwitcherDM" timestamp="1600341830846">
-      <screen x="0" y="0" width="3072" height="1688" />
-    </state>
-    <state width="548" height="445" key="SwitcherDM/3840.0.3072.1688/0.0.3072.1688/-3840.0.3072.1688@0.0.3072.1688" timestamp="1600341830846" />
-    <state x="4781" y="480" key="Vcs.Push.Dialog.v2" timestamp="1605093369688">
-      <screen x="3840" y="1" width="2560" height="1400" />
-    </state>
-    <state x="1129" y="577" key="Vcs.Push.Dialog.v2/-3840.0.3072.1688/3840.0.3072.1688/0.0.3072.1688@0.0.3072.1688" timestamp="1600006061403" />
-    <state x="4969" y="577" key="Vcs.Push.Dialog.v2/-3840.0.3072.1688/3840.0.3072.1688/0.0.3072.1688@3840.0.3072.1688" timestamp="1600860910441" />
-    <state x="4781" y="480" key="Vcs.Push.Dialog.v2/0.-2160.1920.1055/3840.1.2560.1400/0.0.3072.1688@3840.1.2560.1400" timestamp="1605093369688" />
-    <state x="4969" y="577" key="Vcs.Push.Dialog.v2/0.0.3072.1688/3840.0.3072.1688/-3840.0.3072.1688@3840.0.3072.1688" timestamp="1600186684394" />
-    <state x="1129" y="577" key="Vcs.Push.Dialog.v2/3840.0.3072.1688/0.0.3072.1688/-3840.0.3072.1688@0.0.3072.1688" timestamp="1600342554656" />
-    <state x="4917" y="625" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1602157800009">
-      <screen x="3840" y="0" width="2560" height="1400" />
-    </state>
-    <state x="1292" y="754" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/-3840.0.3072.1688/3840.0.3072.1688/0.0.3072.1688@0.0.3072.1688" timestamp="1600675360894" />
-    <state x="4917" y="625" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.3072.1688/-3840.0.3072.1688/3840.0.2560.1400@3840.0.2560.1400" timestamp="1602157800009" />
-    <state x="1209" y="386" width="653" height="915" key="find.popup" timestamp="1600339547513">
-      <screen x="0" y="0" width="3072" height="1688" />
-    </state>
-    <state x="5049" y="386" width="653" height="915" key="find.popup/-3840.0.3072.1688/3840.0.3072.1688/0.0.3072.1688@3840.0.3072.1688" timestamp="1599981837419" />
-    <state x="1209" y="386" width="653" height="915" key="find.popup/3840.0.3072.1688/0.0.3072.1688/-3840.0.3072.1688@0.0.3072.1688" timestamp="1600339547513" />
-    <state x="5077" y="684" key="git4idea.ui.GitTagDialog" timestamp="1600860904449">
-      <screen x="3840" y="0" width="3072" height="1688" />
-    </state>
-    <state x="5077" y="684" key="git4idea.ui.GitTagDialog/-3840.0.3072.1688/3840.0.3072.1688/0.0.3072.1688@3840.0.3072.1688" timestamp="1600860904449" />
   </component>
 </project>

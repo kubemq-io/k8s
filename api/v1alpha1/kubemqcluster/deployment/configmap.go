@@ -18,7 +18,6 @@ metadata:
   labels:
     app: {{.Name}}
 data:
-  CLUSTER_ENABLE: "true"
 {{ range $key, $value := .Variables}}
   {{$key}}: "{{$value}}"
 {{end}}

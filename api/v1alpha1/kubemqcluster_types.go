@@ -37,6 +37,12 @@ type KubemqClusterSpec struct {
 	License string `json:"license,omitempty"`
 
 	// +optional
+	Key string `json:"key,omitempty"`
+
+	// +optional
+	Standalone bool `json:"standalone"`
+
+	// +optional
 	Volume *config.VolumeConfig `json:"volume,omitempty"`
 
 	// +optional
@@ -83,6 +89,9 @@ type KubemqClusterSpec struct {
 
 	// +optional
 	Queue *config.QueueConfig `json:"queue,omitempty"`
+
+	// +optional
+	StatefulSetConfigData string `json:"statefulsetConfigData,omitempty"`
 }
 
 // KubemqClusterStatus defines the observed state of KubemqCluster
@@ -132,7 +141,6 @@ type KubemqCluster struct {
 	Spec   KubemqClusterSpec   `json:"spec,omitempty"`
 	Status KubemqClusterStatus `json:"status,omitempty"`
 }
-
 
 // +kubebuilder:object:root=true
 
