@@ -30,6 +30,37 @@ spec:
   selector:
     app: {{.AppName}}
 `
+var defaultKubeMQServiceHeadlessTemplate = `
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Name}}
+  namespace: {{.Namespace}}
+  labels:
+    app: {{.AppName}}
+spec:
+  ports:
+    - name: grpc-port
+      port: 50000
+      protocol: TCP
+      targetPort: 50000
+    - name: api-port
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    - name: rest-port
+      port: 9090
+      protocol: TCP
+      targetPort: 9090
+    - name: cluster-port
+      port: 5228
+      protocol: TCP
+      targetPort: 5228
+  sessionAffinity: None
+  clusterIP: None
+  selector:
+    app: {{.AppName}}
+`
 
 type ServiceConfig struct {
 	Id            string
@@ -60,6 +91,8 @@ func ImportServiceConfig(spec []byte) (*ServiceConfig, error) {
 		ContainerPort: 0,
 		TargetPort:    0,
 		PortName:      "",
+		NodePort:      0,
+		Headless:      false,
 		service:       svc,
 	}, nil
 }
@@ -122,101 +155,15 @@ func DefaultServiceConfig(id, namespace, appName string) map[string]*ServiceConf
 		Headless:      false,
 	}
 	list["internal"] = &ServiceConfig{
-		Id:            id,
-		Name:          appName,
-		Namespace:     namespace,
-		AppName:       appName,
-		Expose:        "ClusterIP",
-		ContainerPort: 5228,
-		TargetPort:    5228,
-		PortName:      "cluster-port",
-		NodePort:      0,
-		service:       nil,
+		Id:        id,
+		Name:      appName,
+		Namespace: namespace,
+		AppName:   appName,
+		Headless:  true,
 	}
 	return list
 }
-func DefaultServiceConfigWithHeadless(id, namespace, appName string) map[string]*ServiceConfig {
-	list := map[string]*ServiceConfig{}
-	list["grpc"] = &ServiceConfig{
-		Id:            id,
-		Name:          appName + "-grpc",
-		Namespace:     namespace,
-		AppName:       appName,
-		Expose:        "ClusterIP",
-		ContainerPort: 50000,
-		TargetPort:    50000,
-		PortName:      "grpc-port",
-		NodePort:      0,
-		service:       nil,
-		Headless:      false,
-	}
-	list["rest"] = &ServiceConfig{
-		Id:            id,
-		Name:          appName + "-rest",
-		Namespace:     namespace,
-		AppName:       appName,
-		Expose:        "ClusterIP",
-		ContainerPort: 9090,
-		TargetPort:    9090,
-		PortName:      "rest-port",
-		NodePort:      0,
-		service:       nil,
-		Headless:      false,
-	}
-	list["api"] = &ServiceConfig{
-		Id:            id,
-		Name:          appName + "-api",
-		Namespace:     namespace,
-		AppName:       appName,
-		Expose:        "ClusterIP",
-		ContainerPort: 8080,
-		TargetPort:    8080,
-		PortName:      "api-port",
-		NodePort:      0,
-		service:       nil,
-		Headless:      false,
-	}
-	list["grpc-headless"] = &ServiceConfig{
-		Id:            id,
-		Name:          appName + "-grpc-headless",
-		Namespace:     namespace,
-		AppName:       appName,
-		Expose:        "ClusterIP",
-		ContainerPort: 50000,
-		TargetPort:    50000,
-		PortName:      "grpc-port",
-		NodePort:      0,
-		service:       nil,
-		Headless:      true,
-	}
-	list["rest-headless"] = &ServiceConfig{
-		Id:            id,
-		Name:          appName + "-rest-headless",
-		Namespace:     namespace,
-		AppName:       appName,
-		Expose:        "ClusterIP",
-		ContainerPort: 9090,
-		TargetPort:    9090,
-		PortName:      "rest-port",
-		NodePort:      0,
-		service:       nil,
-		Headless:      true,
-	}
-	list["api-headless"] = &ServiceConfig{
-		Id:            id,
-		Name:          appName + "-api-headless",
-		Namespace:     namespace,
-		AppName:       appName,
-		Expose:        "ClusterIP",
-		ContainerPort: 8080,
-		TargetPort:    8080,
-		PortName:      "api-port",
-		NodePort:      0,
-		service:       nil,
-		Headless:      true,
-	}
-	return list
-}
+
 func (s *ServiceConfig) SetExpose(value string) *ServiceConfig {
 	s.Expose = value
 	return s
@@ -243,8 +190,13 @@ func (s *ServiceConfig) SetHeadless(value bool) *ServiceConfig {
 }
 
 func (s *ServiceConfig) Spec() ([]byte, error) {
+
 	if s.service == nil {
-		t := template.NewTemplate(defaultKubeMQServiceTemplate, s)
+		tmpl := defaultKubeMQServiceTemplate
+		if s.Headless {
+			tmpl = defaultKubeMQServiceHeadlessTemplate
+		}
+		t := template.NewTemplate(tmpl, s)
 		return t.Get()
 	}
 	return yaml.Marshal(s.service)
