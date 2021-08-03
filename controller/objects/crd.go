@@ -7,7 +7,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/kubemq-io/k8s/controller/config"
 	"github.com/kubemq-io/k8s/pkg/subset"
-	ext "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	ext "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -20,7 +20,7 @@ type Crd struct {
 func NewCrd(cfg *config.Configuration) *Crd {
 	return &Crd{
 		Configuration: cfg,
-		Log:           cfg.Log.WithValues("api-version", "apiextensions.k8s.io/v1beta1", "kind", "CustomResourceDefinition"),
+		Log:           cfg.Log.WithValues("api-version", "apiextensions.k8s.io/v1", "kind", "CustomResourceDefinition"),
 	}
 }
 func (c *Crd) Apply(ctx context.Context, manifest string) error {

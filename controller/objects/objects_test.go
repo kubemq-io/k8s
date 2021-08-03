@@ -3,7 +3,7 @@ package objects
 import (
 	corev1alpha1 "github.com/kubemq-io/k8s/api/v1alpha1"
 	"github.com/kubemq-io/k8s/controller/config"
-	ext "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	ext "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"

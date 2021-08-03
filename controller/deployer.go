@@ -43,7 +43,7 @@ func (d *DeployerService) Apply(ctx context.Context, manifest string) error {
 			result = multierror.Append(result, objects.NewDashboard(d.cfg).Apply(ctx, spec))
 		case "core.k8s.kubemq.io/v1alpha1/KubemqConnector":
 			result = multierror.Append(result, objects.NewConnector(d.cfg).Apply(ctx, spec))
-		case "apiextensions.k8s.io/v1beta1/CustomResourceDefinition":
+		case "apiextensions.k8s.io/v1beta1/CustomResourceDefinition","apiextensions.k8s.io/v1/CustomResourceDefinition":
 			result = multierror.Append(result, objects.NewCrd(d.cfg).Apply(ctx, spec))
 		case "v1/ServiceAccount":
 			result = multierror.Append(result, objects.NewServiceAccount(d.cfg).Apply(ctx, spec))
@@ -91,7 +91,7 @@ func (d *DeployerService) Delete(ctx context.Context, manifest string) error {
 			result = multierror.Append(result, objects.NewDashboard(d.cfg).Delete(ctx, spec))
 		case "core.k8s.kubemq.io/v1alpha1/KubemqConnector":
 			result = multierror.Append(result, objects.NewConnector(d.cfg).Delete(ctx, spec))
-		case "apiextensions.k8s.io/v1beta1/CustomResourceDefinition":
+		case "apiextensions.k8s.io/v1beta1/CustomResourceDefinition","apiextensions.k8s.io/v1/CustomResourceDefinition":
 			result = multierror.Append(result, objects.NewCrd(d.cfg).Delete(ctx, spec))
 		case "v1/ServiceAccount":
 			result = multierror.Append(result, objects.NewServiceAccount(d.cfg).Delete(ctx, spec))
