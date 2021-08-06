@@ -7,6 +7,8 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/kubemq-io/k8s/controller/config"
 	"github.com/kubemq-io/k8s/controller/objects"
+	"github.com/kubemq-io/k8s/controller/objects/v1alpha1"
+	"github.com/kubemq-io/k8s/controller/objects/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"strings"
 )
@@ -38,12 +40,18 @@ func (d *DeployerService) Apply(ctx context.Context, manifest string) error {
 		key := fmt.Sprintf("%s/%s", typeMeta.APIVersion, typeMeta.Kind)
 		switch key {
 		case "core.k8s.kubemq.io/v1alpha1/KubemqCluster":
-			result = multierror.Append(result, objects.NewCluster(d.cfg).Apply(ctx, spec))
+			result = multierror.Append(result, v1alpha1.NewCluster(d.cfg).Apply(ctx, spec))
+		case "core.k8s.kubemq.io/v1beta1/KubemqCluster":
+			result = multierror.Append(result, v1beta1.NewCluster(d.cfg).Apply(ctx, spec))
 		case "core.k8s.kubemq.io/v1alpha1/KubemqDashboard":
-			result = multierror.Append(result, objects.NewDashboard(d.cfg).Apply(ctx, spec))
+			result = multierror.Append(result, v1alpha1.NewDashboard(d.cfg).Apply(ctx, spec))
+		case "core.k8s.kubemq.io/v1beta1/KubemqDashboard":
+			result = multierror.Append(result, v1beta1.NewDashboard(d.cfg).Apply(ctx, spec))
 		case "core.k8s.kubemq.io/v1alpha1/KubemqConnector":
-			result = multierror.Append(result, objects.NewConnector(d.cfg).Apply(ctx, spec))
-		case "apiextensions.k8s.io/v1beta1/CustomResourceDefinition","apiextensions.k8s.io/v1/CustomResourceDefinition":
+			result = multierror.Append(result, v1alpha1.NewConnector(d.cfg).Apply(ctx, spec))
+		case "core.k8s.kubemq.io/v1beta1/KubemqConnector":
+			result = multierror.Append(result, v1beta1.NewConnector(d.cfg).Apply(ctx, spec))
+		case "apiextensions.k8s.io/v1beta1/CustomResourceDefinition", "apiextensions.k8s.io/v1/CustomResourceDefinition":
 			result = multierror.Append(result, objects.NewCrd(d.cfg).Apply(ctx, spec))
 		case "v1/ServiceAccount":
 			result = multierror.Append(result, objects.NewServiceAccount(d.cfg).Apply(ctx, spec))
@@ -86,12 +94,18 @@ func (d *DeployerService) Delete(ctx context.Context, manifest string) error {
 		key := fmt.Sprintf("%s/%s", typeMeta.APIVersion, typeMeta.Kind)
 		switch key {
 		case "core.k8s.kubemq.io/v1alpha1/KubemqCluster":
-			result = multierror.Append(result, objects.NewCluster(d.cfg).Delete(ctx, spec))
+			result = multierror.Append(result, v1alpha1.NewCluster(d.cfg).Delete(ctx, spec))
+		case "core.k8s.kubemq.io/v1beta1/KubemqCluster":
+			result = multierror.Append(result, v1beta1.NewCluster(d.cfg).Delete(ctx, spec))
 		case "core.k8s.kubemq.io/v1alpha1/KubemqDashboard":
-			result = multierror.Append(result, objects.NewDashboard(d.cfg).Delete(ctx, spec))
+			result = multierror.Append(result, v1alpha1.NewDashboard(d.cfg).Delete(ctx, spec))
+		case "core.k8s.kubemq.io/v1beta1/KubemqDashboard":
+			result = multierror.Append(result, v1beta1.NewDashboard(d.cfg).Delete(ctx, spec))
 		case "core.k8s.kubemq.io/v1alpha1/KubemqConnector":
-			result = multierror.Append(result, objects.NewConnector(d.cfg).Delete(ctx, spec))
-		case "apiextensions.k8s.io/v1beta1/CustomResourceDefinition","apiextensions.k8s.io/v1/CustomResourceDefinition":
+			result = multierror.Append(result, v1alpha1.NewConnector(d.cfg).Delete(ctx, spec))
+		case "core.k8s.kubemq.io/v1beta1/KubemqConnector":
+			result = multierror.Append(result, v1beta1.NewConnector(d.cfg).Delete(ctx, spec))
+		case "apiextensions.k8s.io/v1beta1/CustomResourceDefinition", "apiextensions.k8s.io/v1/CustomResourceDefinition":
 			result = multierror.Append(result, objects.NewCrd(d.cfg).Delete(ctx, spec))
 		case "v1/ServiceAccount":
 			result = multierror.Append(result, objects.NewServiceAccount(d.cfg).Delete(ctx, spec))

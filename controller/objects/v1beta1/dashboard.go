@@ -1,11 +1,11 @@
-package objects
+package v1beta1
 
 import (
 	"context"
 	"fmt"
 	"github.com/ghodss/yaml"
 	"github.com/go-logr/logr"
-	"github.com/kubemq-io/k8s/api/v1alpha1"
+	"github.com/kubemq-io/k8s/api/v1beta1"
 	"github.com/kubemq-io/k8s/controller/config"
 	"github.com/kubemq-io/k8s/pkg/subset"
 	"k8s.io/apimachinery/pkg/types"
@@ -20,12 +20,12 @@ type Dashboard struct {
 func NewDashboard(cfg *config.Configuration) *Dashboard {
 	return &Dashboard{
 		Configuration: cfg,
-		Log:           cfg.Log.WithValues("api-version", "core.k8s.kubemq.io/v1alpha1", "kind", "KubemqDashboard"),
+		Log:           cfg.Log.WithValues("api-version", "core.k8s.kubemq.io/v1beta1", "kind", "KubemqDashboard"),
 	}
 }
 func (d *Dashboard) Apply(ctx context.Context, manifest string) error {
-	parsed := &v1alpha1.KubemqDashboard{}
-	found := &v1alpha1.KubemqDashboard{}
+	parsed := &v1beta1.KubemqDashboard{}
+	found := &v1beta1.KubemqDashboard{}
 	if err := yaml.Unmarshal([]byte(manifest), parsed); err != nil {
 		return fmt.Errorf("parsing manifest error, %w", err)
 	}
@@ -61,8 +61,8 @@ func (d *Dashboard) Apply(ctx context.Context, manifest string) error {
 	}
 }
 func (d *Dashboard) Delete(ctx context.Context, manifest string) error {
-	parsed := &v1alpha1.KubemqDashboard{}
-	found := &v1alpha1.KubemqDashboard{}
+	parsed := &v1beta1.KubemqDashboard{}
+	found := &v1beta1.KubemqDashboard{}
 	if err := yaml.Unmarshal([]byte(manifest), parsed); err != nil {
 		return fmt.Errorf("parsing manifest error, %w", err)
 	}

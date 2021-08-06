@@ -1,4 +1,4 @@
-package objects
+package v1alpha1
 
 import (
 	"context"

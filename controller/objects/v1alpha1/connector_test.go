@@ -1,8 +1,8 @@
-package objects
+package v1alpha1
 
 import (
 	"context"
-	tests2 "github.com/kubemq-io/k8s/controller/objects/tests"
+	tests2 "github.com/kubemq-io/k8s/controller/objects/v1alpha1/tests"
 	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
@@ -11,12 +11,10 @@ import (
 func TestConnector_Apply(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
-	c := &Connector{
-		Configuration: testConfig,
-	}
+	c := NewConnector(testConfig)
 	err := c.Apply(ctx, tests2.DefaultConnectorManifest)
 	require.NoError(t, err)
-	time.Sleep(10 * time.Second)
+	time.Sleep(2 * time.Second)
 	err = c.Delete(ctx, tests2.DefaultConnectorManifest)
 	require.NoError(t, err)
 }

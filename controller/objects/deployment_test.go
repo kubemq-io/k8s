@@ -53,12 +53,10 @@ spec:
 func TestDeployment_ApplyDelete(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
-	d := &Deployment{
-		Configuration: testConfig,
-	}
+	d := NewDeployment(testConfig)
 	err := d.Apply(ctx, deploymentTest)
 	require.NoError(t, err)
-	time.Sleep(5 * time.Second)
+	time.Sleep(2 * time.Second)
 	err = d.Delete(ctx, deploymentTest)
 	require.NoError(t, err)
 }

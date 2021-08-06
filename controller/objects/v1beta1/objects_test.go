@@ -1,7 +1,6 @@
-package objects
+package v1beta1
 
 import (
-	corev1alpha1 "github.com/kubemq-io/k8s/api/v1alpha1"
 	corev1beta1 "github.com/kubemq-io/k8s/api/v1beta1"
 	"github.com/kubemq-io/k8s/controller/config"
 	"go.uber.org/zap/zapcore"
@@ -49,7 +48,6 @@ func TestMain(m *testing.M) {
 }
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
-	utilruntime.Must(corev1alpha1.AddToScheme(scheme))
 	utilruntime.Must(corev1beta1.AddToScheme(scheme))
 	utilruntime.Must(ext.AddToScheme(scheme))
 }
