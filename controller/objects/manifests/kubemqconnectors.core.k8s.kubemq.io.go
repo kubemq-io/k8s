@@ -1,7 +1,7 @@
 package manifests
 
-const(
-	KubemqConnectorsCustomResourceDefinition =`
+const (
+	KubemqConnectorsCustomResourceDefinition = `
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:

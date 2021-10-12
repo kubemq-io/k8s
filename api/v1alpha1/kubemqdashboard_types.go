@@ -60,7 +60,6 @@ type KubemqDashboard struct {
 	Status KubemqDashboardStatus `json:"status,omitempty"`
 }
 
-
 // +kubebuilder:object:root=true
 
 type KubemqDashboardList struct {

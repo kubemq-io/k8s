@@ -5,7 +5,8 @@ import (
 	"github.com/kubemq-io/k8s/api/v1alpha1/kubemqcluster/deployment"
 	"github.com/kubemq-io/k8s/pkg/template"
 )
-const  resourceTmpl = `          resources:
+
+const resourceTmpl = `          resources:
             limits:	
 {{ if .LimitsCpu }}
               cpu: {{.LimitsCpu}}
@@ -27,6 +28,7 @@ const  resourceTmpl = `          resources:
               ephemeral-storage: {{.RequestsEphemeralStorage}}
 {{end}}
 `
+
 type ResourceConfig struct {
 	// +optional
 	LimitsCpu string `json:"limitsCpu,omitempty"`
@@ -47,7 +49,7 @@ type ResourceConfig struct {
 func (o *ResourceConfig) SetConfig(config *deployment.Config) *ResourceConfig {
 	t := template.NewTemplate(resourceTmpl, o)
 	data, err := t.Get()
-	if err!= nil {
+	if err != nil {
 		fmt.Println(err.Error())
 		return o
 	}

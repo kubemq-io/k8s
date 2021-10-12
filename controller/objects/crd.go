@@ -8,6 +8,7 @@ import (
 	"github.com/kubemq-io/k8s/controller/config"
 	"github.com/kubemq-io/k8s/pkg/subset"
 	ext "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	extbeta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -58,6 +59,52 @@ func (c *Crd) Apply(ctx context.Context, manifest string) error {
 			return nil
 		}
 	}
+}
+
+func (c *Crd) Get(ctx context.Context, name string) (*ext.CustomResourceDefinition, error) {
+
+	found := &ext.CustomResourceDefinition{}
+
+	err := c.Reader.Get(ctx, types.NamespacedName{Name: name}, found)
+	if err != nil {
+		return nil, err
+	}
+	return found, nil
+
+}
+func (c *Crd) GetBeta1(ctx context.Context, name string) (*extbeta1.CustomResourceDefinition, error) {
+
+	found := &extbeta1.CustomResourceDefinition{}
+
+	err := c.Reader.Get(ctx, types.NamespacedName{Name: name}, found)
+	if err != nil {
+		return nil, err
+	}
+	return found, nil
+
+}
+func (c *Crd) GetV1Versions(ctx context.Context, name string) (map[string]string, error) {
+	names:=map[string]string{}
+	found,err:=c.Get(ctx,name)
+	if err!=nil {
+		return map[string]string{},nil
+	}
+
+	for _, version := range found.Spec.Versions {
+		names[version.Name]=version.Name
+	}
+	return names,nil
+}
+func (c *Crd) GetBeta1Versions(ctx context.Context, name string) (map[string]string, error) {
+	names:=map[string]string{}
+	found,err:=c.GetBeta1(ctx,name)
+	if err!=nil {
+		return map[string]string{},nil
+	}
+	for _, version := range found.Spec.Versions {
+		names[version.Name]=version.Name
+	}
+	return names,nil
 }
 func (c *Crd) Delete(ctx context.Context, manifest string) error {
 	parsed := &ext.CustomResourceDefinition{}
