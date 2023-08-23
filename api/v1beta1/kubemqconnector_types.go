@@ -28,35 +28,35 @@ type KubemqConnectorSpec struct {
 	// +optional
 	// +kubebuilder:validation:Minimum=0
 
-	Replicas *int32 `json:"replicas,omitempty"`
+	Replicas *int32 `json:"replicas,omitempty" yaml:"replicas,omitempty"`
 
-	Type string `json:"type"`
-
-	// +optional
-	Image string `json:"image,omitempty"`
-
-	Config string `json:"config"`
+	Type string `json:"type" yaml:"type"`
 
 	// +optional
+	Image string `json:"image,omitempty" yaml:"image,omitempty"`
 
-	NodePort int32 `json:"node_port,omitempty"`
+	Config string `json:"config" yaml:"config"`
 
 	// +optional
 
-	ServiceType string `json:"service_type"`
+	NodePort int32 `json:"node_port,omitempty" yaml:"nodePort"`
+
+	// +optional
+
+	ServiceType string `json:"service_type" yaml:"serviceType"`
 }
 
 // KubemqConnectorStatus defines the observed state of KubemqConnector
 type KubemqConnectorStatus struct {
-	Replicas int32 `json:"replicas"`
+	Replicas int32 `json:"replicas" yaml:"replicas"`
 
-	Type string `json:"type"`
+	Type string `json:"type" yaml:"type"`
 
-	Image string `json:"image"`
+	Image string `json:"image" yaml:"image"`
 
-	Api string `json:"api"`
+	Api string `json:"api" yaml:"api"`
 
-	Status string `json:"status"`
+	Status string `json:"status" yaml:"status"`
 }
 
 // +kubebuilder:object:root=true
@@ -71,20 +71,20 @@ type KubemqConnectorStatus struct {
 
 // KubemqConnector is the Schema for the kubemqconnectors API
 type KubemqConnector struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+	metav1.TypeMeta   `json:",inline" yaml:"inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty" yaml:"metadata,omitempty"`
 
-	Spec   KubemqConnectorSpec   `json:"spec,omitempty"`
-	Status KubemqConnectorStatus `json:"status,omitempty"`
+	Spec   KubemqConnectorSpec   `json:"spec,omitempty" yaml:"spec,omitempty"`
+	Status KubemqConnectorStatus `json:"status,omitempty" yaml:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
 
 // KubemqConnectorList contains a list of KubemqConnector
 type KubemqConnectorList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []KubemqConnector `json:"items"`
+	metav1.TypeMeta `json:",inline" yaml:"metav1.inline"`
+	metav1.ListMeta `json:"metadata,omitempty" yaml:"metadata,omitempty"`
+	Items           []KubemqConnector `json:"items" yaml:"items"`
 }
 
 func init() {

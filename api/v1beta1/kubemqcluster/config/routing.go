@@ -7,13 +7,13 @@ import (
 
 type RoutingConfig struct {
 	// +optional
-	Data string `json:"data,omitempty"`
+	Data string `json:"data,omitempty" yaml:"data,omitempty"`
 
 	// +optional
-	Url string `json:"url,omitempty"`
+	Url string `json:"url,omitempty" yaml:"url,omitempty"`
 
 	// +optional
-	AutoReload int32 `json:"autoReload,omitempty"`
+	AutoReload int32 `json:"autoReload,omitempty" yaml:"autoReload,omitempty"`
 }
 
 func (c *RoutingConfig) SetConfig(config *deployment.Config) *RoutingConfig {

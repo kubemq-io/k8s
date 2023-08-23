@@ -9,35 +9,35 @@ type QueueConfig struct {
 
 	// +optional
 	// +kubebuilder:validation:Minimum=0
-	MaxReceiveMessagesRequest *int32 `json:"maxReceiveMessagesRequest,omitempty"`
+	MaxReceiveMessagesRequest *int32 `json:"maxReceiveMessagesRequest,omitempty" yaml:"maxReceiveMessagesRequest,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Minimum=0
-	MaxWaitTimeoutSeconds *int32 `json:"maxWaitTimeoutSeconds,omitempty"`
+	MaxWaitTimeoutSeconds *int32 `json:"maxWaitTimeoutSeconds,omitempty" yaml:"maxWaitTimeoutSeconds,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Minimum=0
-	MaxExpirationSeconds *int32 `json:"maxExpirationSeconds,omitempty"`
+	MaxExpirationSeconds *int32 `json:"maxExpirationSeconds,omitempty" yaml:"maxExpirationSeconds,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Minimum=0
-	MaxDelaySeconds *int32 `json:"maxDelaySeconds,omitempty"`
+	MaxDelaySeconds *int32 `json:"maxDelaySeconds,omitempty" yaml:"maxDelaySeconds,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Minimum=0
-	MaxReQueues *int32 `json:"maxReQueues,omitempty"`
+	MaxReQueues *int32 `json:"maxReQueues,omitempty" yaml:"maxReQueues,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Minimum=0
-	MaxVisibilitySeconds *int32 `json:"maxVisibilitySeconds,omitempty"`
+	MaxVisibilitySeconds *int32 `json:"maxVisibilitySeconds,omitempty" yaml:"maxVisibilitySeconds,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Minimum=0
-	DefaultVisibilitySeconds *int32 `json:"defaultVisibilitySeconds,omitempty"`
+	DefaultVisibilitySeconds *int32 `json:"defaultVisibilitySeconds,omitempty" yaml:"defaultVisibilitySeconds,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Minimum=0
-	DefaultWaitTimeoutSeconds *int32 `json:"defaultWaitTimeoutSeconds,omitempty"`
+	DefaultWaitTimeoutSeconds *int32 `json:"defaultWaitTimeoutSeconds,omitempty" yaml:"defaultWaitTimeoutSeconds,omitempty"`
 }
 
 func (c *QueueConfig) DeepCopy() *QueueConfig {

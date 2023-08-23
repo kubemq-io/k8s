@@ -4,17 +4,17 @@ import "github.com/kubemq-io/k8s/api/v1beta1/kubemqcluster/deployment"
 
 type ApiConfig struct {
 	// +optional
-	Disabled bool `json:"disabled,omitempty"`
+	Disabled bool `json:"disabled,omitempty" yaml:"disabled,omitempty"`
 
 	// +optional
-	Port int32 `json:"port,omitempty"`
+	Port int32 `json:"port,omitempty" yaml:"port,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Pattern=(ClusterIP|NodePort|LoadBalancer)
-	Expose string `json:"expose,omitempty"`
+	Expose string `json:"expose,omitempty" yaml:"expose,omitempty"`
 
 	// +optional
-	NodePort int32 `json:"nodePort,omitempty"`
+	NodePort int32 `json:"nodePort,omitempty" yaml:"nodePort,omitempty"`
 }
 
 func (c *ApiConfig) getDefaults() *ApiConfig {

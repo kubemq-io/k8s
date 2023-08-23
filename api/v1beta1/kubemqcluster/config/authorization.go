@@ -7,13 +7,13 @@ import (
 
 type AuthorizationConfig struct {
 	// +optional
-	Policy string `json:"policy,omitempty"`
+	Policy string `json:"policy,omitempty" yaml:"policy,omitempty"`
 
 	// +optional
-	Url string `json:"url,omitempty"`
+	Url string `json:"url,omitempty" yaml:"url,omitempty"`
 
 	// +optional
-	AutoReload int32 `json:"autoReload,omitempty"`
+	AutoReload int32 `json:"autoReload,omitempty" yaml:"autoReload,omitempty"`
 }
 
 func (c *AuthorizationConfig) SetConfig(config *deployment.Config) *AuthorizationConfig {

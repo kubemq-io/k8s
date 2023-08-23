@@ -4,11 +4,26 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1751179a-a2e5-46e7-9519-8017170a815c" name="Default Changelist" comment="change to cluster spec">
-      <change afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/config_data.go" afterDir="false" />
+    <list default="true" id="1751179a-a2e5-46e7-9519-8017170a815c" name="Default Changelist" comment="update oidc">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Taskfile.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Taskfile.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/api.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/api.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/authentication.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/authentication.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/authorization.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/authorization.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/config_data.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/config_data.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/grpc.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/grpc.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/health.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/health.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/image.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/image.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/log.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/log.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/node_selectors.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/node_selectors.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/notification.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/notification.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/queue.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/queue.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/resources.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/resources.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/rest.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/rest.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/routing.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/routing.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/store.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/store.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/tls.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/tls.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/volume.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/volume.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster_types.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster_types.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,6 +47,9 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GithubDefaultAccount">
+    <option name="defaultAccountId" value="c4da468c-fa25-42e2-9d5b-cd617732b7e6" />
+  </component>
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="true" />
   </component>
@@ -41,28 +59,33 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 8
+}]]></component>
   <component name="ProjectId" id="1hRjn5vVtbDtXmMQsY9toNsCs90" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.vendoring.notification.had.been.shown&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.watchers.conflict.with.on.save.actions.check.performed&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/Development/bitbucket/go/projects/kubemq/libs/k8s&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "RunOnceActivity.go.vendoring.notification.had.been.shown": "true",
+    "RunOnceActivity.go.watchers.conflict.with.on.save.actions.check.performed": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "master",
+    "go.import.settings.migrated": "true",
+    "last_opened_file_path": "D:/Development/bitbucket/go/projects/kubemq/libs/k8s",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\Development\bitbucket\go\projects\kubemq\k8s\api\v1alpha1\kubemqcluster\deployment" />
@@ -291,7 +314,8 @@
     <MESSAGE value="add checksum for statefulset" />
     <MESSAGE value="revert to resources" />
     <MESSAGE value="change to cluster spec" />
-    <option name="LAST_COMMIT_MESSAGE" value="change to cluster spec" />
+    <MESSAGE value="update oidc" />
+    <option name="LAST_COMMIT_MESSAGE" value="update oidc" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

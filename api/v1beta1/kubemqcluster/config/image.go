@@ -9,10 +9,10 @@ const fallbackImage = "docker.io/kubemq/kubemq:latest"
 
 type ImageConfig struct {
 	// +optional
-	Image string `json:"image,omitempty"`
+	Image string `json:"image,omitempty" yaml:"image,omitempty"`
 	// +optional
 	// +kubebuilder:validation:Pattern=(IfNotPresent|Always|Never)
-	PullPolicy string `json:"pullPolicy,omitempty"`
+	PullPolicy string `json:"pullPolicy,omitempty" yaml:"pullPolicy,omitempty"`
 }
 
 func (c *ImageConfig) GetImage() string {

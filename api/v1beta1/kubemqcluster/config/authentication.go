@@ -4,10 +4,10 @@ import "github.com/kubemq-io/k8s/api/v1beta1/kubemqcluster/deployment"
 
 type AuthenticationConfig struct {
 	// +optional
-	Key string `json:"key,omitempty"`
+	Key string `json:"key,omitempty" yaml:"key,omitempty"`
 
 	// +optional
-	Type string `json:"type,omitempty"`
+	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 }
 
 func (c *AuthenticationConfig) SetConfig(config *deployment.Config) *AuthenticationConfig {

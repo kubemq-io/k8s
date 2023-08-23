@@ -7,23 +7,23 @@ import (
 
 type RestConfig struct {
 	// +optional
-	Disabled bool `json:"disabled,omitempty"`
+	Disabled bool `json:"disabled,omitempty" yaml:"disabled,omitempty"`
 
 	// +optional
-	Port int32 `json:"port,omitempty"`
+	Port int32 `json:"port,omitempty" yaml:"port,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Pattern=(ClusterIP|NodePort|LoadBalancer)
-	Expose string `json:"expose,omitempty"`
+	Expose string `json:"expose,omitempty" yaml:"expose,omitempty"`
 
 	// +optional
-	BufferSize int32 `json:"bufferSize,omitempty"`
+	BufferSize int32 `json:"bufferSize,omitempty" yaml:"bufferSize,omitempty"`
 
 	// +optional
-	BodyLimit int32 `json:"bodyLimit,omitempty"`
+	BodyLimit int32 `json:"bodyLimit,omitempty" yaml:"bodyLimit,omitempty"`
 
 	// +optional
-	NodePort int32 `json:"nodePort,omitempty"`
+	NodePort int32 `json:"nodePort,omitempty" yaml:"nodePort,omitempty"`
 }
 
 func (c *RestConfig) getDefaults() *RestConfig {

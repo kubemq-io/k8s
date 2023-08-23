@@ -4,13 +4,13 @@ import "github.com/kubemq-io/k8s/api/v1beta1/kubemqcluster/deployment"
 
 type NotificationConfig struct {
 	// +optional
-	Enabled bool `json:"enabled,omitempty"`
+	Enabled bool `json:"enabled,omitempty" yaml:"enabled,omitempty"`
 
 	// +optional
-	Prefix string `json:"prefix,omitempty"`
+	Prefix string `json:"prefix,omitempty" yaml:"prefix,omitempty"`
 
 	// +optional
-	Log bool `json:"log,omitempty"`
+	Log bool `json:"log,omitempty" yaml:"log,omitempty"`
 }
 
 func (c *NotificationConfig) SetConfig(config *deployment.Config) *NotificationConfig {

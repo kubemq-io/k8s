@@ -4,13 +4,13 @@ import "github.com/kubemq-io/k8s/api/v1beta1/kubemqcluster/deployment"
 
 type TlsConfig struct {
 	// +optional
-	Cert string `json:"cert,omitempty"`
+	Cert string `json:"cert,omitempty" yaml:"cert,omitempty"`
 
 	// +optional
-	Key string `json:"key,omitempty"`
+	Key string `json:"key,omitempty" yaml:"key,omitempty"`
 
 	// +optional
-	Ca string `json:"ca,omitempty"`
+	Ca string `json:"ca,omitempty" yaml:"ca"`
 }
 
 func (o *TlsConfig) SetConfig(config *deployment.Config) *TlsConfig {

@@ -7,22 +7,22 @@ import (
 
 type HealthConfig struct {
 	// +optional
-	Enabled bool `json:"enabled,omitempty"`
+	Enabled bool `json:"enabled,omitempty" yaml:"enabled,omitempty"`
 
 	// +optional
-	InitialDelaySeconds int32 `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds int32 `json:"initialDelaySeconds,omitempty" yaml:"initialDelaySeconds,omitempty"`
 
 	// +optional
-	PeriodSeconds int32 `json:"periodSeconds,omitempty"`
+	PeriodSeconds int32 `json:"periodSeconds,omitempty" yaml:"periodSeconds,omitempty"`
 
 	// +optional
-	TimeoutSeconds int32 `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds int32 `json:"timeoutSeconds,omitempty" yaml:"timeoutSeconds,omitempty"`
 
 	// +optional
-	SuccessThreshold int32 `json:"successThreshold,omitempty"`
+	SuccessThreshold int32 `json:"successThreshold,omitempty" yaml:"successThreshold,omitempty"`
 
 	// +optional
-	FailureThreshold int32 `json:"failureThreshold,omitempty"`
+	FailureThreshold int32 `json:"failureThreshold,omitempty" yaml:"failureThreshold,omitempty"`
 }
 
 func (c *HealthConfig) getDefaults() *HealthConfig {

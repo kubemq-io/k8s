@@ -4,7 +4,7 @@ version: '3'
 
 vars:
   BINARY_NAME: k8s
-  VERSION: v1.6.0
+  VERSION: v1.7.0
 
 tasks:
   check_update:
@@ -31,6 +31,5 @@ tasks:
       - git push origin master --tags
   release:
     cmds:
-      - task: lint
       - task: commit-modifed
       - task: tag

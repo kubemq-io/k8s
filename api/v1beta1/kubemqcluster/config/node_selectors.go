@@ -8,7 +8,7 @@ import (
 
 type NodeSelectorConfig struct {
 	// +optional
-	Keys map[string]string `json:"keys,omitempty"`
+	Keys map[string]string `json:"keys,omitempty" yaml:"keys,omitempty"`
 }
 
 func (c *NodeSelectorConfig) SetConfig(config *deployment.Config) *NodeSelectorConfig {

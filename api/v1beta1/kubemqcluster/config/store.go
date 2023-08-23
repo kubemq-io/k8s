@@ -7,34 +7,34 @@ import (
 
 type StoreConfig struct {
 	// +optional
-	Clean bool `json:"clean,omitempty"`
+	Clean bool `json:"clean,omitempty" yaml:"clean,omitempty"`
 
 	// +optional
-	Path string `json:"path,omitempty"`
-
-	// +optional
-	// +kubebuilder:validation:Minimum=0
-	MaxChannels *int32 `json:"maxChannels,omitempty"`
+	Path string `json:"path,omitempty" yaml:"path,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Minimum=0
-	MaxSubscribers *int32 `json:"maxSubscribers,omitempty"`
+	MaxChannels *int32 `json:"maxChannels,omitempty" yaml:"maxChannels,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Minimum=0
-	MaxMessages *int32 `json:"maxMessages,omitempty"`
+	MaxSubscribers *int32 `json:"maxSubscribers,omitempty" yaml:"maxSubscribers,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Minimum=0
-	MaxChannelSize *int32 `json:"maxChannelSize,omitempty"`
+	MaxMessages *int32 `json:"maxMessages,omitempty" yaml:"maxMessages,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Minimum=0
-	MessagesRetentionMinutes *int32 `json:"messagesRetentionMinutes,omitempty"`
+	MaxChannelSize *int32 `json:"maxChannelSize,omitempty" yaml:"maxChannelSize,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Minimum=0
-	PurgeInactiveMinutes *int32 `json:"purgeInactiveMinutes,omitempty"`
+	MessagesRetentionMinutes *int32 `json:"messagesRetentionMinutes,omitempty" yaml:"messagesRetentionMinutes,omitempty"`
+
+	// +optional
+	// +kubebuilder:validation:Minimum=0
+	PurgeInactiveMinutes *int32 `json:"purgeInactiveMinutes,omitempty" yaml:"purgeInactiveMinutes,omitempty"`
 }
 
 func (c *StoreConfig) DeepCopy() *StoreConfig {

@@ -31,19 +31,19 @@ const resourceTmpl = `          resources:
 
 type ResourceConfig struct {
 	// +optional
-	LimitsCpu string `json:"limitsCpu,omitempty"`
+	LimitsCpu string `json:"limitsCpu,omitempty" yaml:"limitsCpu,omitempty"`
 	// +optional
-	LimitsMemory string `json:"limitsMemory,omitempty"`
+	LimitsMemory string `json:"limitsMemory,omitempty" yaml:"limitsMemory"`
 	// +optional
-	LimitsEphemeralStorage string `json:"limitsEphemeralStorage,omitempty"`
+	LimitsEphemeralStorage string `json:"limitsEphemeralStorage,omitempty" yaml:"limitsEphemeralStorage"`
 
 	// +optional
-	RequestsCpu string `json:"requestsCpu,omitempty"`
+	RequestsCpu string `json:"requestsCpu,omitempty" yaml:"requestsCpu,omitempty"`
 	// +optional
-	RequestsMemory string `json:"requestsMemory,omitempty"`
+	RequestsMemory string `json:"requestsMemory,omitempty" yaml:"requestsMemory,omitempty"`
 
 	// +optional
-	RequestsEphemeralStorage string `json:"requestsEphemeralStorage,omitempty"`
+	RequestsEphemeralStorage string `json:"requestsEphemeralStorage,omitempty" yaml:"requestsEphemeralStorage,omitempty""`
 }
 
 func (o *ResourceConfig) SetConfig(config *deployment.Config) *ResourceConfig {

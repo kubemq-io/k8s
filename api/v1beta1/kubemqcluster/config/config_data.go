@@ -7,12 +7,12 @@ import (
 )
 
 type OIDCConfig struct {
-	Issuer                     string `json:"issuer"`
-	ClientID                   string `json:"clientID"`
-	SkipClientIDCheck          bool   `json:"skipClientIDCheck"`
-	SkipExpiryCheck            bool   `json:"skipExpiryCheck"`
-	SkipIssuerCheck            bool   `json:"skipIssuerCheck"`
-	InsecureSkipSignatureCheck bool   `json:"insecureSkipSignatureCheck"`
+	Issuer                     string `json:"issuer" yaml:"issuer"`
+	ClientID                   string `json:"clientID" yaml:"clientID"`
+	SkipClientIDCheck          bool   `json:"skipClientIDCheck" yaml:"skipClientIDCheck"`
+	SkipExpiryCheck            bool   `json:"skipExpiryCheck" yaml:"skipExpiryCheck"`
+	SkipIssuerCheck            bool   `json:"skipIssuerCheck" yaml:"skipIssuerCheck"`
+	InsecureSkipSignatureCheck bool   `json:"insecureSkipSignatureCheck" yaml:"insecureSkipSignatureCheck"`
 }
 
 func (o *OIDCConfig) String() string {
@@ -30,7 +30,7 @@ func (o *OIDCConfig) Validate() error {
 }
 
 type AdditionalDataConfiguration struct {
-	Oidc *OIDCConfig `json:"oidc,omitempty"`
+	Oidc *OIDCConfig `json:"oidc,omitempty" yaml:"oidc"`
 }
 
 func NewAdditionalDataConfiguration() *AdditionalDataConfiguration {

@@ -28,95 +28,95 @@ import (
 type KubemqClusterSpec struct {
 	// +optional
 	// +kubebuilder:validation:Minimum=0
-	Replicas *int32 `json:"replicas,omitempty"`
+	Replicas *int32 `json:"replicas,omitempty" yaml:"replicas,omitempty"`
 
 	// +optional
-	ConfigData string `json:"configData,omitempty"`
+	ConfigData string `json:"configData,omitempty" yaml:"configData,omitempty"`
 
 	// +optional
-	License string `json:"license,omitempty"`
+	License string `json:"license,omitempty" yaml:"license,omitempty"`
 
 	// +optional
-	Key string `json:"key,omitempty"`
+	Key string `json:"key,omitempty" yaml:"key,omitempty"`
 
 	// +optional
-	Standalone bool `json:"standalone"`
+	Standalone bool `json:"standalone,omitempty" yaml:"standalone,omitempty"`
 
 	// +optional
-	Volume *config.VolumeConfig `json:"volume,omitempty"`
+	Volume *config.VolumeConfig `json:"volume,omitempty" yaml:"volume,omitempty"`
 
 	// +optional
-	Image *config.ImageConfig `json:"image,omitempty"`
+	Image *config.ImageConfig `json:"image,omitempty" yaml:"image,omitempty"`
 
 	// +optional
-	Api *config.ApiConfig `json:"api,omitempty"`
+	Api *config.ApiConfig `json:"api,omitempty" yaml:"api,omitempty"`
 
 	// +optional
-	Rest *config.RestConfig `json:"rest,omitempty"`
+	Rest *config.RestConfig `json:"rest,omitempty" yaml:"rest,omitempty"`
 
 	// +optional
-	Grpc *config.GrpcConfig `json:"grpc,omitempty"`
+	Grpc *config.GrpcConfig `json:"grpc,omitempty" yaml:"grpc,omitempty"`
 
 	// +optional
-	Tls *config.TlsConfig `json:"tls,omitempty"`
+	Tls *config.TlsConfig `json:"tls,omitempty" yaml:"tls,omitempty"`
 
 	// +optional
-	Resources *config.ResourceConfig `json:"resources,omitempty"`
+	Resources *config.ResourceConfig `json:"resources,omitempty" yaml:"resources,omitempty"`
 
 	// +optional
-	NodeSelectors *config.NodeSelectorConfig `json:"nodeSelectors,omitempty"`
+	NodeSelectors *config.NodeSelectorConfig `json:"nodeSelectors,omitempty" yaml:"nodeSelectors,omitempty"`
 
 	// +optional
-	Authentication *config.AuthenticationConfig `json:"authentication,omitempty"`
+	Authentication *config.AuthenticationConfig `json:"authentication,omitempty" yaml:"authentication,omitempty"`
 
 	// +optional
-	Authorization *config.AuthorizationConfig `json:"authorization,omitempty"`
+	Authorization *config.AuthorizationConfig `json:"authorization,omitempty" yaml:"authorization,omitempty"`
 
 	// +optional
-	Health *config.HealthConfig `json:"health,omitempty"`
+	Health *config.HealthConfig `json:"health,omitempty" yaml:"health,omitempty"`
 
 	// +optional
-	Routing *config.RoutingConfig `json:"routing,omitempty"`
+	Routing *config.RoutingConfig `json:"routing,omitempty" yaml:"routing,omitempty"`
 
 	// +optional
-	Log *config.LogConfig `json:"log,omitempty"`
+	Log *config.LogConfig `json:"log,omitempty" yaml:"log,omitempty"`
 
 	// +optional
-	Notification *config.NotificationConfig `json:"notification,omitempty"`
+	Notification *config.NotificationConfig `json:"notification,omitempty" yaml:"notification,omitempty"`
 
 	// +optional
-	Store *config.StoreConfig `json:"store,omitempty"`
+	Store *config.StoreConfig `json:"store,omitempty" yaml:"store,omitempty"`
 
 	// +optional
-	Queue *config.QueueConfig `json:"queue,omitempty"`
+	Queue *config.QueueConfig `json:"queue,omitempty" yaml:"queue,omitempty"`
 
 	// +optional
-	StatefulSetConfigData string `json:"statefulsetConfigData,omitempty"`
+	StatefulSetConfigData string `json:"statefulsetConfigData,omitempty" yaml:"statefulSetConfigData,omitempty"`
 }
 
 // KubemqClusterStatus defines the observed state of KubemqCluster
 type KubemqClusterStatus struct {
-	Replicas *int32 `json:"replicas"`
+	Replicas *int32 `json:"replicas" yaml:"replicas"`
 
-	Version string `json:"version"`
+	Version string `json:"version" yaml:"version"`
 
-	Ready int32 `json:"ready"`
+	Ready int32 `json:"ready" yaml:"ready"`
 
-	Grpc string `json:"grpc"`
+	Grpc string `json:"grpc" yaml:"grpc"`
 
-	Rest string `json:"rest"`
+	Rest string `json:"rest" yaml:"rest"`
 
-	Api string `json:"api"`
+	Api string `json:"api" yaml:"api"`
 
-	Selector string `json:"selector"`
+	Selector string `json:"selector" yaml:"selector"`
 
-	LicenseType string `json:"license_type"`
+	LicenseType string `json:"license_type" yaml:"licenseType"`
 
-	LicenseTo string `json:"license_to"`
+	LicenseTo string `json:"license_to" yaml:"licenseTo"`
 
-	LicenseExpire string `json:"license_expire"`
+	LicenseExpire string `json:"license_expire" yaml:"licenseExpire"`
 
-	Status string `json:"status"`
+	Status string `json:"status" yaml:"status"`
 }
 
 // +kubebuilder:object:root=true
@@ -138,17 +138,17 @@ type KubemqCluster struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   KubemqClusterSpec   `json:"spec,omitempty"`
-	Status KubemqClusterStatus `json:"status,omitempty"`
+	Spec   KubemqClusterSpec   `json:"spec,omitempty" yaml:"spec,omitempty"`
+	Status KubemqClusterStatus `json:"status,omitempty" yaml:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
 
 // KubemqClusterList contains a list of KubemqCluster
 type KubemqClusterList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []KubemqCluster `json:"items"`
+	metav1.TypeMeta `json:",inline" yaml:"inline"`
+	metav1.ListMeta `json:"metadata,omitempty" yaml:"metadata,omitempty"`
+	Items           []KubemqCluster `json:"items" yaml:"items"`
 }
 
 func init() {

@@ -7,10 +7,10 @@ import (
 
 type LogConfig struct {
 	// +optional
-	Level *int32 `json:"level,omitempty"`
+	Level *int32 `json:"level,omitempty" yaml:"level,omitempty"`
 
 	// +optional
-	File string `json:"file,omitempty"`
+	File string `json:"file,omitempty" yaml:"file,omitempty"`
 }
 
 func (c *LogConfig) DeepCopy() *LogConfig {
