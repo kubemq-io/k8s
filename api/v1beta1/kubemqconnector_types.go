@@ -39,11 +39,11 @@ type KubemqConnectorSpec struct {
 
 	// +optional
 
-	NodePort int32 `json:"node_port,omitempty" yaml:"nodePort"`
+	NodePort int32 `json:"nodePort,omitempty" yaml:"node_port"`
 
 	// +optional
 
-	ServiceType string `json:"service_type" yaml:"serviceType"`
+	ServiceType string `json:"serviceType" yaml:"service_type"`
 }
 
 // KubemqConnectorStatus defines the observed state of KubemqConnector
