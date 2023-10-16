@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1751179a-a2e5-46e7-9519-8017170a815c" name="Default Changelist" comment="update oidc">
+    <list default="true" id="1751179a-a2e5-46e7-9519-8017170a815c" name="Default Changelist" comment="change yaml types">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqconnector_types.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqconnector_types.go" afterDir="false" />
     </list>
@@ -298,7 +298,8 @@
     <MESSAGE value="revert to resources" />
     <MESSAGE value="change to cluster spec" />
     <MESSAGE value="update oidc" />
-    <option name="LAST_COMMIT_MESSAGE" value="update oidc" />
+    <MESSAGE value="change yaml types" />
+    <option name="LAST_COMMIT_MESSAGE" value="change yaml types" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
