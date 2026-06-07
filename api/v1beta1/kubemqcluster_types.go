@@ -91,6 +91,15 @@ type KubemqClusterSpec struct {
 	Queue *config.QueueConfig `json:"queue,omitempty" yaml:"queue,omitempty"`
 
 	// +optional
+	Mcp *config.McpConfig `json:"mcp,omitempty" yaml:"mcp,omitempty"`
+
+	// +optional
+	Agents *config.AgentsConfig `json:"agents,omitempty" yaml:"agents,omitempty"`
+
+	// +optional
+	Ce *config.CeConfig `json:"ce,omitempty" yaml:"ce,omitempty"`
+
+	// +optional
 	StatefulSetConfigData string `json:"statefulsetConfigData,omitempty" yaml:"statefulSetConfigData,omitempty"`
 }
 
