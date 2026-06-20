@@ -100,6 +100,21 @@ type KubemqClusterSpec struct {
 	Ce *config.CeConfig `json:"ce,omitempty" yaml:"ce,omitempty"`
 
 	// +optional
+	Mqtt *config.MqttConfig `json:"mqtt,omitempty" yaml:"mqtt,omitempty"`
+
+	// +optional
+	Amqp *config.AmqpConfig `json:"amqp,omitempty" yaml:"amqp,omitempty"`
+
+	// +optional
+	Amqp10 *config.Amqp10Config `json:"amqp10,omitempty" yaml:"amqp10,omitempty"`
+
+	// +optional
+	Stomp *config.StompConfig `json:"stomp,omitempty" yaml:"stomp,omitempty"`
+
+	// +optional
+	Aws *config.AwsConfig `json:"aws,omitempty" yaml:"aws,omitempty"`
+
+	// +optional
 	StatefulSetConfigData string `json:"statefulsetConfigData,omitempty" yaml:"statefulSetConfigData,omitempty"`
 }
 

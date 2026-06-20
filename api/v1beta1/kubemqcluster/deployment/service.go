@@ -30,6 +30,27 @@ spec:
   selector:
     app: {{.AppName}}
 `
+var defaultKubeMQMultiPortServiceTemplate = `
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Name}}
+  namespace: {{.Namespace}}
+  labels:
+    app: {{.AppName}}
+spec:
+  ports:
+{{range .Ports}}
+    - name: {{.Name}}
+      port: {{.Port}}
+      protocol: TCP
+      targetPort: {{.TargetPort}}
+{{end}}
+  type: {{.Expose}}
+  sessionAffinity: None
+  selector:
+    app: {{.AppName}}
+`
 var defaultKubeMQServiceHeadlessTemplate = `
 apiVersion: v1
 kind: Service
@@ -62,6 +83,12 @@ spec:
     app: {{.AppName}}
 `
 
+type ServicePort struct {
+	Name       string
+	Port       int32
+	TargetPort int32
+}
+
 type ServiceConfig struct {
 	Id            string
 	Name          string
@@ -72,6 +99,7 @@ type ServiceConfig struct {
 	TargetPort    int32
 	PortName      string
 	NodePort      int32
+	Ports         []ServicePort
 	Headless      bool
 	service       *apiv1.Service
 }
@@ -161,6 +189,50 @@ func DefaultServiceConfig(id, namespace, appName string) map[string]*ServiceConf
 		AppName:   appName,
 		Headless:  true,
 	}
+	list["mqtt"] = &ServiceConfig{
+		Id:        id,
+		Name:      appName + "-mqtt",
+		Namespace: namespace,
+		AppName:   appName,
+		Expose:    "ClusterIP",
+		Ports: []ServicePort{
+			{Name: "mqtt", Port: 1883, TargetPort: 1883},
+			{Name: "mqtt-tls", Port: 8883, TargetPort: 8883},
+			{Name: "mqtt-ws", Port: 8083, TargetPort: 8083},
+		},
+	}
+	list["amqp"] = &ServiceConfig{
+		Id:        id,
+		Name:      appName + "-amqp",
+		Namespace: namespace,
+		AppName:   appName,
+		Expose:    "ClusterIP",
+		Ports: []ServicePort{
+			{Name: "amqp", Port: 5672, TargetPort: 5672},
+			{Name: "amqp-tls", Port: 5671, TargetPort: 5671},
+		},
+	}
+	list["stomp"] = &ServiceConfig{
+		Id:        id,
+		Name:      appName + "-stomp",
+		Namespace: namespace,
+		AppName:   appName,
+		Expose:    "ClusterIP",
+		Ports: []ServicePort{
+			{Name: "stomp", Port: 61613, TargetPort: 61613},
+			{Name: "stomp-tls", Port: 61614, TargetPort: 61614},
+		},
+	}
+	list["aws"] = &ServiceConfig{
+		Id:        id,
+		Name:      appName + "-aws",
+		Namespace: namespace,
+		AppName:   appName,
+		Expose:    "ClusterIP",
+		Ports: []ServicePort{
+			{Name: "aws-http", Port: 4566, TargetPort: 4566},
+		},
+	}
 	return list
 }
 
@@ -195,6 +267,8 @@ func (s *ServiceConfig) Spec() ([]byte, error) {
 		tmpl := defaultKubeMQServiceTemplate
 		if s.Headless {
 			tmpl = defaultKubeMQServiceHeadlessTemplate
+		} else if len(s.Ports) > 0 {
+			tmpl = defaultKubeMQMultiPortServiceTemplate
 		}
 		t := template.NewTemplate(tmpl, s)
 		return t.Get()

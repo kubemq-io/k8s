@@ -151,3 +151,48 @@ func TestStatefulSetConfig_Spec(t *testing.T) {
 		})
 	}
 }
+
+// connectorContainerPorts is the static, always-present set of connector
+// containerPorts that the default broker StatefulSet template must render
+// regardless of any connector config or the Standalone flag.
+var connectorContainerPorts = map[string]int32{
+	"mqtt":      1883,
+	"mqtt-tls":  8883,
+	"mqtt-ws":   8083,
+	"amqp":      5672,
+	"amqp-tls":  5671,
+	"stomp":     61613,
+	"stomp-tls": 61614,
+	"aws-http":  4566,
+}
+
+func TestStatefulSetConfig_ConnectorContainerPorts(t *testing.T) {
+	tests := []struct {
+		name       string
+		standalone bool
+	}{
+		{name: "cluster", standalone: false},
+		{name: "standalone", standalone: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := DefaultStatefulSetConfig("", "kubemq-cluster", "kubemq").
+				SetStandalone(tt.standalone)
+
+			sts, err := cfg.Get()
+			require.NoError(t, err)
+			require.Len(t, sts.Spec.Template.Spec.Containers, 1)
+
+			got := map[string]int32{}
+			for _, p := range sts.Spec.Template.Spec.Containers[0].Ports {
+				got[p.Name] = p.ContainerPort
+			}
+
+			for name, port := range connectorContainerPorts {
+				gotPort, ok := got[name]
+				require.Truef(t, ok, "connector containerPort %q (%d) missing from rendered StatefulSet (standalone=%v)", name, port, tt.standalone)
+				assert.Equalf(t, port, gotPort, "connector containerPort %q has wrong port", name)
+			}
+		})
+	}
+}

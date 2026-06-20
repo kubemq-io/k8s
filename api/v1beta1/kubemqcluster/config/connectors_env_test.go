@@ -23,8 +23,9 @@ func vars(cfg *deployment.Config) map[string]string {
 	return cfg.ConfigMaps[testClusterName].Variables
 }
 
-func ptr32(v int32) *int32 { return &v }
-func ptr64(v int64) *int64 { return &v }
+func ptr32(v int32) *int32    { return &v }
+func ptr64(v int64) *int64    { return &v }
+func strptr(v string) *string { return &v }
 
 func TestMcpConfig_SetConfig_Disabled(t *testing.T) {
 	cfg := newTestConfig()
@@ -126,6 +127,244 @@ func TestCeConfig_SetConfig_Empty(t *testing.T) {
 	assert.Len(t, vars(cfg), 0)
 }
 
+func TestMqttConfig_SetConfig_Disabled(t *testing.T) {
+	cfg := newTestConfig()
+	(&MqttConfig{Disabled: true}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 1)
+	assert.Equal(t, "false", v["CONNECTORSMQTT_ENABLE"])
+}
+
+func TestMqttConfig_SetConfig_AllFields(t *testing.T) {
+	cfg := newTestConfig()
+	(&MqttConfig{
+		Port:                   ptr32(1883),
+		TLSPort:                ptr32(8883),
+		WSPort:                 ptr32(8083),
+		DefaultPattern:         strptr("events"),
+		SubBuffSize:            ptr32(100),
+		QueueAckTimeoutSeconds: ptr32(30),
+		RPCTimeoutSeconds:      ptr32(30),
+		RPCMaxPending:          ptr32(1024),
+		Capabilities: &MqttCapabilitiesConfig{
+			MaxClients:              ptr64(0),
+			MaxPacketSizeBytes:      ptr64(4194304),
+			ReceiveMaximum:          ptr32(1024),
+			MaxInflight:             ptr32(8192),
+			MaxSessionExpirySeconds: ptr64(3600),
+			MaxMessageExpirySeconds: ptr64(86400),
+			MaxQos:                  ptr32(2),
+			MinProtocolVersion:      ptr32(4),
+		},
+	}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 16) // 8 scalar + 8 capability fields
+	assert.Equal(t, "1883", v["CONNECTORSMQTT_PORT"])
+	assert.Equal(t, "8883", v["CONNECTORSMQTT_TLS_PORT"])
+	assert.Equal(t, "8083", v["CONNECTORSMQTT_WS_PORT"])
+	assert.Equal(t, "events", v["CONNECTORSMQTT_DEFAULT_PATTERN"])
+	assert.Equal(t, "100", v["CONNECTORSMQTT_SUB_BUFF_SIZE"])
+	assert.Equal(t, "30", v["CONNECTORSMQTT_QUEUE_ACK_TIMEOUT_SECONDS"])
+	assert.Equal(t, "30", v["CONNECTORSMQTT_RPC_TIMEOUT_SECONDS"])
+	assert.Equal(t, "1024", v["CONNECTORSMQTT_RPC_MAX_PENDING"])
+	assert.Equal(t, "0", v["CONNECTORSMQTT_CAPABILITIES_MAX_CLIENTS"])
+	assert.Equal(t, "4194304", v["CONNECTORSMQTT_CAPABILITIES_MAX_PACKET_SIZE_BYTES"])
+	assert.Equal(t, "1024", v["CONNECTORSMQTT_CAPABILITIES_RECEIVE_MAXIMUM"])
+	assert.Equal(t, "8192", v["CONNECTORSMQTT_CAPABILITIES_MAX_INFLIGHT"])
+	assert.Equal(t, "3600", v["CONNECTORSMQTT_CAPABILITIES_MAX_SESSION_EXPIRY_SECONDS"])
+	assert.Equal(t, "86400", v["CONNECTORSMQTT_CAPABILITIES_MAX_MESSAGE_EXPIRY_SECONDS"])
+	assert.Equal(t, "2", v["CONNECTORSMQTT_CAPABILITIES_MAX_QOS"])
+	assert.Equal(t, "4", v["CONNECTORSMQTT_CAPABILITIES_MIN_PROTOCOL_VERSION"])
+	_, hasEnable := v["CONNECTORSMQTT_ENABLE"]
+	assert.False(t, hasEnable)
+}
+
+func TestMqttConfig_SetConfig_Empty(t *testing.T) {
+	cfg := newTestConfig()
+	(&MqttConfig{}).SetConfig(cfg)
+	assert.Len(t, vars(cfg), 0)
+}
+
+func TestAmqpConfig_SetConfig_Disabled(t *testing.T) {
+	cfg := newTestConfig()
+	(&AmqpConfig{Disabled: true}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 1)
+	assert.Equal(t, "false", v["CONNECTORS_AMQP_ENABLE"])
+}
+
+func TestAmqpConfig_SetConfig_AllFields(t *testing.T) {
+	cfg := newTestConfig()
+	(&AmqpConfig{
+		Port:              ptr32(5672),
+		TLSPort:           ptr32(5671),
+		HeartbeatSeconds:  ptr32(60),
+		FrameMax:          ptr32(131072),
+		ChannelMax:        ptr32(2047),
+		MaxConnections:    ptr32(1000),
+		MaxBodySize:       ptr32(104857600),
+		DefaultVhost:      strptr("default"),
+		GetBatchSize:      ptr32(32),
+		DeadLetterMaxHops: ptr32(16),
+		MaxReceiveCount:   ptr32(0),
+	}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 11)
+	assert.Equal(t, "5672", v["CONNECTORS_AMQP_PORT"])
+	assert.Equal(t, "5671", v["CONNECTORS_AMQP_TLS_PORT"])
+	assert.Equal(t, "60", v["CONNECTORS_AMQP_HEARTBEAT_SECONDS"])
+	assert.Equal(t, "131072", v["CONNECTORS_AMQP_FRAME_MAX"])
+	assert.Equal(t, "2047", v["CONNECTORS_AMQP_CHANNEL_MAX"])
+	assert.Equal(t, "1000", v["CONNECTORS_AMQP_MAX_CONNECTIONS"])
+	assert.Equal(t, "104857600", v["CONNECTORS_AMQP_MAX_BODY_SIZE"])
+	assert.Equal(t, "default", v["CONNECTORS_AMQP_DEFAULT_VHOST"])
+	assert.Equal(t, "32", v["CONNECTORS_AMQP_GET_BATCH_SIZE"])
+	assert.Equal(t, "16", v["CONNECTORS_AMQP_DEAD_LETTER_MAX_HOPS"])
+	assert.Equal(t, "0", v["CONNECTORS_AMQP_MAX_RECEIVE_COUNT"])
+	_, hasEnable := v["CONNECTORS_AMQP_ENABLE"]
+	assert.False(t, hasEnable)
+}
+
+func TestAmqpConfig_SetConfig_Empty(t *testing.T) {
+	cfg := newTestConfig()
+	(&AmqpConfig{}).SetConfig(cfg)
+	assert.Len(t, vars(cfg), 0)
+}
+
+func TestAmqp10Config_SetConfig_Disabled(t *testing.T) {
+	cfg := newTestConfig()
+	(&Amqp10Config{Disabled: true}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 1)
+	assert.Equal(t, "false", v["CONNECTORS_AMQP10_ENABLE"])
+}
+
+func TestAmqp10Config_SetConfig_AllFields(t *testing.T) {
+	cfg := newTestConfig()
+	(&Amqp10Config{
+		Port:                     ptr32(5672),
+		TLSPort:                  ptr32(5671),
+		MaxFrameSize:             ptr32(131072),
+		MaxMessageSize:           ptr64(104857600),
+		SessionMax:               ptr32(256),
+		MaxLinksPerSession:       ptr32(256),
+		MaxConnections:           ptr32(1000),
+		IdleTimeoutSeconds:       ptr32(120),
+		DefaultPattern:           strptr("queues"),
+		GetBatchSize:             ptr32(32),
+		MaxUnsettledPerLink:      ptr32(1024),
+		DefaultRPCTimeoutSeconds: ptr32(30),
+		RPCMaxPending:            ptr32(512),
+	}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 13)
+	assert.Equal(t, "5672", v["CONNECTORS_AMQP10_PORT"])
+	assert.Equal(t, "5671", v["CONNECTORS_AMQP10_TLS_PORT"])
+	assert.Equal(t, "131072", v["CONNECTORS_AMQP10_MAX_FRAME_SIZE"])
+	assert.Equal(t, "104857600", v["CONNECTORS_AMQP10_MAX_MESSAGE_SIZE"])
+	assert.Equal(t, "256", v["CONNECTORS_AMQP10_SESSION_MAX"])
+	assert.Equal(t, "256", v["CONNECTORS_AMQP10_MAX_LINKS_PER_SESSION"])
+	assert.Equal(t, "1000", v["CONNECTORS_AMQP10_MAX_CONNECTIONS"])
+	assert.Equal(t, "120", v["CONNECTORS_AMQP10_IDLE_TIMEOUT_SECONDS"])
+	assert.Equal(t, "queues", v["CONNECTORS_AMQP10_DEFAULT_PATTERN"])
+	assert.Equal(t, "32", v["CONNECTORS_AMQP10_GET_BATCH_SIZE"])
+	assert.Equal(t, "1024", v["CONNECTORS_AMQP10_MAX_UNSETTLED_PER_LINK"])
+	assert.Equal(t, "30", v["CONNECTORS_AMQP10_DEFAULT_RPC_TIMEOUT_SECONDS"])
+	assert.Equal(t, "512", v["CONNECTORS_AMQP10_RPC_MAX_PENDING"])
+	_, hasEnable := v["CONNECTORS_AMQP10_ENABLE"]
+	assert.False(t, hasEnable)
+}
+
+func TestAmqp10Config_SetConfig_Empty(t *testing.T) {
+	cfg := newTestConfig()
+	(&Amqp10Config{}).SetConfig(cfg)
+	assert.Len(t, vars(cfg), 0)
+}
+
+func TestStompConfig_SetConfig_Disabled(t *testing.T) {
+	cfg := newTestConfig()
+	(&StompConfig{Disabled: true}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 1)
+	assert.Equal(t, "false", v["CONNECTORS_STOMP_ENABLE"])
+}
+
+func TestStompConfig_SetConfig_AllFields(t *testing.T) {
+	cfg := newTestConfig()
+	(&StompConfig{
+		Port:                   ptr32(61613),
+		TLSPort:                ptr32(61614),
+		DefaultPattern:         strptr("events"),
+		SubBuffSize:            ptr32(100),
+		MaxConnections:         ptr32(1000),
+		MaxBodySize:            ptr32(104857600),
+		HeartbeatMs:            ptr32(10000),
+		QueueAckTimeoutSeconds: ptr32(30),
+		RPCTimeoutSeconds:      ptr32(30),
+		RPCMaxPending:          ptr32(1024),
+	}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 10)
+	assert.Equal(t, "61613", v["CONNECTORS_STOMP_PORT"])
+	assert.Equal(t, "61614", v["CONNECTORS_STOMP_TLS_PORT"])
+	assert.Equal(t, "events", v["CONNECTORS_STOMP_DEFAULT_PATTERN"])
+	assert.Equal(t, "100", v["CONNECTORS_STOMP_SUB_BUFF_SIZE"])
+	assert.Equal(t, "1000", v["CONNECTORS_STOMP_MAX_CONNECTIONS"])
+	assert.Equal(t, "104857600", v["CONNECTORS_STOMP_MAX_BODY_SIZE"])
+	assert.Equal(t, "10000", v["CONNECTORS_STOMP_HEARTBEAT_MS"])
+	assert.Equal(t, "30", v["CONNECTORS_STOMP_QUEUE_ACK_TIMEOUT_SECONDS"])
+	assert.Equal(t, "30", v["CONNECTORS_STOMP_RPC_TIMEOUT_SECONDS"])
+	assert.Equal(t, "1024", v["CONNECTORS_STOMP_RPC_MAX_PENDING"])
+	_, hasEnable := v["CONNECTORS_STOMP_ENABLE"]
+	assert.False(t, hasEnable)
+}
+
+func TestStompConfig_SetConfig_Empty(t *testing.T) {
+	cfg := newTestConfig()
+	(&StompConfig{}).SetConfig(cfg)
+	assert.Len(t, vars(cfg), 0)
+}
+
+func TestAwsConfig_SetConfig_Disabled(t *testing.T) {
+	cfg := newTestConfig()
+	(&AwsConfig{Disabled: true}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 1)
+	assert.Equal(t, "false", v["CONNECTORS_AWS_ENABLE"])
+}
+
+func TestAwsConfig_SetConfig_AllFields(t *testing.T) {
+	cfg := newTestConfig()
+	(&AwsConfig{
+		Port:                ptr32(4566),
+		Region:              strptr("kubemq"),
+		AccountID:           strptr("000000000000"),
+		AdvertisedURL:       strptr("http://localhost:4566"),
+		MaxInflightPerQueue: ptr32(20000),
+		MaxConcurrentPolls:  ptr32(1024),
+		ReadTimeout:         ptr32(60),
+		BodyLimit:           strptr("2M"),
+	}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 8)
+	assert.Equal(t, "4566", v["CONNECTORS_AWS_PORT"])
+	assert.Equal(t, "kubemq", v["CONNECTORS_AWS_REGION"])
+	assert.Equal(t, "000000000000", v["CONNECTORS_AWS_ACCOUNT_ID"])
+	assert.Equal(t, "http://localhost:4566", v["CONNECTORS_AWS_ADVERTISED_URL"])
+	assert.Equal(t, "20000", v["CONNECTORS_AWS_MAX_INFLIGHT_PER_QUEUE"])
+	assert.Equal(t, "1024", v["CONNECTORS_AWS_MAX_CONCURRENT_POLLS"])
+	assert.Equal(t, "60", v["CONNECTORS_AWS_READ_TIMEOUT"])
+	assert.Equal(t, "2M", v["CONNECTORS_AWS_BODY_LIMIT"])
+	_, hasEnable := v["CONNECTORS_AWS_ENABLE"]
+	assert.False(t, hasEnable)
+}
+
+func TestAwsConfig_SetConfig_Empty(t *testing.T) {
+	cfg := newTestConfig()
+	(&AwsConfig{}).SetConfig(cfg)
+	assert.Len(t, vars(cfg), 0)
+}
+
 // DeepCopy independence: mutating the source after copy must not affect the copy.
 func TestConnectorConfigs_DeepCopy_Independent(t *testing.T) {
 	mcp := &McpConfig{ToolTimeoutSeconds: ptr32(30), TrustedOrigins: []string{"a", "b"}}
@@ -146,4 +385,52 @@ func TestConnectorConfigs_DeepCopy_Independent(t *testing.T) {
 	ceCopy := ce.DeepCopy()
 	*ce.SubBuffSize = 1
 	assert.Equal(t, int32(100), *ceCopy.SubBuffSize)
+
+	mqtt := &MqttConfig{
+		Port:           ptr32(1883),
+		DefaultPattern: strptr("events"),
+		Capabilities: &MqttCapabilitiesConfig{
+			MaxClients: ptr64(10),
+			MaxQos:     ptr32(2),
+		},
+	}
+	mqttCopy := mqtt.DeepCopy()
+	*mqtt.Port = 9999
+	*mqtt.DefaultPattern = "mutated"
+	*mqtt.Capabilities.MaxClients = 999 // mutate nested pointer field
+	*mqtt.Capabilities.MaxQos = 0       // mutate nested pointer field
+	mqtt.Capabilities = nil             // detach source nested struct entirely
+	assert.Equal(t, int32(1883), *mqttCopy.Port)
+	assert.Equal(t, "events", *mqttCopy.DefaultPattern)
+	require.NotNil(t, mqttCopy.Capabilities)
+	assert.Equal(t, int64(10), *mqttCopy.Capabilities.MaxClients)
+	assert.Equal(t, int32(2), *mqttCopy.Capabilities.MaxQos)
+
+	amqp := &AmqpConfig{Port: ptr32(5672), DefaultVhost: strptr("default")}
+	amqpCopy := amqp.DeepCopy()
+	*amqp.Port = 1
+	*amqp.DefaultVhost = "mutated"
+	assert.Equal(t, int32(5672), *amqpCopy.Port)
+	assert.Equal(t, "default", *amqpCopy.DefaultVhost)
+
+	amqp10 := &Amqp10Config{Port: ptr32(5672), MaxMessageSize: ptr64(104857600)}
+	amqp10Copy := amqp10.DeepCopy()
+	*amqp10.Port = 1
+	*amqp10.MaxMessageSize = 2
+	assert.Equal(t, int32(5672), *amqp10Copy.Port)
+	assert.Equal(t, int64(104857600), *amqp10Copy.MaxMessageSize)
+
+	stomp := &StompConfig{Port: ptr32(61613), DefaultPattern: strptr("events")}
+	stompCopy := stomp.DeepCopy()
+	*stomp.Port = 1
+	*stomp.DefaultPattern = "mutated"
+	assert.Equal(t, int32(61613), *stompCopy.Port)
+	assert.Equal(t, "events", *stompCopy.DefaultPattern)
+
+	aws := &AwsConfig{Port: ptr32(4566), Region: strptr("kubemq")}
+	awsCopy := aws.DeepCopy()
+	*aws.Port = 1
+	*aws.Region = "mutated"
+	assert.Equal(t, int32(4566), *awsCopy.Port)
+	assert.Equal(t, "kubemq", *awsCopy.Region)
 }

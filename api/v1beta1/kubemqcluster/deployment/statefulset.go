@@ -67,7 +67,31 @@ spec:
             - containerPort: 9090
               name: rest-port
               protocol: TCP
-{{ if not .Standalone }} 
+            - containerPort: 1883
+              name: mqtt
+              protocol: TCP
+            - containerPort: 8883
+              name: mqtt-tls
+              protocol: TCP
+            - containerPort: 8083
+              name: mqtt-ws
+              protocol: TCP
+            - containerPort: 5672
+              name: amqp
+              protocol: TCP
+            - containerPort: 5671
+              name: amqp-tls
+              protocol: TCP
+            - containerPort: 61613
+              name: stomp
+              protocol: TCP
+            - containerPort: 61614
+              name: stomp-tls
+              protocol: TCP
+            - containerPort: 4566
+              name: aws-http
+              protocol: TCP
+{{ if not .Standalone }}
             - containerPort: 5228
               name: cluster-port
               protocol: TCP
