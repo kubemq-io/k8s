@@ -28,7 +28,7 @@ spec:
         app: {{.Name}}
       annotations:
         prometheus.io/scrape: 'true'
-        prometheus.io/port: '8080'
+        prometheus.io/port: '{{.ApiPort}}'
         prometheus.io/path: '/metrics'
     spec:
 {{ .NodeSelectors }}
@@ -58,13 +58,13 @@ spec:
 {{ .Health }}
 {{ .Resources }}
           ports:
-            - containerPort: 50000
+            - containerPort: {{.GrpcPort}}
               name: grpc-port
               protocol: TCP
-            - containerPort: 8080
+            - containerPort: {{.ApiPort}}
               name: api-port
               protocol: TCP
-            - containerPort: 9090
+            - containerPort: {{.RestPort}}
               name: rest-port
               protocol: TCP
             - containerPort: 1883
@@ -90,6 +90,9 @@ spec:
               protocol: TCP
             - containerPort: 4566
               name: aws-http
+              protocol: TCP
+            - containerPort: 8085
+              name: gcp-grpc
               protocol: TCP
 {{ if not .Standalone }}
             - containerPort: 5228
@@ -142,6 +145,9 @@ type StatefulSetConfig struct {
 	ConfigCheckSum        string
 	Standalone            bool
 	StatefulSetConfigData string
+	ApiPort               int32
+	GrpcPort              int32
+	RestPort              int32
 }
 
 func DefaultStatefulSetConfig(id, name, namespace string) *StatefulSetConfig {
@@ -162,6 +168,9 @@ func DefaultStatefulSetConfig(id, name, namespace string) *StatefulSetConfig {
 		ConfigCheckSum:        "",
 		Standalone:            false,
 		StatefulSetConfigData: "",
+		ApiPort:               8080,
+		GrpcPort:              50000,
+		RestPort:              9090,
 	}
 }
 
@@ -226,8 +235,29 @@ func (sc *StatefulSetConfig) SetStatefulsetConfigData(value string) *StatefulSet
 	sc.StatefulSetConfigData = value
 	return sc
 }
+func (sc *StatefulSetConfig) SetApiPort(value int32) *StatefulSetConfig {
+	sc.ApiPort = value
+	return sc
+}
+func (sc *StatefulSetConfig) SetGrpcPort(value int32) *StatefulSetConfig {
+	sc.GrpcPort = value
+	return sc
+}
+func (sc *StatefulSetConfig) SetRestPort(value int32) *StatefulSetConfig {
+	sc.RestPort = value
+	return sc
+}
 
 func (sc *StatefulSetConfig) Spec() ([]byte, error) {
+	if sc.ApiPort == 0 {
+		sc.ApiPort = 8080
+	}
+	if sc.GrpcPort == 0 {
+		sc.GrpcPort = 50000
+	}
+	if sc.RestPort == 0 {
+		sc.RestPort = 9090
+	}
 	if sc.statefulset == nil {
 		tmpl := defaultKubeMQStatefulSetTemplate
 		if sc.StatefulSetConfigData != "" {

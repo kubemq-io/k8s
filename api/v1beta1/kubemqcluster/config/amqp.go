@@ -130,6 +130,17 @@ func (c *AmqpConfig) SetConfig(config *deployment.Config) *AmqpConfig {
 		return c
 	}
 
+	// Reflect custom ports onto the shared "amqp" K8s Service (AMQP 0.9.1 and 1.0
+	// share it) so traffic reaches the listener.
+	if svc, ok := config.Services["amqp"]; ok {
+		if c.Port != nil {
+			svc.SetPort("amqp", *c.Port)
+		}
+		if c.TLSPort != nil {
+			svc.SetPort("amqp-tls", *c.TLSPort)
+		}
+	}
+
 	if c.Port != nil {
 		config.SetConfigMapStringValues(config.Name, "CONNECTORS_AMQP_PORT", fmt.Sprintf("%d", *c.Port))
 	}

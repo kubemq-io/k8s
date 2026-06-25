@@ -43,7 +43,7 @@ type ResourceConfig struct {
 	RequestsMemory string `json:"requestsMemory,omitempty" yaml:"requestsMemory,omitempty"`
 
 	// +optional
-	RequestsEphemeralStorage string `json:"requestsEphemeralStorage,omitempty" yaml:"requestsEphemeralStorage,omitempty""`
+	RequestsEphemeralStorage string `json:"requestsEphemeralStorage,omitempty" yaml:"requestsEphemeralStorage,omitempty"`
 }
 
 func (o *ResourceConfig) SetConfig(config *deployment.Config) *ResourceConfig {

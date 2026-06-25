@@ -197,6 +197,19 @@ func (c *MqttConfig) SetConfig(config *deployment.Config) *MqttConfig {
 		return c
 	}
 
+	// Reflect custom ports onto the K8s Service so traffic reaches the listener.
+	if svc, ok := config.Services["mqtt"]; ok {
+		if c.Port != nil {
+			svc.SetPort("mqtt", *c.Port)
+		}
+		if c.TLSPort != nil {
+			svc.SetPort("mqtt-tls", *c.TLSPort)
+		}
+		if c.WSPort != nil {
+			svc.SetPort("mqtt-ws", *c.WSPort)
+		}
+	}
+
 	if c.Port != nil {
 		config.SetConfigMapStringValues(config.Name, "CONNECTORSMQTT_PORT", fmt.Sprintf("%d", *c.Port))
 	}

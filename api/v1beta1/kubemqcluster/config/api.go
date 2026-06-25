@@ -1,13 +1,18 @@
 package config
 
-import "github.com/kubemq-io/k8s/api/v1beta1/kubemqcluster/deployment"
+import (
+	"fmt"
+	"strings"
+
+	"github.com/kubemq-io/k8s/api/v1beta1/kubemqcluster/deployment"
+)
 
 type ApiConfig struct {
 	// +optional
 	Disabled bool `json:"disabled,omitempty" yaml:"disabled,omitempty"`
 
 	// +optional
-	Port int32 `json:"port,omitempty" yaml:"port,omitempty"`
+	Port *int32 `json:"port,omitempty" yaml:"port,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Pattern=(ClusterIP|NodePort|LoadBalancer)
@@ -15,12 +20,31 @@ type ApiConfig struct {
 
 	// +optional
 	NodePort int32 `json:"nodePort,omitempty" yaml:"nodePort,omitempty"`
+
+	// +optional
+	AllowOrigins []string `json:"allowOrigins,omitempty" yaml:"allowOrigins,omitempty"`
+}
+
+func (c *ApiConfig) DeepCopy() *ApiConfig {
+	out := &ApiConfig{}
+
+	out.Disabled = c.Disabled
+	if c.Port != nil {
+		out.Port = new(int32)
+		*out.Port = *c.Port
+	}
+	out.Expose = c.Expose
+	out.NodePort = c.NodePort
+
+	if c.AllowOrigins != nil {
+		out.AllowOrigins = make([]string, len(c.AllowOrigins))
+		copy(out.AllowOrigins, c.AllowOrigins)
+	}
+
+	return out
 }
 
 func (c *ApiConfig) getDefaults() *ApiConfig {
-	if c.Port == 0 {
-		c.Port = 8080
-	}
 	if c.Expose == "" {
 		c.Expose = "ClusterIP"
 	}
@@ -36,8 +60,11 @@ func (c *ApiConfig) SetConfig(config *deployment.Config) *ApiConfig {
 	svc, ok := config.Services["api"]
 	if ok {
 
-		svc.SetTargetPort(8080).
-			SetContainerPort(c.Port)
+		if c.Port != nil {
+			svc.SetContainerPort(*c.Port).SetTargetPort(*c.Port)
+			config.SetConfigMapStringValues(config.Name, "API_PORT", fmt.Sprintf("%d", *c.Port))
+			config.StatefulSet.SetApiPort(*c.Port) // containerPort + prometheus annotation
+		}
 
 		if c.Expose == "NodePort" && c.NodePort > 0 {
 			svc.SetNodePort(c.NodePort)
@@ -46,5 +73,10 @@ func (c *ApiConfig) SetConfig(config *deployment.Config) *ApiConfig {
 		}
 		svc.SetExpose(c.Expose)
 	}
+
+	if len(c.AllowOrigins) > 0 {
+		config.SetConfigMapStringValues(config.Name, "API_ALLOW_ORIGINS", strings.Join(c.AllowOrigins, ","))
+	}
+
 	return c
 }

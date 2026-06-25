@@ -8,36 +8,44 @@ import (
 type QueueConfig struct {
 
 	// +optional
-	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Minimum=1
 	MaxReceiveMessagesRequest *int32 `json:"maxReceiveMessagesRequest,omitempty" yaml:"maxReceiveMessagesRequest,omitempty"`
 
 	// +optional
-	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Minimum=1
 	MaxWaitTimeoutSeconds *int32 `json:"maxWaitTimeoutSeconds,omitempty" yaml:"maxWaitTimeoutSeconds,omitempty"`
 
 	// +optional
-	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Minimum=1
 	MaxExpirationSeconds *int32 `json:"maxExpirationSeconds,omitempty" yaml:"maxExpirationSeconds,omitempty"`
 
 	// +optional
-	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Minimum=1
 	MaxDelaySeconds *int32 `json:"maxDelaySeconds,omitempty" yaml:"maxDelaySeconds,omitempty"`
 
 	// +optional
-	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Minimum=1
 	MaxReQueues *int32 `json:"maxReQueues,omitempty" yaml:"maxReQueues,omitempty"`
 
 	// +optional
-	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Minimum=1
 	MaxVisibilitySeconds *int32 `json:"maxVisibilitySeconds,omitempty" yaml:"maxVisibilitySeconds,omitempty"`
 
 	// +optional
-	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Minimum=1
 	DefaultVisibilitySeconds *int32 `json:"defaultVisibilitySeconds,omitempty" yaml:"defaultVisibilitySeconds,omitempty"`
 
 	// +optional
-	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Minimum=1
 	DefaultWaitTimeoutSeconds *int32 `json:"defaultWaitTimeoutSeconds,omitempty" yaml:"defaultWaitTimeoutSeconds,omitempty"`
+
+	// +optional
+	// +kubebuilder:validation:Minimum=1
+	MaxInflight *int32 `json:"maxInflight,omitempty" yaml:"maxInflight,omitempty"`
+
+	// +optional
+	// +kubebuilder:validation:Minimum=1
+	PubAckWaitSeconds *int32 `json:"pubAckWaitSeconds,omitempty" yaml:"pubAckWaitSeconds,omitempty"`
 }
 
 func (c *QueueConfig) DeepCopy() *QueueConfig {
@@ -51,7 +59,6 @@ func (c *QueueConfig) DeepCopy() *QueueConfig {
 	if c.MaxWaitTimeoutSeconds != nil {
 		out.MaxWaitTimeoutSeconds = new(int32)
 		*out.MaxWaitTimeoutSeconds = *c.MaxWaitTimeoutSeconds
-
 	}
 
 	if c.MaxExpirationSeconds != nil {
@@ -82,6 +89,16 @@ func (c *QueueConfig) DeepCopy() *QueueConfig {
 	if c.DefaultWaitTimeoutSeconds != nil {
 		out.DefaultWaitTimeoutSeconds = new(int32)
 		*out.DefaultWaitTimeoutSeconds = *c.DefaultWaitTimeoutSeconds
+	}
+
+	if c.MaxInflight != nil {
+		out.MaxInflight = new(int32)
+		*out.MaxInflight = *c.MaxInflight
+	}
+
+	if c.PubAckWaitSeconds != nil {
+		out.PubAckWaitSeconds = new(int32)
+		*out.PubAckWaitSeconds = *c.PubAckWaitSeconds
 	}
 
 	return out
@@ -119,6 +136,14 @@ func (c *QueueConfig) SetConfig(config *deployment.Config) *QueueConfig {
 
 	if c.DefaultWaitTimeoutSeconds != nil {
 		config.SetConfigMapStringValues(config.Name, "QUEUE_DEFAULT_WAIT_TIMEOUT_SECONDS", fmt.Sprintf("%d", *c.DefaultWaitTimeoutSeconds))
+	}
+
+	if c.MaxInflight != nil {
+		config.SetConfigMapStringValues(config.Name, "QUEUE_MAX_INFLIGHT", fmt.Sprintf("%d", *c.MaxInflight))
+	}
+
+	if c.PubAckWaitSeconds != nil {
+		config.SetConfigMapStringValues(config.Name, "QUEUE_PUB_ACK_WAIT_SECONDS", fmt.Sprintf("%d", *c.PubAckWaitSeconds))
 	}
 
 	return c

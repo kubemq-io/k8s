@@ -7,15 +7,14 @@ import (
 
 type LogConfig struct {
 	// +optional
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=5
+	// Level: 0=Trace 1=Debug 2=Info 3=Warn 4=Error 5=Fatal
 	Level *int32 `json:"level,omitempty" yaml:"level,omitempty"`
-
-	// +optional
-	File string `json:"file,omitempty" yaml:"file,omitempty"`
 }
 
 func (c *LogConfig) DeepCopy() *LogConfig {
 	out := &LogConfig{}
-	out.File = c.File
 	if c.Level != nil {
 		out.Level = new(int32)
 		*out.Level = *c.Level
@@ -26,11 +25,6 @@ func (c *LogConfig) SetConfig(config *deployment.Config) *LogConfig {
 
 	if c.Level != nil {
 		config.SetConfigMapStringValues(config.Name, "LOG_LEVEL", fmt.Sprintf("%d", *c.Level))
-	}
-
-	if c.File != "" {
-		config.SetConfigMapStringValues(config.Name, "LOG_FILE_ENABLE", "true")
-		config.SetConfigMapStringValues(config.Name, "LOG_FILE_PATH", c.File)
 	}
 
 	return c

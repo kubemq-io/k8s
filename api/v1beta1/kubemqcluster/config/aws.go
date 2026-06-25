@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/kubemq-io/k8s/api/v1beta1/kubemqcluster/deployment"
 )
@@ -45,6 +46,16 @@ type AwsConfig struct {
 	// +optional
 	// +kubebuilder:validation:MinLength=1
 	BodyLimit *string `json:"bodyLimit,omitempty" yaml:"bodyLimit,omitempty"`
+
+	// +optional
+	MessageSigning *bool `json:"messageSigning,omitempty" yaml:"messageSigning,omitempty"`
+
+	// +optional
+	// +kubebuilder:validation:Minimum=1
+	SigningCertTtlHours *int32 `json:"signingCertTtlHours,omitempty" yaml:"signingCertTtlHours,omitempty"`
+
+	// +optional
+	CredentialsData *string `json:"credentialsData,omitempty" yaml:"credentialsData,omitempty"`
 }
 
 func (c *AwsConfig) DeepCopy() *AwsConfig {
@@ -92,6 +103,21 @@ func (c *AwsConfig) DeepCopy() *AwsConfig {
 		*out.BodyLimit = *c.BodyLimit
 	}
 
+	if c.MessageSigning != nil {
+		out.MessageSigning = new(bool)
+		*out.MessageSigning = *c.MessageSigning
+	}
+
+	if c.SigningCertTtlHours != nil {
+		out.SigningCertTtlHours = new(int32)
+		*out.SigningCertTtlHours = *c.SigningCertTtlHours
+	}
+
+	if c.CredentialsData != nil {
+		out.CredentialsData = new(string)
+		*out.CredentialsData = *c.CredentialsData
+	}
+
 	return out
 }
 
@@ -99,6 +125,13 @@ func (c *AwsConfig) SetConfig(config *deployment.Config) *AwsConfig {
 	if c.Disabled {
 		config.SetConfigMapStringValues(config.Name, "CONNECTORS_AWS_ENABLE", "false")
 		return c
+	}
+
+	// Reflect a custom port onto the K8s Service so traffic reaches the listener.
+	if svc, ok := config.Services["aws"]; ok {
+		if c.Port != nil {
+			svc.SetPort("aws-http", *c.Port)
+		}
 	}
 
 	if c.Port != nil {
@@ -131,6 +164,18 @@ func (c *AwsConfig) SetConfig(config *deployment.Config) *AwsConfig {
 
 	if c.BodyLimit != nil {
 		config.SetConfigMapStringValues(config.Name, "CONNECTORS_AWS_BODY_LIMIT", *c.BodyLimit)
+	}
+
+	if c.MessageSigning != nil {
+		config.SetConfigMapStringValues(config.Name, "CONNECTORS_AWS_MESSAGE_SIGNING", strconv.FormatBool(*c.MessageSigning))
+	}
+
+	if c.SigningCertTtlHours != nil {
+		config.SetConfigMapStringValues(config.Name, "CONNECTORS_AWS_SIGNING_CERT_TTL_HOURS", fmt.Sprintf("%d", *c.SigningCertTtlHours))
+	}
+
+	if c.CredentialsData != nil {
+		config.SetSecretDataValues(config.Name, "CONNECTORS_AWS_CREDENTIALS_DATA", *c.CredentialsData)
 	}
 
 	return c

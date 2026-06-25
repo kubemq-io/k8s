@@ -2,6 +2,8 @@ package config
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/kubemq-io/k8s/api/v1beta1/kubemqcluster/deployment"
 )
 
@@ -10,7 +12,7 @@ type GrpcConfig struct {
 	Disabled bool `json:"disabled,omitempty" yaml:"disabled,omitempty"`
 
 	// +optional
-	Port int32 `json:"port,omitempty" yaml:"port,omitempty"`
+	Port *int32 `json:"port,omitempty" yaml:"port,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Pattern=(ClusterIP|NodePort|LoadBalancer)
@@ -24,12 +26,33 @@ type GrpcConfig struct {
 
 	// +optional
 	BodyLimit int32 `json:"bodyLimit,omitempty" yaml:"bodyLimit,omitempty"`
+
+	// +optional
+	EnableReflection *bool `json:"enableReflection,omitempty" yaml:"enableReflection,omitempty"`
+}
+
+func (c *GrpcConfig) DeepCopy() *GrpcConfig {
+	out := &GrpcConfig{}
+
+	out.Disabled = c.Disabled
+	if c.Port != nil {
+		out.Port = new(int32)
+		*out.Port = *c.Port
+	}
+	out.Expose = c.Expose
+	out.NodePort = c.NodePort
+	out.BufferSize = c.BufferSize
+	out.BodyLimit = c.BodyLimit
+
+	if c.EnableReflection != nil {
+		out.EnableReflection = new(bool)
+		*out.EnableReflection = *c.EnableReflection
+	}
+
+	return out
 }
 
 func (c *GrpcConfig) getDefaults() *GrpcConfig {
-	if c.Port == 0 {
-		c.Port = 50000
-	}
 	if c.Expose == "" {
 		c.Expose = "ClusterIP"
 	}
@@ -45,8 +68,11 @@ func (c *GrpcConfig) SetConfig(config *deployment.Config) *GrpcConfig {
 
 	svc, ok := config.Services["grpc"]
 	if ok {
-		svc.SetTargetPort(50000).
-			SetContainerPort(c.Port)
+		if c.Port != nil {
+			svc.SetContainerPort(*c.Port).SetTargetPort(*c.Port)
+			config.SetConfigMapStringValues(config.Name, "CONNECTORS_GRPC_PORT", fmt.Sprintf("%d", *c.Port))
+			config.StatefulSet.SetGrpcPort(*c.Port)
+		}
 
 		if c.Expose == "NodePort" && c.NodePort > 0 {
 			svc.SetNodePort(c.NodePort)
@@ -63,6 +89,10 @@ func (c *GrpcConfig) SetConfig(config *deployment.Config) *GrpcConfig {
 
 	if c.BodyLimit != 0 {
 		config.SetConfigMapStringValues(config.Name, "CONNECTORS_GRPC_BODY_LIMIT", fmt.Sprintf("%d", c.BodyLimit))
+	}
+
+	if c.EnableReflection != nil {
+		config.SetConfigMapStringValues(config.Name, "CONNECTORS_GRPC_ENABLE_REFLECTION", strconv.FormatBool(*c.EnableReflection))
 	}
 
 	return c

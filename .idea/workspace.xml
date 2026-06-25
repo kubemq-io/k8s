@@ -6,12 +6,61 @@
   <component name="ChangeListManager">
     <list default="true" id="1751179a-a2e5-46e7-9519-8017170a815c" name="Default Changelist" comment="change yaml types">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqconnector_types.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqconnector_types.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Taskfile.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Taskfile.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/amqp.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/amqp.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/amqp10.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/amqp10.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/api.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/api.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/authentication.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/authentication.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/aws.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/aws.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/connectors_env_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/connectors_env_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/grpc.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/grpc.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/health.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/health.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/log.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/log.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/mqtt.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/mqtt.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/queue.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/queue.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/resources.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/resources.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/rest.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/rest.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/stomp.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/stomp.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/store.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/store.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/configmap.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/configmap.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/secret.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/secret.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/service_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/service_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/statefulset.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/statefulset.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/statefulset_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/statefulset_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster_types.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster_types.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/zz_generated.deepcopy.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/zz_generated.deepcopy.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotChats">
+    <option name="panelChat">
+      <chat>
+        <option name="activeSessionId" value="dae51203-16a3-4c2b-ae14-5c2f809969f7" />
+        <option name="sessions">
+          <session>
+            <option name="chatType" value="PANEL" />
+            <option name="id" value="dae51203-16a3-4c2b-ae14-5c2f809969f7" />
+            <option name="modeId" value="Agent" />
+            <option name="modelType" value="builtin_family" />
+            <option name="modelValue" value="auto" />
+            <option name="targetType" value="LOCAL" />
+          </session>
+        </option>
+        <option name="type" value="PANEL" />
+      </chat>
+    </option>
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_/Users/liornabat/development/projects/kubemq/k8s" value="1hRjn5vVtbDtXmMQsY9toNsCs90" />
+    </persistenceIdMap>
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="143" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -20,7 +69,7 @@
       </list>
     </option>
   </component>
-  <component name="GOROOT" url="file://C:/Program Files/Go" />
+  <component name="GOROOT" url="file://$USER_HOME$/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.26.4.darwin-arm64" />
   <component name="Git.Settings">
     <option name="PUSH_TAGS">
       <GitPushTagMode>
@@ -31,7 +80,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GithubDefaultAccount">
-    <option name="defaultAccountId" value="5cbc9c77-8d16-48ec-8dac-f25be8b58b4f" />
+    <option name="defaultAccountId" value="8e103510-8785-4797-ae76-76b2550cc4a3" />
   </component>
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="true" />
@@ -41,6 +90,10 @@
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
+  </component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
@@ -53,19 +106,29 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;RunOnceActivity.GoLinterPluginOnboardingV2&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.GoLinterPluginStorageMigration&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.analysis.ui.options.defaults&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.modules.automatic.dependencies.download&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.vendoring.notification.had.been.shown&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.watchers.conflict.with.on.save.actions.check.performed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/Development/bitbucket/go/projects/kubemq/libs/k8s&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/liornabat&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -149,6 +212,14 @@
         <item itemvalue="Go Test.TestDeployment_ApplyDelete in github.com/kubemq-io/k8s/controller/objects (1)" />
       </list>
     </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-gosdk-72a9cf600ed8-3dd3895e5e08-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-261.24374.154" />
+        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-GO-261.24374.154" />
+      </set>
+    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -301,7 +372,12 @@
     <MESSAGE value="change yaml types" />
     <option name="LAST_COMMIT_MESSAGE" value="change yaml types" />
   </component>
-  <component name="VgoProject">
-    <settings-migrated>true</settings-migrated>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
   </component>
 </project>

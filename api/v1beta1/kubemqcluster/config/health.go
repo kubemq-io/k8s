@@ -48,21 +48,31 @@ func (c *HealthConfig) SetConfig(config *deployment.Config) *HealthConfig {
 	if !c.Enabled {
 		return c
 	}
+	// If spec.api.disabled is set together with spec.health.enabled (a user misconfig),
+	// ApiConfig.SetConfig returns before SetApiPort so ApiPort stays 0 here; the fallback
+	// keeps the probe on the default 8080 (today's hardcoded behavior) instead of port: 0.
+	apiPort := config.StatefulSet.ApiPort
+	if apiPort == 0 {
+		apiPort = 8080
+	}
+	// The API binds 127.0.0.1 by default; a kubelet httpGet probe targets the pod IP,
+	// so the probe is only reachable when the API binds 0.0.0.0.
+	config.SetConfigMapStringValues(config.Name, "API_BIND_ADDRESS", "0.0.0.0")
 
 	tmpl := `          livenessProbe:
             httpGet:
               path: /health
-              port: 8080
+              port: %d
             initialDelaySeconds: %d
             periodSeconds: %d
             timeoutSeconds: %d
             successThreshold: %d
             failureThreshold: %d
 `
-	prob := fmt.Sprintf(tmpl,
+	prob := fmt.Sprintf(tmpl, apiPort,
 		c.InitialDelaySeconds,
-		c.TimeoutSeconds,
 		c.PeriodSeconds,
+		c.TimeoutSeconds,
 		c.SuccessThreshold,
 		c.FailureThreshold)
 	config.StatefulSet.SetHealthProbe(prob)

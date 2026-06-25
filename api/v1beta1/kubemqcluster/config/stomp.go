@@ -120,6 +120,16 @@ func (c *StompConfig) SetConfig(config *deployment.Config) *StompConfig {
 		return c
 	}
 
+	// Reflect custom ports onto the K8s Service so traffic reaches the listener.
+	if svc, ok := config.Services["stomp"]; ok {
+		if c.Port != nil {
+			svc.SetPort("stomp", *c.Port)
+		}
+		if c.TLSPort != nil {
+			svc.SetPort("stomp-tls", *c.TLSPort)
+		}
+	}
+
 	if c.Port != nil {
 		config.SetConfigMapStringValues(config.Name, "CONNECTORS_STOMP_PORT", fmt.Sprintf("%d", *c.Port))
 	}

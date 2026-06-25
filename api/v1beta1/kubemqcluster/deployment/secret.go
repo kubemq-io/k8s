@@ -17,6 +17,7 @@ metadata:
   namespace: {{.Namespace}}
   labels:
     app: {{.Name}}
+    deployment.id: {{.Id}}
 type: Opaque
 data:
 {{ range $key, $value := .DataVariables}}

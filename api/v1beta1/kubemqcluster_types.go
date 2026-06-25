@@ -115,7 +115,19 @@ type KubemqClusterSpec struct {
 	Aws *config.AwsConfig `json:"aws,omitempty" yaml:"aws,omitempty"`
 
 	// +optional
-	StatefulSetConfigData string `json:"statefulsetConfigData,omitempty" yaml:"statefulSetConfigData,omitempty"`
+	Gcp *config.GcpConfig `json:"gcp,omitempty" yaml:"gcp,omitempty"`
+
+	// +optional
+	Telemetry *config.TelemetryConfig `json:"telemetry,omitempty" yaml:"telemetry,omitempty"`
+
+	// +optional
+	Audit *config.AuditConfig `json:"audit,omitempty" yaml:"audit,omitempty"`
+
+	// +optional
+	Http *config.HttpConfig `json:"http,omitempty" yaml:"http,omitempty"`
+
+	// +optional
+	StatefulSetConfigData string `json:"statefulsetConfigData,omitempty" yaml:"statefulsetConfigData,omitempty"`
 }
 
 // KubemqClusterStatus defines the observed state of KubemqCluster

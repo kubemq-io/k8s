@@ -233,6 +233,16 @@ func DefaultServiceConfig(id, namespace, appName string) map[string]*ServiceConf
 			{Name: "aws-http", Port: 4566, TargetPort: 4566},
 		},
 	}
+	list["gcp"] = &ServiceConfig{
+		Id:        id,
+		Name:      appName + "-gcp",
+		Namespace: namespace,
+		AppName:   appName,
+		Expose:    "ClusterIP",
+		Ports: []ServicePort{
+			{Name: "gcp-grpc", Port: 8085, TargetPort: 8085},
+		},
+	}
 	return list
 }
 
@@ -258,6 +268,20 @@ func (s *ServiceConfig) SetPortName(value string) *ServiceConfig {
 }
 func (s *ServiceConfig) SetHeadless(value bool) *ServiceConfig {
 	s.Headless = value
+	return s
+}
+
+// SetPort updates the named entry in a multi-port Service (Ports) so both the
+// exposed port and the targetPort follow a connector's custom port. These
+// connectors emit their own *_PORT env var (the server listens on the custom
+// port), so the Service must expose and target it. No-op if name is absent.
+func (s *ServiceConfig) SetPort(name string, port int32) *ServiceConfig {
+	for i := range s.Ports {
+		if s.Ports[i].Name == name {
+			s.Ports[i].Port = port
+			s.Ports[i].TargetPort = port
+		}
+	}
 	return s
 }
 

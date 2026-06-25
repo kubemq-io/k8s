@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/base64"
 	"testing"
 
 	"github.com/kubemq-io/k8s/api/v1beta1/kubemqcluster/deployment"
@@ -23,9 +24,15 @@ func vars(cfg *deployment.Config) map[string]string {
 	return cfg.ConfigMaps[testClusterName].Variables
 }
 
+// secData returns the cluster Secret's data variables (base64-encoded values).
+func secData(cfg *deployment.Config) map[string]string {
+	return cfg.Secrets[testClusterName].DataVariables
+}
+
 func ptr32(v int32) *int32    { return &v }
 func ptr64(v int64) *int64    { return &v }
 func strptr(v string) *string { return &v }
+func boolptr(v bool) *bool    { return &v }
 
 func TestMcpConfig_SetConfig_Disabled(t *testing.T) {
 	cfg := newTestConfig()
@@ -365,6 +372,135 @@ func TestAwsConfig_SetConfig_Empty(t *testing.T) {
 	assert.Len(t, vars(cfg), 0)
 }
 
+func TestAwsConfig_SetConfig_SigningFields(t *testing.T) {
+	cfg := newTestConfig()
+	(&AwsConfig{
+		MessageSigning:      boolptr(true),
+		SigningCertTtlHours: ptr32(24),
+	}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 2)
+	assert.Equal(t, "true", v["CONNECTORS_AWS_MESSAGE_SIGNING"])
+	assert.Equal(t, "24", v["CONNECTORS_AWS_SIGNING_CERT_TTL_HOURS"])
+	_, hasEnable := v["CONNECTORS_AWS_ENABLE"]
+	assert.False(t, hasEnable)
+}
+
+// CredentialsData must land in the cluster Secret (base64-encoded), never in the ConfigMap.
+func TestAwsConfig_SetConfig_CredentialsData_Secret(t *testing.T) {
+	cfg := newTestConfig()
+	const raw = `{"accessKeyId":"AKIA","secretAccessKey":"shh"}`
+	(&AwsConfig{CredentialsData: strptr(raw)}).SetConfig(cfg)
+
+	// Value lands in the Secret, base64-encoded under the uppercased key.
+	sd := secData(cfg)
+	require.Len(t, sd, 1)
+	assert.Equal(t, base64.StdEncoding.EncodeToString([]byte(raw)), sd["CONNECTORS_AWS_CREDENTIALS_DATA"])
+
+	// And NEVER in the ConfigMap (neither the raw value nor the key).
+	v := vars(cfg)
+	_, inConfigMap := v["CONNECTORS_AWS_CREDENTIALS_DATA"]
+	assert.False(t, inConfigMap, "credentials must not be written to the ConfigMap")
+	assert.Len(t, v, 0)
+}
+
+func TestGcpConfig_SetConfig_AllFields(t *testing.T) {
+	cfg := newTestConfig()
+	(&GcpConfig{
+		Port:                       ptr32(8085),
+		AdvertisedEndpoint:         strptr("pubsub.example.com:443"),
+		MaxMessageBytes:            ptr32(10485760),
+		DefaultAckDeadlineSeconds:  ptr32(60),
+		MaxOutstandingMessages:     ptr32(1000),
+		MaxInflightPerSubscription: ptr32(2000),
+		MaxConcurrentPolls:         ptr32(16),
+		DeliveryShards:             ptr32(32),
+		MaxAckExtensionSeconds:     ptr32(600),
+		StreamCloseSeconds:         ptr32(30),
+		MaxSeekReplay:              ptr32(100000),
+		EnableReflection:           boolptr(true),
+	}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 12) // all 12 non-disable fields written
+	assert.Equal(t, "8085", v["CONNECTORS_GCP_PORT"])
+	assert.Equal(t, "pubsub.example.com:443", v["CONNECTORS_GCP_ADVERTISED_ENDPOINT"])
+	assert.Equal(t, "10485760", v["CONNECTORS_GCP_MAX_MESSAGE_BYTES"])
+	assert.Equal(t, "60", v["CONNECTORS_GCP_DEFAULT_ACK_DEADLINE_SECONDS"])
+	assert.Equal(t, "1000", v["CONNECTORS_GCP_MAX_OUTSTANDING_MESSAGES"])
+	assert.Equal(t, "2000", v["CONNECTORS_GCP_MAX_INFLIGHT_PER_SUBSCRIPTION"])
+	assert.Equal(t, "16", v["CONNECTORS_GCP_MAX_CONCURRENT_POLLS"])
+	assert.Equal(t, "32", v["CONNECTORS_GCP_DELIVERY_SHARDS"])
+	assert.Equal(t, "600", v["CONNECTORS_GCP_MAX_ACK_EXTENSION_SECONDS"])
+	assert.Equal(t, "30", v["CONNECTORS_GCP_STREAM_CLOSE_SECONDS"])
+	assert.Equal(t, "100000", v["CONNECTORS_GCP_MAX_SEEK_REPLAY"])
+	assert.Equal(t, "true", v["CONNECTORS_GCP_ENABLE_REFLECTION"])
+	_, hasEnable := v["CONNECTORS_GCP_ENABLE"]
+	assert.False(t, hasEnable, "enable must not be written when not disabled")
+}
+
+func TestGcpConfig_SetConfig_Disabled(t *testing.T) {
+	cfg := newTestConfig()
+	(&GcpConfig{Disabled: true}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 1)
+	assert.Equal(t, "false", v["CONNECTORS_GCP_ENABLE"])
+}
+
+func TestGcpConfig_SetConfig_Empty(t *testing.T) {
+	cfg := newTestConfig()
+	(&GcpConfig{}).SetConfig(cfg)
+	assert.Len(t, vars(cfg), 0)
+}
+
+func TestApiConfig_SetConfig_Disabled(t *testing.T) {
+	cfg := newTestConfig()
+	(&ApiConfig{Disabled: true}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 1)
+	assert.Equal(t, "false", v["API_ENABLE"])
+}
+
+func TestApiConfig_SetConfig_PortMoves(t *testing.T) {
+	cfg := newTestConfig()
+	(&ApiConfig{Port: ptr32(9000)}).SetConfig(cfg)
+	assert.Equal(t, "9000", vars(cfg)["API_PORT"])
+}
+
+func TestApiConfig_SetConfig_PortUnset(t *testing.T) {
+	cfg := newTestConfig()
+	(&ApiConfig{}).SetConfig(cfg)
+	_, has := vars(cfg)["API_PORT"]
+	assert.False(t, has, "API_PORT must not be emitted when Port is unset")
+}
+
+func TestGrpcConfig_SetConfig_Disabled(t *testing.T) {
+	cfg := newTestConfig()
+	(&GrpcConfig{Disabled: true}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 1)
+	assert.Equal(t, "false", v["CONNECTORS_GRPC_ENABLE"])
+}
+
+func TestGrpcConfig_SetConfig_PortMoves(t *testing.T) {
+	cfg := newTestConfig()
+	(&GrpcConfig{Port: ptr32(9000)}).SetConfig(cfg)
+	assert.Equal(t, "9000", vars(cfg)["CONNECTORS_GRPC_PORT"])
+}
+
+func TestRestConfig_SetConfig_Disabled(t *testing.T) {
+	cfg := newTestConfig()
+	(&RestConfig{Disabled: true}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 1)
+	assert.Equal(t, "false", v["CONNECTORS_REST_ENABLE"])
+}
+
+func TestRestConfig_SetConfig_PortMoves(t *testing.T) {
+	cfg := newTestConfig()
+	(&RestConfig{Port: ptr32(9000)}).SetConfig(cfg)
+	assert.Equal(t, "9000", vars(cfg)["CONNECTORS_REST_PORT"])
+}
+
 // DeepCopy independence: mutating the source after copy must not affect the copy.
 func TestConnectorConfigs_DeepCopy_Independent(t *testing.T) {
 	mcp := &McpConfig{ToolTimeoutSeconds: ptr32(30), TrustedOrigins: []string{"a", "b"}}
@@ -433,4 +569,17 @@ func TestConnectorConfigs_DeepCopy_Independent(t *testing.T) {
 	*aws.Region = "mutated"
 	assert.Equal(t, int32(4566), *awsCopy.Port)
 	assert.Equal(t, "kubemq", *awsCopy.Region)
+
+	pubsub := &GcpConfig{
+		Port:               ptr32(8085),
+		AdvertisedEndpoint: strptr("pubsub.example.com:443"),
+		EnableReflection:   boolptr(true),
+	}
+	pubsubCopy := pubsub.DeepCopy()
+	*pubsub.Port = 1
+	*pubsub.AdvertisedEndpoint = "mutated"
+	*pubsub.EnableReflection = false
+	assert.Equal(t, int32(8085), *pubsubCopy.Port)
+	assert.Equal(t, "pubsub.example.com:443", *pubsubCopy.AdvertisedEndpoint)
+	assert.Equal(t, true, *pubsubCopy.EnableReflection)
 }

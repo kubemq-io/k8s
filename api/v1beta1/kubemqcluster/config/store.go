@@ -35,6 +35,10 @@ type StoreConfig struct {
 	// +optional
 	// +kubebuilder:validation:Minimum=0
 	PurgeInactiveMinutes *int32 `json:"purgeInactiveMinutes,omitempty" yaml:"purgeInactiveMinutes,omitempty"`
+
+	// +optional
+	// +kubebuilder:validation:Minimum=1
+	IdlePruneCutoffHours *int32 `json:"idlePruneCutoffHours,omitempty" yaml:"idlePruneCutoffHours,omitempty"`
 }
 
 func (c *StoreConfig) DeepCopy() *StoreConfig {
@@ -51,7 +55,6 @@ func (c *StoreConfig) DeepCopy() *StoreConfig {
 	if c.MaxSubscribers != nil {
 		out.MaxSubscribers = new(int32)
 		*out.MaxSubscribers = *c.MaxSubscribers
-
 	}
 
 	if c.MaxMessages != nil {
@@ -72,6 +75,11 @@ func (c *StoreConfig) DeepCopy() *StoreConfig {
 	if c.PurgeInactiveMinutes != nil {
 		out.PurgeInactiveMinutes = new(int32)
 		*out.PurgeInactiveMinutes = *c.PurgeInactiveMinutes
+	}
+
+	if c.IdlePruneCutoffHours != nil {
+		out.IdlePruneCutoffHours = new(int32)
+		*out.IdlePruneCutoffHours = *c.IdlePruneCutoffHours
 	}
 
 	return out
@@ -107,6 +115,10 @@ func (c *StoreConfig) SetConfig(config *deployment.Config) *StoreConfig {
 
 	if c.PurgeInactiveMinutes != nil {
 		config.SetConfigMapStringValues(config.Name, "STORE_MAX_PURGE_INACTIVE", fmt.Sprintf("%d", *c.PurgeInactiveMinutes))
+	}
+
+	if c.IdlePruneCutoffHours != nil {
+		config.SetConfigMapStringValues(config.Name, "STORE_IDLE_PRUNE_CUTOFF_HOURS", fmt.Sprintf("%d", *c.IdlePruneCutoffHours))
 	}
 
 	return c

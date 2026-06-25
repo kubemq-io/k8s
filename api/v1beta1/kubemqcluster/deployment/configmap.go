@@ -17,6 +17,7 @@ metadata:
   namespace: {{.Namespace}}
   labels:
     app: {{.Name}}
+    deployment.id: {{.Id}}
 data:
 {{ range $key, $value := .Variables}}
   {{$key}}: "{{$value}}"
