@@ -8,11 +8,11 @@ import (
 )
 
 // GcpConfig configures the kubemq-server Google Cloud Pub/Sub wire-protocol
-// connector. Maps to server Connectors.PubSub. The connector is enabled by
-// default server-side; set disabled=true to turn it off.
+// connector. Maps to server Connectors.PubSub. The connector is opt-in
+// (disabled by default); set enabled: true to activate it (opens port 8085).
 type GcpConfig struct {
 	// +optional
-	Disabled bool `json:"disabled,omitempty" yaml:"disabled,omitempty"`
+	Enabled *bool `json:"enabled,omitempty" yaml:"enabled,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Minimum=1
@@ -68,7 +68,10 @@ type GcpConfig struct {
 func (c *GcpConfig) DeepCopy() *GcpConfig {
 	out := &GcpConfig{}
 
-	out.Disabled = c.Disabled
+	if c.Enabled != nil {
+		out.Enabled = new(bool)
+		*out.Enabled = *c.Enabled
+	}
 
 	if c.Port != nil {
 		out.Port = new(int32)
@@ -134,8 +137,9 @@ func (c *GcpConfig) DeepCopy() *GcpConfig {
 }
 
 func (c *GcpConfig) SetConfig(config *deployment.Config) *GcpConfig {
-	if c.Disabled {
-		config.SetConfigMapStringValues(config.Name, "CONNECTORS_GCP_ENABLE", "false")
+	effective := c.Enabled != nil && *c.Enabled
+	config.SetConfigMapStringValues(config.Name, "CONNECTORS_GCP_ENABLE", strconv.FormatBool(effective))
+	if !effective {
 		return c
 	}
 

@@ -8,12 +8,13 @@ import (
 )
 
 // AwsConfig configures the kubemq-server AWS (SQS/SNS) connector.
-// Maps to server Connectors.Aws. The connector is enabled by default server-side.
+// Maps to server Connectors.Aws. The connector is opt-in (disabled by default);
+// set enabled: true to activate it (opens port 4566).
 // Credentials are intentionally omitted; they are supplied through the cluster
 // Secret / server config, not the CR.
 type AwsConfig struct {
 	// +optional
-	Disabled bool `json:"disabled,omitempty" yaml:"disabled,omitempty"`
+	Enabled *bool `json:"enabled,omitempty" yaml:"enabled,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Minimum=1
@@ -61,7 +62,10 @@ type AwsConfig struct {
 func (c *AwsConfig) DeepCopy() *AwsConfig {
 	out := &AwsConfig{}
 
-	out.Disabled = c.Disabled
+	if c.Enabled != nil {
+		out.Enabled = new(bool)
+		*out.Enabled = *c.Enabled
+	}
 
 	if c.Port != nil {
 		out.Port = new(int32)
@@ -122,8 +126,9 @@ func (c *AwsConfig) DeepCopy() *AwsConfig {
 }
 
 func (c *AwsConfig) SetConfig(config *deployment.Config) *AwsConfig {
-	if c.Disabled {
-		config.SetConfigMapStringValues(config.Name, "CONNECTORS_AWS_ENABLE", "false")
+	effective := c.Enabled != nil && *c.Enabled
+	config.SetConfigMapStringValues(config.Name, "CONNECTORS_AWS_ENABLE", strconv.FormatBool(effective))
+	if !effective {
 		return c
 	}
 

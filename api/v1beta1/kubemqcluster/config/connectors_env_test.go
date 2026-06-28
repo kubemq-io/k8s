@@ -134,17 +134,33 @@ func TestCeConfig_SetConfig_Empty(t *testing.T) {
 	assert.Len(t, vars(cfg), 0)
 }
 
-func TestMqttConfig_SetConfig_Disabled(t *testing.T) {
+func TestMqttConfig_SetConfig_NilEnabled(t *testing.T) {
 	cfg := newTestConfig()
-	(&MqttConfig{Disabled: true}).SetConfig(cfg)
+	(&MqttConfig{}).SetConfig(cfg)
 	v := vars(cfg)
 	require.Len(t, v, 1)
 	assert.Equal(t, "false", v["CONNECTORSMQTT_ENABLE"])
 }
 
+func TestMqttConfig_SetConfig_ExplicitFalse(t *testing.T) {
+	cfg := newTestConfig()
+	(&MqttConfig{Enabled: boolptr(false)}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 1)
+	assert.Equal(t, "false", v["CONNECTORSMQTT_ENABLE"])
+}
+
+func TestMqttConfig_SetConfig_ExplicitTrue(t *testing.T) {
+	cfg := newTestConfig()
+	(&MqttConfig{Enabled: boolptr(true)}).SetConfig(cfg)
+	v := vars(cfg)
+	assert.Equal(t, "true", v["CONNECTORSMQTT_ENABLE"])
+}
+
 func TestMqttConfig_SetConfig_AllFields(t *testing.T) {
 	cfg := newTestConfig()
 	(&MqttConfig{
+		Enabled:                boolptr(true),
 		Port:                   ptr32(1883),
 		TLSPort:                ptr32(8883),
 		WSPort:                 ptr32(8083),
@@ -165,7 +181,8 @@ func TestMqttConfig_SetConfig_AllFields(t *testing.T) {
 		},
 	}).SetConfig(cfg)
 	v := vars(cfg)
-	require.Len(t, v, 16) // 8 scalar + 8 capability fields
+	require.Len(t, v, 17) // ENABLE + 8 scalar + 8 capability fields
+	assert.Equal(t, "true", v["CONNECTORSMQTT_ENABLE"])
 	assert.Equal(t, "1883", v["CONNECTORSMQTT_PORT"])
 	assert.Equal(t, "8883", v["CONNECTORSMQTT_TLS_PORT"])
 	assert.Equal(t, "8083", v["CONNECTORSMQTT_WS_PORT"])
@@ -182,27 +199,43 @@ func TestMqttConfig_SetConfig_AllFields(t *testing.T) {
 	assert.Equal(t, "86400", v["CONNECTORSMQTT_CAPABILITIES_MAX_MESSAGE_EXPIRY_SECONDS"])
 	assert.Equal(t, "2", v["CONNECTORSMQTT_CAPABILITIES_MAX_QOS"])
 	assert.Equal(t, "4", v["CONNECTORSMQTT_CAPABILITIES_MIN_PROTOCOL_VERSION"])
-	_, hasEnable := v["CONNECTORSMQTT_ENABLE"]
-	assert.False(t, hasEnable)
 }
 
 func TestMqttConfig_SetConfig_Empty(t *testing.T) {
 	cfg := newTestConfig()
 	(&MqttConfig{}).SetConfig(cfg)
-	assert.Len(t, vars(cfg), 0)
+	// present-empty block always emits ENABLE=false (opt-in: nil → off)
+	assert.Len(t, vars(cfg), 1)
+	assert.Equal(t, "false", vars(cfg)["CONNECTORSMQTT_ENABLE"])
 }
 
-func TestAmqpConfig_SetConfig_Disabled(t *testing.T) {
+func TestAmqpConfig_SetConfig_NilEnabled(t *testing.T) {
 	cfg := newTestConfig()
-	(&AmqpConfig{Disabled: true}).SetConfig(cfg)
+	(&AmqpConfig{}).SetConfig(cfg)
 	v := vars(cfg)
 	require.Len(t, v, 1)
 	assert.Equal(t, "false", v["CONNECTORS_AMQP_ENABLE"])
 }
 
+func TestAmqpConfig_SetConfig_ExplicitFalse(t *testing.T) {
+	cfg := newTestConfig()
+	(&AmqpConfig{Enabled: boolptr(false)}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 1)
+	assert.Equal(t, "false", v["CONNECTORS_AMQP_ENABLE"])
+}
+
+func TestAmqpConfig_SetConfig_ExplicitTrue(t *testing.T) {
+	cfg := newTestConfig()
+	(&AmqpConfig{Enabled: boolptr(true)}).SetConfig(cfg)
+	v := vars(cfg)
+	assert.Equal(t, "true", v["CONNECTORS_AMQP_ENABLE"])
+}
+
 func TestAmqpConfig_SetConfig_AllFields(t *testing.T) {
 	cfg := newTestConfig()
 	(&AmqpConfig{
+		Enabled:           boolptr(true),
 		Port:              ptr32(5672),
 		TLSPort:           ptr32(5671),
 		HeartbeatSeconds:  ptr32(60),
@@ -216,7 +249,8 @@ func TestAmqpConfig_SetConfig_AllFields(t *testing.T) {
 		MaxReceiveCount:   ptr32(0),
 	}).SetConfig(cfg)
 	v := vars(cfg)
-	require.Len(t, v, 11)
+	require.Len(t, v, 12) // ENABLE + 11 scalar fields
+	assert.Equal(t, "true", v["CONNECTORS_AMQP_ENABLE"])
 	assert.Equal(t, "5672", v["CONNECTORS_AMQP_PORT"])
 	assert.Equal(t, "5671", v["CONNECTORS_AMQP_TLS_PORT"])
 	assert.Equal(t, "60", v["CONNECTORS_AMQP_HEARTBEAT_SECONDS"])
@@ -228,27 +262,43 @@ func TestAmqpConfig_SetConfig_AllFields(t *testing.T) {
 	assert.Equal(t, "32", v["CONNECTORS_AMQP_GET_BATCH_SIZE"])
 	assert.Equal(t, "16", v["CONNECTORS_AMQP_DEAD_LETTER_MAX_HOPS"])
 	assert.Equal(t, "0", v["CONNECTORS_AMQP_MAX_RECEIVE_COUNT"])
-	_, hasEnable := v["CONNECTORS_AMQP_ENABLE"]
-	assert.False(t, hasEnable)
 }
 
 func TestAmqpConfig_SetConfig_Empty(t *testing.T) {
 	cfg := newTestConfig()
 	(&AmqpConfig{}).SetConfig(cfg)
-	assert.Len(t, vars(cfg), 0)
+	// present-empty block always emits ENABLE=false (opt-in: nil → off)
+	assert.Len(t, vars(cfg), 1)
+	assert.Equal(t, "false", vars(cfg)["CONNECTORS_AMQP_ENABLE"])
 }
 
-func TestAmqp10Config_SetConfig_Disabled(t *testing.T) {
+func TestAmqp10Config_SetConfig_NilEnabled(t *testing.T) {
 	cfg := newTestConfig()
-	(&Amqp10Config{Disabled: true}).SetConfig(cfg)
+	(&Amqp10Config{}).SetConfig(cfg)
 	v := vars(cfg)
 	require.Len(t, v, 1)
 	assert.Equal(t, "false", v["CONNECTORS_AMQP10_ENABLE"])
 }
 
+func TestAmqp10Config_SetConfig_ExplicitFalse(t *testing.T) {
+	cfg := newTestConfig()
+	(&Amqp10Config{Enabled: boolptr(false)}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 1)
+	assert.Equal(t, "false", v["CONNECTORS_AMQP10_ENABLE"])
+}
+
+func TestAmqp10Config_SetConfig_ExplicitTrue(t *testing.T) {
+	cfg := newTestConfig()
+	(&Amqp10Config{Enabled: boolptr(true)}).SetConfig(cfg)
+	v := vars(cfg)
+	assert.Equal(t, "true", v["CONNECTORS_AMQP10_ENABLE"])
+}
+
 func TestAmqp10Config_SetConfig_AllFields(t *testing.T) {
 	cfg := newTestConfig()
 	(&Amqp10Config{
+		Enabled:                  boolptr(true),
 		Port:                     ptr32(5672),
 		TLSPort:                  ptr32(5671),
 		MaxFrameSize:             ptr32(131072),
@@ -264,7 +314,8 @@ func TestAmqp10Config_SetConfig_AllFields(t *testing.T) {
 		RPCMaxPending:            ptr32(512),
 	}).SetConfig(cfg)
 	v := vars(cfg)
-	require.Len(t, v, 13)
+	require.Len(t, v, 14) // ENABLE + 13 scalar fields
+	assert.Equal(t, "true", v["CONNECTORS_AMQP10_ENABLE"])
 	assert.Equal(t, "5672", v["CONNECTORS_AMQP10_PORT"])
 	assert.Equal(t, "5671", v["CONNECTORS_AMQP10_TLS_PORT"])
 	assert.Equal(t, "131072", v["CONNECTORS_AMQP10_MAX_FRAME_SIZE"])
@@ -278,27 +329,43 @@ func TestAmqp10Config_SetConfig_AllFields(t *testing.T) {
 	assert.Equal(t, "1024", v["CONNECTORS_AMQP10_MAX_UNSETTLED_PER_LINK"])
 	assert.Equal(t, "30", v["CONNECTORS_AMQP10_DEFAULT_RPC_TIMEOUT_SECONDS"])
 	assert.Equal(t, "512", v["CONNECTORS_AMQP10_RPC_MAX_PENDING"])
-	_, hasEnable := v["CONNECTORS_AMQP10_ENABLE"]
-	assert.False(t, hasEnable)
 }
 
 func TestAmqp10Config_SetConfig_Empty(t *testing.T) {
 	cfg := newTestConfig()
 	(&Amqp10Config{}).SetConfig(cfg)
-	assert.Len(t, vars(cfg), 0)
+	// present-empty block always emits ENABLE=false (opt-in: nil → off)
+	assert.Len(t, vars(cfg), 1)
+	assert.Equal(t, "false", vars(cfg)["CONNECTORS_AMQP10_ENABLE"])
 }
 
-func TestStompConfig_SetConfig_Disabled(t *testing.T) {
+func TestStompConfig_SetConfig_NilEnabled(t *testing.T) {
 	cfg := newTestConfig()
-	(&StompConfig{Disabled: true}).SetConfig(cfg)
+	(&StompConfig{}).SetConfig(cfg)
 	v := vars(cfg)
 	require.Len(t, v, 1)
 	assert.Equal(t, "false", v["CONNECTORS_STOMP_ENABLE"])
 }
 
+func TestStompConfig_SetConfig_ExplicitFalse(t *testing.T) {
+	cfg := newTestConfig()
+	(&StompConfig{Enabled: boolptr(false)}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 1)
+	assert.Equal(t, "false", v["CONNECTORS_STOMP_ENABLE"])
+}
+
+func TestStompConfig_SetConfig_ExplicitTrue(t *testing.T) {
+	cfg := newTestConfig()
+	(&StompConfig{Enabled: boolptr(true)}).SetConfig(cfg)
+	v := vars(cfg)
+	assert.Equal(t, "true", v["CONNECTORS_STOMP_ENABLE"])
+}
+
 func TestStompConfig_SetConfig_AllFields(t *testing.T) {
 	cfg := newTestConfig()
 	(&StompConfig{
+		Enabled:                boolptr(true),
 		Port:                   ptr32(61613),
 		TLSPort:                ptr32(61614),
 		DefaultPattern:         strptr("events"),
@@ -311,7 +378,8 @@ func TestStompConfig_SetConfig_AllFields(t *testing.T) {
 		RPCMaxPending:          ptr32(1024),
 	}).SetConfig(cfg)
 	v := vars(cfg)
-	require.Len(t, v, 10)
+	require.Len(t, v, 11) // ENABLE + 10 scalar fields
+	assert.Equal(t, "true", v["CONNECTORS_STOMP_ENABLE"])
 	assert.Equal(t, "61613", v["CONNECTORS_STOMP_PORT"])
 	assert.Equal(t, "61614", v["CONNECTORS_STOMP_TLS_PORT"])
 	assert.Equal(t, "events", v["CONNECTORS_STOMP_DEFAULT_PATTERN"])
@@ -322,27 +390,43 @@ func TestStompConfig_SetConfig_AllFields(t *testing.T) {
 	assert.Equal(t, "30", v["CONNECTORS_STOMP_QUEUE_ACK_TIMEOUT_SECONDS"])
 	assert.Equal(t, "30", v["CONNECTORS_STOMP_RPC_TIMEOUT_SECONDS"])
 	assert.Equal(t, "1024", v["CONNECTORS_STOMP_RPC_MAX_PENDING"])
-	_, hasEnable := v["CONNECTORS_STOMP_ENABLE"]
-	assert.False(t, hasEnable)
 }
 
 func TestStompConfig_SetConfig_Empty(t *testing.T) {
 	cfg := newTestConfig()
 	(&StompConfig{}).SetConfig(cfg)
-	assert.Len(t, vars(cfg), 0)
+	// present-empty block always emits ENABLE=false (opt-in: nil → off)
+	assert.Len(t, vars(cfg), 1)
+	assert.Equal(t, "false", vars(cfg)["CONNECTORS_STOMP_ENABLE"])
 }
 
-func TestAwsConfig_SetConfig_Disabled(t *testing.T) {
+func TestAwsConfig_SetConfig_NilEnabled(t *testing.T) {
 	cfg := newTestConfig()
-	(&AwsConfig{Disabled: true}).SetConfig(cfg)
+	(&AwsConfig{}).SetConfig(cfg)
 	v := vars(cfg)
 	require.Len(t, v, 1)
 	assert.Equal(t, "false", v["CONNECTORS_AWS_ENABLE"])
 }
 
+func TestAwsConfig_SetConfig_ExplicitFalse(t *testing.T) {
+	cfg := newTestConfig()
+	(&AwsConfig{Enabled: boolptr(false)}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 1)
+	assert.Equal(t, "false", v["CONNECTORS_AWS_ENABLE"])
+}
+
+func TestAwsConfig_SetConfig_ExplicitTrue(t *testing.T) {
+	cfg := newTestConfig()
+	(&AwsConfig{Enabled: boolptr(true)}).SetConfig(cfg)
+	v := vars(cfg)
+	assert.Equal(t, "true", v["CONNECTORS_AWS_ENABLE"])
+}
+
 func TestAwsConfig_SetConfig_AllFields(t *testing.T) {
 	cfg := newTestConfig()
 	(&AwsConfig{
+		Enabled:             boolptr(true),
 		Port:                ptr32(4566),
 		Region:              strptr("kubemq"),
 		AccountID:           strptr("000000000000"),
@@ -353,7 +437,8 @@ func TestAwsConfig_SetConfig_AllFields(t *testing.T) {
 		BodyLimit:           strptr("2M"),
 	}).SetConfig(cfg)
 	v := vars(cfg)
-	require.Len(t, v, 8)
+	require.Len(t, v, 9) // ENABLE + 8 scalar fields
+	assert.Equal(t, "true", v["CONNECTORS_AWS_ENABLE"])
 	assert.Equal(t, "4566", v["CONNECTORS_AWS_PORT"])
 	assert.Equal(t, "kubemq", v["CONNECTORS_AWS_REGION"])
 	assert.Equal(t, "000000000000", v["CONNECTORS_AWS_ACCOUNT_ID"])
@@ -362,51 +447,53 @@ func TestAwsConfig_SetConfig_AllFields(t *testing.T) {
 	assert.Equal(t, "1024", v["CONNECTORS_AWS_MAX_CONCURRENT_POLLS"])
 	assert.Equal(t, "60", v["CONNECTORS_AWS_READ_TIMEOUT"])
 	assert.Equal(t, "2M", v["CONNECTORS_AWS_BODY_LIMIT"])
-	_, hasEnable := v["CONNECTORS_AWS_ENABLE"]
-	assert.False(t, hasEnable)
 }
 
 func TestAwsConfig_SetConfig_Empty(t *testing.T) {
 	cfg := newTestConfig()
 	(&AwsConfig{}).SetConfig(cfg)
-	assert.Len(t, vars(cfg), 0)
+	// present-empty block always emits ENABLE=false (opt-in: nil → off)
+	assert.Len(t, vars(cfg), 1)
+	assert.Equal(t, "false", vars(cfg)["CONNECTORS_AWS_ENABLE"])
 }
 
 func TestAwsConfig_SetConfig_SigningFields(t *testing.T) {
 	cfg := newTestConfig()
 	(&AwsConfig{
+		Enabled:             boolptr(true),
 		MessageSigning:      boolptr(true),
 		SigningCertTtlHours: ptr32(24),
 	}).SetConfig(cfg)
 	v := vars(cfg)
-	require.Len(t, v, 2)
+	require.Len(t, v, 3) // ENABLE + 2 signing fields
+	assert.Equal(t, "true", v["CONNECTORS_AWS_ENABLE"])
 	assert.Equal(t, "true", v["CONNECTORS_AWS_MESSAGE_SIGNING"])
 	assert.Equal(t, "24", v["CONNECTORS_AWS_SIGNING_CERT_TTL_HOURS"])
-	_, hasEnable := v["CONNECTORS_AWS_ENABLE"]
-	assert.False(t, hasEnable)
 }
 
 // CredentialsData must land in the cluster Secret (base64-encoded), never in the ConfigMap.
 func TestAwsConfig_SetConfig_CredentialsData_Secret(t *testing.T) {
 	cfg := newTestConfig()
 	const raw = `{"accessKeyId":"AKIA","secretAccessKey":"shh"}`
-	(&AwsConfig{CredentialsData: strptr(raw)}).SetConfig(cfg)
+	(&AwsConfig{Enabled: boolptr(true), CredentialsData: strptr(raw)}).SetConfig(cfg)
 
 	// Value lands in the Secret, base64-encoded under the uppercased key.
 	sd := secData(cfg)
 	require.Len(t, sd, 1)
 	assert.Equal(t, base64.StdEncoding.EncodeToString([]byte(raw)), sd["CONNECTORS_AWS_CREDENTIALS_DATA"])
 
-	// And NEVER in the ConfigMap (neither the raw value nor the key).
+	// ConfigMap gets only ENABLE=true (never the credentials).
 	v := vars(cfg)
 	_, inConfigMap := v["CONNECTORS_AWS_CREDENTIALS_DATA"]
 	assert.False(t, inConfigMap, "credentials must not be written to the ConfigMap")
-	assert.Len(t, v, 0)
+	assert.Len(t, v, 1)
+	assert.Equal(t, "true", v["CONNECTORS_AWS_ENABLE"])
 }
 
 func TestGcpConfig_SetConfig_AllFields(t *testing.T) {
 	cfg := newTestConfig()
 	(&GcpConfig{
+		Enabled:                    boolptr(true),
 		Port:                       ptr32(8085),
 		AdvertisedEndpoint:         strptr("pubsub.example.com:443"),
 		MaxMessageBytes:            ptr32(10485760),
@@ -421,7 +508,8 @@ func TestGcpConfig_SetConfig_AllFields(t *testing.T) {
 		EnableReflection:           boolptr(true),
 	}).SetConfig(cfg)
 	v := vars(cfg)
-	require.Len(t, v, 12) // all 12 non-disable fields written
+	require.Len(t, v, 13) // ENABLE + 12 non-enable fields
+	assert.Equal(t, "true", v["CONNECTORS_GCP_ENABLE"])
 	assert.Equal(t, "8085", v["CONNECTORS_GCP_PORT"])
 	assert.Equal(t, "pubsub.example.com:443", v["CONNECTORS_GCP_ADVERTISED_ENDPOINT"])
 	assert.Equal(t, "10485760", v["CONNECTORS_GCP_MAX_MESSAGE_BYTES"])
@@ -434,22 +522,37 @@ func TestGcpConfig_SetConfig_AllFields(t *testing.T) {
 	assert.Equal(t, "30", v["CONNECTORS_GCP_STREAM_CLOSE_SECONDS"])
 	assert.Equal(t, "100000", v["CONNECTORS_GCP_MAX_SEEK_REPLAY"])
 	assert.Equal(t, "true", v["CONNECTORS_GCP_ENABLE_REFLECTION"])
-	_, hasEnable := v["CONNECTORS_GCP_ENABLE"]
-	assert.False(t, hasEnable, "enable must not be written when not disabled")
 }
 
-func TestGcpConfig_SetConfig_Disabled(t *testing.T) {
+func TestGcpConfig_SetConfig_NilEnabled(t *testing.T) {
 	cfg := newTestConfig()
-	(&GcpConfig{Disabled: true}).SetConfig(cfg)
+	(&GcpConfig{}).SetConfig(cfg)
 	v := vars(cfg)
 	require.Len(t, v, 1)
 	assert.Equal(t, "false", v["CONNECTORS_GCP_ENABLE"])
 }
 
+func TestGcpConfig_SetConfig_ExplicitFalse(t *testing.T) {
+	cfg := newTestConfig()
+	(&GcpConfig{Enabled: boolptr(false)}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 1)
+	assert.Equal(t, "false", v["CONNECTORS_GCP_ENABLE"])
+}
+
+func TestGcpConfig_SetConfig_ExplicitTrue(t *testing.T) {
+	cfg := newTestConfig()
+	(&GcpConfig{Enabled: boolptr(true)}).SetConfig(cfg)
+	v := vars(cfg)
+	assert.Equal(t, "true", v["CONNECTORS_GCP_ENABLE"])
+}
+
 func TestGcpConfig_SetConfig_Empty(t *testing.T) {
 	cfg := newTestConfig()
 	(&GcpConfig{}).SetConfig(cfg)
-	assert.Len(t, vars(cfg), 0)
+	// present-empty block always emits ENABLE=false (opt-in: nil → off)
+	assert.Len(t, vars(cfg), 1)
+	assert.Equal(t, "false", vars(cfg)["CONNECTORS_GCP_ENABLE"])
 }
 
 func TestApiConfig_SetConfig_Disabled(t *testing.T) {

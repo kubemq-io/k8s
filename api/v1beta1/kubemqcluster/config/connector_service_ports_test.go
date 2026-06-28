@@ -46,7 +46,8 @@ func assertScalarSvcPort(t *testing.T, cfg *deployment.Config, svc string, want 
 
 func TestMqttConfig_SetConfig_ServicePorts(t *testing.T) {
 	cfg := newTestConfig()
-	(&MqttConfig{Port: ptr32(1884), TLSPort: ptr32(8884), WSPort: ptr32(8084)}).SetConfig(cfg)
+	// Enabled: true required to reach the port-reflection path.
+	(&MqttConfig{Enabled: boolptr(true), Port: ptr32(1884), TLSPort: ptr32(8884), WSPort: ptr32(8084)}).SetConfig(cfg)
 	assertSvcPort(t, cfg, "mqtt", "mqtt", 1884)
 	assertSvcPort(t, cfg, "mqtt", "mqtt-tls", 8884)
 	assertSvcPort(t, cfg, "mqtt", "mqtt-ws", 8084)
@@ -54,7 +55,8 @@ func TestMqttConfig_SetConfig_ServicePorts(t *testing.T) {
 
 func TestAmqpConfig_SetConfig_ServicePorts(t *testing.T) {
 	cfg := newTestConfig()
-	(&AmqpConfig{Port: ptr32(5673), TLSPort: ptr32(5674)}).SetConfig(cfg)
+	// Enabled: true required to reach the port-reflection path.
+	(&AmqpConfig{Enabled: boolptr(true), Port: ptr32(5673), TLSPort: ptr32(5674)}).SetConfig(cfg)
 	assertSvcPort(t, cfg, "amqp", "amqp", 5673)
 	assertSvcPort(t, cfg, "amqp", "amqp-tls", 5674)
 }
@@ -62,29 +64,32 @@ func TestAmqpConfig_SetConfig_ServicePorts(t *testing.T) {
 func TestAmqp10Config_SetConfig_ServicePorts(t *testing.T) {
 	cfg := newTestConfig()
 	// AMQP 1.0 shares the "amqp" Service with AMQP 0.9.1.
-	(&Amqp10Config{Port: ptr32(5680), TLSPort: ptr32(5681)}).SetConfig(cfg)
+	// Enabled: true required to reach the port-reflection path.
+	(&Amqp10Config{Enabled: boolptr(true), Port: ptr32(5680), TLSPort: ptr32(5681)}).SetConfig(cfg)
 	assertSvcPort(t, cfg, "amqp", "amqp", 5680)
 	assertSvcPort(t, cfg, "amqp", "amqp-tls", 5681)
 }
 
 func TestStompConfig_SetConfig_ServicePorts(t *testing.T) {
 	cfg := newTestConfig()
-	(&StompConfig{Port: ptr32(61615), TLSPort: ptr32(61616)}).SetConfig(cfg)
+	// Enabled: true required to reach the port-reflection path.
+	(&StompConfig{Enabled: boolptr(true), Port: ptr32(61615), TLSPort: ptr32(61616)}).SetConfig(cfg)
 	assertSvcPort(t, cfg, "stomp", "stomp", 61615)
 	assertSvcPort(t, cfg, "stomp", "stomp-tls", 61616)
 }
 
 func TestAwsConfig_SetConfig_ServicePorts(t *testing.T) {
 	cfg := newTestConfig()
-	(&AwsConfig{Port: ptr32(4567)}).SetConfig(cfg)
+	// Enabled: true required to reach the port-reflection path.
+	(&AwsConfig{Enabled: boolptr(true), Port: ptr32(4567)}).SetConfig(cfg)
 	assertSvcPort(t, cfg, "aws", "aws-http", 4567)
 }
 
 func TestGcpConfig_SetConfig_ServicePorts(t *testing.T) {
 	cfg := newTestConfig()
 	// gcp is a multi-port Service (port name "gcp-grpc"), so the existing
-	// slice-based helper applies.
-	(&GcpConfig{Port: ptr32(9000)}).SetConfig(cfg)
+	// slice-based helper applies. Enabled: true required to reach the port-reflection path.
+	(&GcpConfig{Enabled: boolptr(true), Port: ptr32(9000)}).SetConfig(cfg)
 	assertSvcPort(t, cfg, "gcp", "gcp-grpc", 9000)
 }
 

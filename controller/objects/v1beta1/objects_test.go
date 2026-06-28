@@ -27,7 +27,7 @@ func TestMain(m *testing.M) {
 	ctrl.SetLogger(zap.New(zap.UseDevMode(true), zap.StacktraceLevel(zapcore.PanicLevel)))
 	mgr, err = ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                  scheme,
-		MetricsBindAddress:      ":8090",
+		MetricsBindAddress:      "0",
 		Port:                    9443,
 		LeaderElection:          false,
 		LeaderElectionNamespace: namespace,

@@ -2,15 +2,17 @@ package config
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/kubemq-io/k8s/api/v1beta1/kubemqcluster/deployment"
 )
 
 // MqttConfig configures the kubemq-server MQTT connector.
-// Maps to server Connectors.MQTT. The connector is enabled by default server-side.
+// Maps to server Connectors.MQTT. The connector is opt-in (disabled by default);
+// set enabled: true to activate it (opens ports 1883/8883/8083).
 type MqttConfig struct {
 	// +optional
-	Disabled bool `json:"disabled,omitempty" yaml:"disabled,omitempty"`
+	Enabled *bool `json:"enabled,omitempty" yaml:"enabled,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Minimum=1
@@ -96,7 +98,10 @@ type MqttCapabilitiesConfig struct {
 func (c *MqttConfig) DeepCopy() *MqttConfig {
 	out := &MqttConfig{}
 
-	out.Disabled = c.Disabled
+	if c.Enabled != nil {
+		out.Enabled = new(bool)
+		*out.Enabled = *c.Enabled
+	}
 
 	if c.Port != nil {
 		out.Port = new(int32)
@@ -192,8 +197,9 @@ func (c *MqttCapabilitiesConfig) DeepCopy() *MqttCapabilitiesConfig {
 }
 
 func (c *MqttConfig) SetConfig(config *deployment.Config) *MqttConfig {
-	if c.Disabled {
-		config.SetConfigMapStringValues(config.Name, "CONNECTORSMQTT_ENABLE", "false")
+	effective := c.Enabled != nil && *c.Enabled
+	config.SetConfigMapStringValues(config.Name, "CONNECTORSMQTT_ENABLE", strconv.FormatBool(effective))
+	if !effective {
 		return c
 	}
 

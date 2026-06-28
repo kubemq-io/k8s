@@ -6,35 +6,35 @@
   <component name="ChangeListManager">
     <list default="true" id="1751179a-a2e5-46e7-9519-8017170a815c" name="Default Changelist" comment="change yaml types">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Taskfile.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Taskfile.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/configmap.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/configmap.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/secret.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/secret.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/amqp.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/amqp.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/amqp10.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/amqp10.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/api.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/api.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/authentication.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/authentication.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/aws.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/aws.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/connector_service_ports_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/connector_service_ports_test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/connectors_env_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/connectors_env_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/grpc.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/grpc.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/health.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/health.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/log.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/log.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/gcp.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/gcp.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/mqtt.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/mqtt.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/queue.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/queue.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/resources.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/resources.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/rest.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/rest.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/stomp.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/stomp.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/store.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/store.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/configmap.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/configmap.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/secret.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/secret.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/service_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/service_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/statefulset.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/statefulset.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/statefulset_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/deployment/statefulset_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster_types.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster_types.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/zz_generated.deepcopy.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/zz_generated.deepcopy.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller/objects/crd_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/objects/crd_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller/objects/objects_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/objects/objects_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller/objects/v1alpha1/cluster_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/objects/v1alpha1/cluster_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller/objects/v1alpha1/connector_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/objects/v1alpha1/connector_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller/objects/v1alpha1/dashboard_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/objects/v1alpha1/dashboard_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller/objects/v1alpha1/objects_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/objects/v1alpha1/objects_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller/objects/v1beta1/dashboard_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/objects/v1beta1/dashboard_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller/objects/v1beta1/objects_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/objects/v1beta1/objects_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="directory" />
+      <option value="repository" />
+    </option>
   </component>
   <component name="CopilotChats">
     <option name="panelChat">
@@ -94,6 +94,65 @@
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
+  </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0" />
+      <entry key="S2" value="1.0" />
+      <entry key="S5" value="1.0" />
+      <entry key="S10" value="1.0" />
+      <entry key="S30" value="1.0" />
+      <entry key="S60" value="1.0" />
+      <entry key="M2" value="1.0" />
+      <entry key="M5" value="1.0" />
+      <entry key="M10" value="1.0" />
+      <entry key="M15" value="1.0" />
+      <entry key="M30" value="1.0" />
+      <entry key="H1" value="1.0" />
+      <entry key="H2" value="1.0" />
+      <entry key="H4" value="1.0" />
+      <entry key="D1" value="1.0" />
+      <entry key="W1" value="1.0" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="0.0" />
+      <entry key="S10" value="0.0" />
+      <entry key="S30" value="0.0" />
+      <entry key="S60" value="0.0" />
+      <entry key="M2" value="0.0" />
+      <entry key="M5" value="0.0" />
+      <entry key="M10" value="0.0" />
+      <entry key="M15" value="0.0" />
+      <entry key="M30" value="0.0" />
+      <entry key="H1" value="0.0" />
+      <entry key="H2" value="0.0" />
+      <entry key="H4" value="0.0" />
+      <entry key="D1" value="0.0" />
+      <entry key="W1" value="0.0" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="0.9138314502294005" />
+      <entry key="MS500" value="0.9821395952633915" />
+      <entry key="S2" value="0.995504677670617" />
+      <entry key="S5" value="0.9981994402866303" />
+      <entry key="S10" value="0.9990993145261537" />
+      <entry key="S30" value="0.9996996813264409" />
+      <entry key="S60" value="0.999849829387614" />
+      <entry key="M2" value="0.9999249118746938" />
+      <entry key="M5" value="0.9999699640732632" />
+      <entry key="M10" value="0.9999849819238603" />
+      <entry key="M15" value="0.9999899879241797" />
+      <entry key="M30" value="0.9999949939495596" />
+      <entry key="H1" value="0.9999974969716472" />
+      <entry key="H2" value="0.9999987484850404" />
+      <entry key="H4" value="0.9999993742423244" />
+      <entry key="D1" value="0.9999998957070269" />
+      <entry key="W1" value="0.9999999851010032" />
+    </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
@@ -370,7 +429,8 @@
     <MESSAGE value="change to cluster spec" />
     <MESSAGE value="update oidc" />
     <MESSAGE value="change yaml types" />
-    <option name="LAST_COMMIT_MESSAGE" value="change yaml types" />
+    <MESSAGE value="refactor(config): migrate connector configs to use `Enabled` instead of `Disabled` flag&#10;&#10;Replaced `Disabled` boolean with an `Enabled` pointer in connector configurations (AWS, GCP, STOMP, AMQP, MQTT, and AMQP10). Default behavior now aligns with opt-in semantics (`Enabled` defaults to `nil`/false). Added unit tests for all scenarios (`Enabled: true`, `false`, and `nil`). Updated CRD/test handling and addressed ConfigMap/Secret integration." />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor(config): migrate connector configs to use `Enabled` instead of `Disabled` flag&#10;&#10;Replaced `Disabled` boolean with an `Enabled` pointer in connector configurations (AWS, GCP, STOMP, AMQP, MQTT, and AMQP10). Default behavior now aligns with opt-in semantics (`Enabled` defaults to `nil`/false). Added unit tests for all scenarios (`Enabled: true`, `false`, and `nil`). Updated CRD/test handling and addressed ConfigMap/Secret integration." />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

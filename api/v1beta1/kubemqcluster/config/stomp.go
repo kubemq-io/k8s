@@ -2,15 +2,17 @@ package config
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/kubemq-io/k8s/api/v1beta1/kubemqcluster/deployment"
 )
 
 // StompConfig configures the kubemq-server STOMP connector.
-// Maps to server Connectors.Stomp. The connector is enabled by default server-side.
+// Maps to server Connectors.Stomp. The connector is opt-in (disabled by default);
+// set enabled: true to activate it (opens ports 61613/61614).
 type StompConfig struct {
 	// +optional
-	Disabled bool `json:"disabled,omitempty" yaml:"disabled,omitempty"`
+	Enabled *bool `json:"enabled,omitempty" yaml:"enabled,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Minimum=1
@@ -59,7 +61,10 @@ type StompConfig struct {
 func (c *StompConfig) DeepCopy() *StompConfig {
 	out := &StompConfig{}
 
-	out.Disabled = c.Disabled
+	if c.Enabled != nil {
+		out.Enabled = new(bool)
+		*out.Enabled = *c.Enabled
+	}
 
 	if c.Port != nil {
 		out.Port = new(int32)
@@ -115,8 +120,9 @@ func (c *StompConfig) DeepCopy() *StompConfig {
 }
 
 func (c *StompConfig) SetConfig(config *deployment.Config) *StompConfig {
-	if c.Disabled {
-		config.SetConfigMapStringValues(config.Name, "CONNECTORS_STOMP_ENABLE", "false")
+	effective := c.Enabled != nil && *c.Enabled
+	config.SetConfigMapStringValues(config.Name, "CONNECTORS_STOMP_ENABLE", strconv.FormatBool(effective))
+	if !effective {
 		return c
 	}
 

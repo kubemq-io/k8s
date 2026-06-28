@@ -2,15 +2,17 @@ package config
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/kubemq-io/k8s/api/v1beta1/kubemqcluster/deployment"
 )
 
 // AmqpConfig configures the kubemq-server AMQP 0.9.1 connector.
-// Maps to server Connectors.Amqp. The connector is enabled by default server-side.
+// Maps to server Connectors.Amqp. The connector is opt-in (disabled by default);
+// set enabled: true to activate it (opens ports 5672/5671, shared with AMQP 1.0).
 type AmqpConfig struct {
 	// +optional
-	Disabled bool `json:"disabled,omitempty" yaml:"disabled,omitempty"`
+	Enabled *bool `json:"enabled,omitempty" yaml:"enabled,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Minimum=1
@@ -64,7 +66,10 @@ type AmqpConfig struct {
 func (c *AmqpConfig) DeepCopy() *AmqpConfig {
 	out := &AmqpConfig{}
 
-	out.Disabled = c.Disabled
+	if c.Enabled != nil {
+		out.Enabled = new(bool)
+		*out.Enabled = *c.Enabled
+	}
 
 	if c.Port != nil {
 		out.Port = new(int32)
@@ -125,8 +130,9 @@ func (c *AmqpConfig) DeepCopy() *AmqpConfig {
 }
 
 func (c *AmqpConfig) SetConfig(config *deployment.Config) *AmqpConfig {
-	if c.Disabled {
-		config.SetConfigMapStringValues(config.Name, "CONNECTORS_AMQP_ENABLE", "false")
+	effective := c.Enabled != nil && *c.Enabled
+	config.SetConfigMapStringValues(config.Name, "CONNECTORS_AMQP_ENABLE", strconv.FormatBool(effective))
+	if !effective {
 		return c
 	}
 
