@@ -84,6 +84,14 @@ func (c *AuthenticationConfig) DeepCopy() *AuthenticationConfig {
 	return out
 }
 
+// IsConfigured reports whether the block sets any authentication field. An empty
+// block emits no auth env; a configured one collides with a spec.configData.oidc
+// block on AUTHENTICATION_ENABLE/TYPE/CONFIG, which the reconciler rejects.
+func (c *AuthenticationConfig) IsConfigured() bool {
+	return c.Enable != nil || c.Type != nil || c.Key != nil ||
+		c.SignatureType != nil || c.Oidc != nil
+}
+
 func (c *AuthenticationConfig) SetConfig(config *deployment.Config) *AuthenticationConfig {
 	// Mutually-exclusive error case: OIDC and JWT settings cannot both be set.
 	// Emit nothing and return — reconcile-level validation should reject this

@@ -10,7 +10,7 @@ type TlsConfig struct {
 	Key string `json:"key,omitempty" yaml:"key,omitempty"`
 
 	// +optional
-	Ca string `json:"ca,omitempty" yaml:"ca"`
+	Ca string `json:"ca,omitempty" yaml:"ca,omitempty"`
 }
 
 func (o *TlsConfig) SetConfig(config *deployment.Config) *TlsConfig {

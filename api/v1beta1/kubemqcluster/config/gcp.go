@@ -8,7 +8,7 @@ import (
 )
 
 // GcpConfig configures the kubemq-server Google Cloud Pub/Sub wire-protocol
-// connector. Maps to server Connectors.PubSub. The connector is opt-in
+// connector. Maps to server Connectors.Gcp. The connector is opt-in
 // (disabled by default); set enabled: true to activate it (opens port 8085).
 type GcpConfig struct {
 	// +optional

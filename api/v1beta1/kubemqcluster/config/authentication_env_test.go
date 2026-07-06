@@ -93,6 +93,15 @@ func TestAuthenticationConfig_MutuallyExclusive_EmitsNothing(t *testing.T) {
 	assert.Len(t, sec.StringVariables, 0)
 }
 
+func TestAuthenticationConfig_IsConfigured(t *testing.T) {
+	assert.False(t, (&AuthenticationConfig{}).IsConfigured(), "empty block must report not configured")
+	assert.True(t, (&AuthenticationConfig{Enable: ptrBool(true)}).IsConfigured())
+	assert.True(t, (&AuthenticationConfig{Type: strptr("oidc")}).IsConfigured())
+	assert.True(t, (&AuthenticationConfig{Key: strptr("k")}).IsConfigured())
+	assert.True(t, (&AuthenticationConfig{SignatureType: strptr("HS256")}).IsConfigured())
+	assert.True(t, (&AuthenticationConfig{Oidc: &OidcConfig{Issuer: "x", ClientID: "y"}}).IsConfigured())
+}
+
 func TestAuthenticationConfig_DeepCopy_Independent(t *testing.T) {
 	src := &AuthenticationConfig{
 		Enable:        ptrBool(true),
