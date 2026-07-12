@@ -1,0 +1,43 @@
+# ADD-014 config-parity allowlist — server env keys intentionally NOT a typed CRD field.
+# Each is reachable via spec.configData (raw config) instead. One entry per line:
+#   KEY          # reason        (exact match)
+#   PREFIX_*     # reason        (prefix match)
+# Guard rules (parity_test.go): every entry must be a real server key (no stale), no exact
+# entry may also be emitted by a SetConfig (no overlap — that means it should be typed).
+
+# --- Broker perf tuning: owner decision, configData-only (§1.3.1) ---
+BROKER_*                                      # broker perf tuning — configData-only (owner decision 2026-07-12)
+
+# --- Operator-injected / already-provided-via-other-mechanism (config-package guard can't observe) ---
+CLUSTER_*                                     # operator-injected into the StatefulSet pod template
+LICENSE_KEY_*                                 # provided via spec.license / spec.key
+HOST                                          # pod host (os.Getenv special)
+KUBEMQ_TOKEN                                  # license token (os.Getenv special)
+
+# --- Dead / latent-bug / map server bindings ---
+CONNECTORS_USAGE_REPORT_URL                   # dead server binding (no struct field; hardcoded URL) — pending server cleanup
+TELEMETRY_EXPORTER_HEADERS                    # map; no clean env mapping (+ latent server bug)
+
+# --- In-container file paths, superseded by inline data CRD fields ---
+AUTHENTICATION_JWT_CONFIG_FILE_PATH           # superseded by inline authentication config
+AUTHORIZATION_FILE_PATH                       # superseded by authorization.policy (inline)
+ROUTING_FILE_PATH                             # superseded by routing inline data
+SECURITY_CERT_FILENAME                        # superseded by security cert inline data
+SECURITY_KEY_FILENAME                         # superseded by security key inline data
+SECURITY_CA_FILENAME                          # superseded by security ca inline data
+
+# --- Kafka advanced knobs deferred to v3.1 (D25), configData-only until promoted ---
+CONNECTORS_KAFKA_MAX_FETCH_WAIT_MS            # kafka deferred (D25)
+CONNECTORS_KAFKA_TIMESTAMP_TYPE               # kafka deferred (D25)
+CONNECTORS_KAFKA_OFFSETS_RETENTION_MINUTES    # kafka deferred (D25)
+CONNECTORS_KAFKA_MAX_GROUPS                    # kafka deferred (D25)
+CONNECTORS_KAFKA_MAX_TOPICS_PER_REQUEST        # kafka deferred (D25)
+CONNECTORS_KAFKA_MAX_PARTITIONS_PER_REQUEST    # kafka deferred (D25)
+CONNECTORS_KAFKA_SCRAM_ITERATIONS              # kafka deferred (D25)
+CONNECTORS_KAFKA_SASL_MECHANISMS               # kafka deferred (D25)
+CONNECTORS_KAFKA_PRODUCE_BYTE_RATE             # kafka deferred (D25)
+CONNECTORS_KAFKA_FETCH_BYTE_RATE               # kafka deferred (D25)
+CONNECTORS_KAFKA_MAX_TRANSACTION_TIMEOUT_MS    # kafka deferred (D25)
+CONNECTORS_KAFKA_TRANSACTIONAL_ID_EXPIRATION_MS # kafka deferred (D25)
+CONNECTORS_KAFKA_MAX_TRANSACTIONAL_I_DS         # kafka deferred (D25)
+CONNECTORS_KAFKA_PRODUCER_ID_BLOCK_SIZE         # kafka deferred (D25)

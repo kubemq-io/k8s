@@ -27,7 +27,10 @@ func (c *AuthorizationConfig) SetConfig(config *deployment.Config) *Authorizatio
 			cmConfig.SetDataVariable("AUTHORIZATION_POLICY_DATA", c.Policy)
 		}
 		if c.Url != "" {
-			cmConfig.SetDataVariable("AUTHORIZATION_URL", c.Url)
+			// Raw, NOT base64: the server reads Authorization.Url verbatim and hands it to
+			// http.Get (validateURL rejects a base64 blob — "no scheme"). Policy DATA below
+			// stays SetDataVariable because the server base64-decodes policy content.
+			cmConfig.SetStringVariable("AUTHORIZATION_URL", c.Url)
 		}
 
 		if c.AutoReload != 0 {

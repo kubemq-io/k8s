@@ -4,12 +4,18 @@ version: '3'
 
 vars:
   BINARY_NAME: k8s
-  VERSION: v1.12.0
+  VERSION: v1.14.0
+  # kubemq-server checkout the parity golden is generated from (ADD-014).
+  SERVER_CONFIG_DIR: '../kubemq-server/config'
 
 tasks:
   check_update:
     cmds:
       - go list -u -m -json -mod=mod all | go-mod-outdated -update -direct
+  parity:regen:
+    desc: Regenerate the ADD-014 config-parity golden (server_env_keys.txt) from the kubemq-server config.
+    cmds:
+      - go run ./parity/gen -server {{.SERVER_CONFIG_DIR}} -out parity/server_env_keys.txt
   lint:
     cmds:
       - golangci-lint run --disable gocritic --enable misspell

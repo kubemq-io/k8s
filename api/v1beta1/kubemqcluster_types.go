@@ -118,6 +118,9 @@ type KubemqClusterSpec struct {
 	Gcp *config.GcpConfig `json:"gcp,omitempty" yaml:"gcp,omitempty"`
 
 	// +optional
+	Kafka *config.KafkaConfig `json:"kafka,omitempty" yaml:"kafka,omitempty"`
+
+	// +optional
 	Telemetry *config.TelemetryConfig `json:"telemetry,omitempty" yaml:"telemetry,omitempty"`
 
 	// +optional

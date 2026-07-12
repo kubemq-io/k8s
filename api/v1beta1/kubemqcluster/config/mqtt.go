@@ -51,6 +51,13 @@ type MqttConfig struct {
 	RPCMaxPending *int32 `json:"rpcMaxPending,omitempty" yaml:"rpcMaxPending,omitempty"`
 
 	// +optional
+	DetailHistoryEnabled *bool `json:"detailHistoryEnabled,omitempty" yaml:"detailHistoryEnabled,omitempty"`
+
+	// +optional
+	// +kubebuilder:validation:Minimum=0
+	DetailHistoryMaxEntities *int32 `json:"detailHistoryMaxEntities,omitempty" yaml:"detailHistoryMaxEntities,omitempty"`
+
+	// +optional
 	Capabilities *MqttCapabilitiesConfig `json:"capabilities,omitempty" yaml:"capabilities,omitempty"`
 }
 
@@ -89,6 +96,10 @@ type MqttCapabilitiesConfig struct {
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=2
 	MaxQos *int32 `json:"maxQos,omitempty" yaml:"maxQos,omitempty"`
+
+	// +optional
+	// +kubebuilder:validation:Minimum=0
+	MaxSubscriptionsPerClient *int32 `json:"maxSubscriptionsPerClient,omitempty" yaml:"maxSubscriptionsPerClient,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Enum=4;5
@@ -143,6 +154,16 @@ func (c *MqttConfig) DeepCopy() *MqttConfig {
 		*out.RPCMaxPending = *c.RPCMaxPending
 	}
 
+	if c.DetailHistoryEnabled != nil {
+		out.DetailHistoryEnabled = new(bool)
+		*out.DetailHistoryEnabled = *c.DetailHistoryEnabled
+	}
+
+	if c.DetailHistoryMaxEntities != nil {
+		out.DetailHistoryMaxEntities = new(int32)
+		*out.DetailHistoryMaxEntities = *c.DetailHistoryMaxEntities
+	}
+
 	if c.Capabilities != nil {
 		out.Capabilities = c.Capabilities.DeepCopy()
 	}
@@ -186,6 +207,11 @@ func (c *MqttCapabilitiesConfig) DeepCopy() *MqttCapabilitiesConfig {
 	if c.MaxQos != nil {
 		out.MaxQos = new(int32)
 		*out.MaxQos = *c.MaxQos
+	}
+
+	if c.MaxSubscriptionsPerClient != nil {
+		out.MaxSubscriptionsPerClient = new(int32)
+		*out.MaxSubscriptionsPerClient = *c.MaxSubscriptionsPerClient
 	}
 
 	if c.MinProtocolVersion != nil {
@@ -248,6 +274,14 @@ func (c *MqttConfig) SetConfig(config *deployment.Config) *MqttConfig {
 		config.SetConfigMapStringValues(config.Name, "CONNECTORSMQTT_RPC_MAX_PENDING", fmt.Sprintf("%d", *c.RPCMaxPending))
 	}
 
+	if c.DetailHistoryEnabled != nil {
+		config.SetConfigMapStringValues(config.Name, "CONNECTORSMQTT_DETAIL_HISTORY_ENABLED", strconv.FormatBool(*c.DetailHistoryEnabled))
+	}
+
+	if c.DetailHistoryMaxEntities != nil {
+		config.SetConfigMapStringValues(config.Name, "CONNECTORSMQTT_DETAIL_HISTORY_MAX_ENTITIES", fmt.Sprintf("%d", *c.DetailHistoryMaxEntities))
+	}
+
 	if c.Capabilities != nil {
 		if c.Capabilities.MaxClients != nil {
 			config.SetConfigMapStringValues(config.Name, "CONNECTORSMQTT_CAPABILITIES_MAX_CLIENTS", fmt.Sprintf("%d", *c.Capabilities.MaxClients))
@@ -275,6 +309,10 @@ func (c *MqttConfig) SetConfig(config *deployment.Config) *MqttConfig {
 
 		if c.Capabilities.MaxQos != nil {
 			config.SetConfigMapStringValues(config.Name, "CONNECTORSMQTT_CAPABILITIES_MAX_QOS", fmt.Sprintf("%d", *c.Capabilities.MaxQos))
+		}
+
+		if c.Capabilities.MaxSubscriptionsPerClient != nil {
+			config.SetConfigMapStringValues(config.Name, "CONNECTORSMQTT_CAPABILITIES_MAX_SUBSCRIPTIONS_PER_CLIENT", fmt.Sprintf("%d", *c.Capabilities.MaxSubscriptionsPerClient))
 		}
 
 		if c.Capabilities.MinProtocolVersion != nil {

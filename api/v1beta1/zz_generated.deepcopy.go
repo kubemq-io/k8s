@@ -216,6 +216,10 @@ func (in *KubemqClusterSpec) DeepCopyInto(out *KubemqClusterSpec) {
 		in, out := &in.Gcp, &out.Gcp
 		*out = (*in).DeepCopy()
 	}
+	if in.Kafka != nil {
+		in, out := &in.Kafka, &out.Kafka
+		*out = (*in).DeepCopy()
+	}
 	if in.Telemetry != nil {
 		in, out := &in.Telemetry, &out.Telemetry
 		*out = (*in).DeepCopy()

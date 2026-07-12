@@ -63,6 +63,11 @@ type GcpConfig struct {
 
 	// +optional
 	EnableReflection *bool `json:"enableReflection,omitempty" yaml:"enableReflection,omitempty"`
+
+	// +optional
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=65536
+	MaxConcurrentStreams *int32 `json:"maxConcurrentStreams,omitempty" yaml:"maxConcurrentStreams,omitempty"`
 }
 
 func (c *GcpConfig) DeepCopy() *GcpConfig {
@@ -133,6 +138,11 @@ func (c *GcpConfig) DeepCopy() *GcpConfig {
 		*out.EnableReflection = *c.EnableReflection
 	}
 
+	if c.MaxConcurrentStreams != nil {
+		out.MaxConcurrentStreams = new(int32)
+		*out.MaxConcurrentStreams = *c.MaxConcurrentStreams
+	}
+
 	return out
 }
 
@@ -196,6 +206,10 @@ func (c *GcpConfig) SetConfig(config *deployment.Config) *GcpConfig {
 
 	if c.EnableReflection != nil {
 		config.SetConfigMapStringValues(config.Name, "CONNECTORS_GCP_ENABLE_REFLECTION", strconv.FormatBool(*c.EnableReflection))
+	}
+
+	if c.MaxConcurrentStreams != nil {
+		config.SetConfigMapStringValues(config.Name, "CONNECTORS_GCP_MAX_CONCURRENT_STREAMS", fmt.Sprintf("%d", *c.MaxConcurrentStreams))
 	}
 
 	return c

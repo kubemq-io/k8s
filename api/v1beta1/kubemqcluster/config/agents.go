@@ -46,6 +46,10 @@ type AgentsConfig struct {
 	// +optional
 	// +kubebuilder:validation:Minimum=1
 	AgentMaxConcurrency *int32 `json:"agentMaxConcurrency,omitempty" yaml:"agentMaxConcurrency,omitempty"`
+
+	// +optional
+	// +kubebuilder:validation:Minimum=1
+	MetricsRetentionHours *int32 `json:"metricsRetentionHours,omitempty" yaml:"metricsRetentionHours,omitempty"`
 }
 
 func (c *AgentsConfig) DeepCopy() *AgentsConfig {
@@ -94,6 +98,11 @@ func (c *AgentsConfig) DeepCopy() *AgentsConfig {
 		*out.AgentMaxConcurrency = *c.AgentMaxConcurrency
 	}
 
+	if c.MetricsRetentionHours != nil {
+		out.MetricsRetentionHours = new(int32)
+		*out.MetricsRetentionHours = *c.MetricsRetentionHours
+	}
+
 	return out
 }
 
@@ -137,6 +146,10 @@ func (c *AgentsConfig) SetConfig(config *deployment.Config) *AgentsConfig {
 
 	if c.AgentMaxConcurrency != nil {
 		config.SetConfigMapStringValues(config.Name, "CONNECTORSA2_A_AGENT_MAX_CONCURRENCY", fmt.Sprintf("%d", *c.AgentMaxConcurrency))
+	}
+
+	if c.MetricsRetentionHours != nil {
+		config.SetConfigMapStringValues(config.Name, "CONNECTORSA2_A_METRICS_RETENTION_HOURS", fmt.Sprintf("%d", *c.MetricsRetentionHours))
 	}
 
 	return c

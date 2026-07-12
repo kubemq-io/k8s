@@ -93,6 +93,22 @@ func TestGcpConfig_SetConfig_ServicePorts(t *testing.T) {
 	assertSvcPort(t, cfg, "gcp", "gcp-grpc", 9000)
 }
 
+func TestKafkaConfig_SetConfig_ServicePorts(t *testing.T) {
+	cfg := newTestConfig()
+	// Enabled: true required to reach the port-reflection path.
+	(&KafkaConfig{Enabled: boolptr(true), Port: strptr("9192"), TLSPort: strptr("9193")}).SetConfig(cfg)
+	assertSvcPort(t, cfg, "kafka", "kafka", 9192)
+	assertSvcPort(t, cfg, "kafka", "kafka-tls", 9193)
+}
+
+// Port/TLSPort are *string on KafkaConfig; a non-numeric value must leave the
+// catalog default untouched rather than erroring (strconv.Atoi failure path).
+func TestKafkaConfig_SetConfig_ServicePorts_NonNumericKeepsDefault(t *testing.T) {
+	cfg := newTestConfig()
+	(&KafkaConfig{Enabled: boolptr(true), Port: strptr("notaport")}).SetConfig(cfg)
+	assertSvcPort(t, cfg, "kafka", "kafka", 9092)
+}
+
 func TestApiConfig_SetConfig_ServicePort(t *testing.T) {
 	t.Run("custom port moves scalar", func(t *testing.T) {
 		cfg := newTestConfig()

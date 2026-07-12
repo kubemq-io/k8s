@@ -94,6 +94,12 @@ spec:
             - containerPort: 8085
               name: gcp-grpc
               protocol: TCP
+            - containerPort: 9092
+              name: kafka
+              protocol: TCP
+            - containerPort: 9093
+              name: kafka-tls
+              protocol: TCP
 {{ if not .Standalone }}
             - containerPort: 5228
               name: cluster-port

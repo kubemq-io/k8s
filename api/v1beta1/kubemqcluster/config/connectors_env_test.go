@@ -82,9 +82,10 @@ func TestAgentsConfig_SetConfig_AllFields(t *testing.T) {
 		AgentMaxResponseBytes: ptr64(10485760),
 		AgentTLSSkipVerify:    true,
 		AgentMaxConcurrency:   ptr32(100),
+		MetricsRetentionHours: ptr32(72),
 	}).SetConfig(cfg)
 	v := vars(cfg)
-	require.Len(t, v, 9) // all 9 non-disable fields written
+	require.Len(t, v, 10) // all 10 non-disable fields written
 	assert.Equal(t, "300", v["CONNECTORSA2_A_AGENT_TTL_SECONDS"])
 	assert.Equal(t, "300", v["CONNECTORSA2_A_DEFAULT_TIMEOUT_SECONDS"])
 	assert.Equal(t, "3600", v["CONNECTORSA2_A_MAX_TIMEOUT_SECONDS"])
@@ -94,6 +95,7 @@ func TestAgentsConfig_SetConfig_AllFields(t *testing.T) {
 	assert.Equal(t, "10485760", v["CONNECTORSA2_A_AGENT_MAX_RESPONSE_BYTES"])
 	assert.Equal(t, "true", v["CONNECTORSA2_A_AGENT_TLS_SKIP_VERIFY"])
 	assert.Equal(t, "100", v["CONNECTORSA2_A_AGENT_MAX_CONCURRENCY"])
+	assert.Equal(t, "72", v["CONNECTORSA2_A_METRICS_RETENTION_HOURS"])
 	_, hasEnable := v["CONNECTORSA2_A_ENABLE"]
 	assert.False(t, hasEnable)
 }
@@ -160,28 +162,31 @@ func TestMqttConfig_SetConfig_ExplicitTrue(t *testing.T) {
 func TestMqttConfig_SetConfig_AllFields(t *testing.T) {
 	cfg := newTestConfig()
 	(&MqttConfig{
-		Enabled:                boolptr(true),
-		Port:                   ptr32(1883),
-		TLSPort:                ptr32(8883),
-		WSPort:                 ptr32(8083),
-		DefaultPattern:         strptr("events"),
-		SubBuffSize:            ptr32(100),
-		QueueAckTimeoutSeconds: ptr32(30),
-		RPCTimeoutSeconds:      ptr32(30),
-		RPCMaxPending:          ptr32(1024),
+		Enabled:                  boolptr(true),
+		Port:                     ptr32(1883),
+		TLSPort:                  ptr32(8883),
+		WSPort:                   ptr32(8083),
+		DefaultPattern:           strptr("events"),
+		SubBuffSize:              ptr32(100),
+		QueueAckTimeoutSeconds:   ptr32(30),
+		RPCTimeoutSeconds:        ptr32(30),
+		RPCMaxPending:            ptr32(1024),
+		DetailHistoryEnabled:     boolptr(true),
+		DetailHistoryMaxEntities: ptr32(500),
 		Capabilities: &MqttCapabilitiesConfig{
-			MaxClients:              ptr64(0),
-			MaxPacketSizeBytes:      ptr64(4194304),
-			ReceiveMaximum:          ptr32(1024),
-			MaxInflight:             ptr32(8192),
-			MaxSessionExpirySeconds: ptr64(3600),
-			MaxMessageExpirySeconds: ptr64(86400),
-			MaxQos:                  ptr32(2),
-			MinProtocolVersion:      ptr32(4),
+			MaxClients:                ptr64(0),
+			MaxPacketSizeBytes:        ptr64(4194304),
+			ReceiveMaximum:            ptr32(1024),
+			MaxInflight:               ptr32(8192),
+			MaxSessionExpirySeconds:   ptr64(3600),
+			MaxMessageExpirySeconds:   ptr64(86400),
+			MaxQos:                    ptr32(2),
+			MinProtocolVersion:        ptr32(4),
+			MaxSubscriptionsPerClient: ptr32(50),
 		},
 	}).SetConfig(cfg)
 	v := vars(cfg)
-	require.Len(t, v, 17) // ENABLE + 8 scalar + 8 capability fields
+	require.Len(t, v, 20) // ENABLE + 8 scalar + 2 detail-history + 9 capability fields
 	assert.Equal(t, "true", v["CONNECTORSMQTT_ENABLE"])
 	assert.Equal(t, "1883", v["CONNECTORSMQTT_PORT"])
 	assert.Equal(t, "8883", v["CONNECTORSMQTT_TLS_PORT"])
@@ -191,6 +196,8 @@ func TestMqttConfig_SetConfig_AllFields(t *testing.T) {
 	assert.Equal(t, "30", v["CONNECTORSMQTT_QUEUE_ACK_TIMEOUT_SECONDS"])
 	assert.Equal(t, "30", v["CONNECTORSMQTT_RPC_TIMEOUT_SECONDS"])
 	assert.Equal(t, "1024", v["CONNECTORSMQTT_RPC_MAX_PENDING"])
+	assert.Equal(t, "true", v["CONNECTORSMQTT_DETAIL_HISTORY_ENABLED"])
+	assert.Equal(t, "500", v["CONNECTORSMQTT_DETAIL_HISTORY_MAX_ENTITIES"])
 	assert.Equal(t, "0", v["CONNECTORSMQTT_CAPABILITIES_MAX_CLIENTS"])
 	assert.Equal(t, "4194304", v["CONNECTORSMQTT_CAPABILITIES_MAX_PACKET_SIZE_BYTES"])
 	assert.Equal(t, "1024", v["CONNECTORSMQTT_CAPABILITIES_RECEIVE_MAXIMUM"])
@@ -199,6 +206,7 @@ func TestMqttConfig_SetConfig_AllFields(t *testing.T) {
 	assert.Equal(t, "86400", v["CONNECTORSMQTT_CAPABILITIES_MAX_MESSAGE_EXPIRY_SECONDS"])
 	assert.Equal(t, "2", v["CONNECTORSMQTT_CAPABILITIES_MAX_QOS"])
 	assert.Equal(t, "4", v["CONNECTORSMQTT_CAPABILITIES_MIN_PROTOCOL_VERSION"])
+	assert.Equal(t, "50", v["CONNECTORSMQTT_CAPABILITIES_MAX_SUBSCRIPTIONS_PER_CLIENT"])
 }
 
 func TestMqttConfig_SetConfig_Empty(t *testing.T) {
@@ -506,9 +514,10 @@ func TestGcpConfig_SetConfig_AllFields(t *testing.T) {
 		StreamCloseSeconds:         ptr32(30),
 		MaxSeekReplay:              ptr32(100000),
 		EnableReflection:           boolptr(true),
+		MaxConcurrentStreams:       ptr32(64),
 	}).SetConfig(cfg)
 	v := vars(cfg)
-	require.Len(t, v, 13) // ENABLE + 12 non-enable fields
+	require.Len(t, v, 14) // ENABLE + 13 non-enable fields
 	assert.Equal(t, "true", v["CONNECTORS_GCP_ENABLE"])
 	assert.Equal(t, "8085", v["CONNECTORS_GCP_PORT"])
 	assert.Equal(t, "pubsub.example.com:443", v["CONNECTORS_GCP_ADVERTISED_ENDPOINT"])
@@ -522,6 +531,7 @@ func TestGcpConfig_SetConfig_AllFields(t *testing.T) {
 	assert.Equal(t, "30", v["CONNECTORS_GCP_STREAM_CLOSE_SECONDS"])
 	assert.Equal(t, "100000", v["CONNECTORS_GCP_MAX_SEEK_REPLAY"])
 	assert.Equal(t, "true", v["CONNECTORS_GCP_ENABLE_REFLECTION"])
+	assert.Equal(t, "64", v["CONNECTORS_GCP_MAX_CONCURRENT_STREAMS"])
 }
 
 func TestGcpConfig_SetConfig_NilEnabled(t *testing.T) {
@@ -553,6 +563,69 @@ func TestGcpConfig_SetConfig_Empty(t *testing.T) {
 	// present-empty block always emits ENABLE=false (opt-in: nil → off)
 	assert.Len(t, vars(cfg), 1)
 	assert.Equal(t, "false", vars(cfg)["CONNECTORS_GCP_ENABLE"])
+}
+
+func TestKafkaConfig_SetConfig_NilEnabled(t *testing.T) {
+	cfg := newTestConfig()
+	(&KafkaConfig{}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 1)
+	assert.Equal(t, "false", v["CONNECTORS_KAFKA_ENABLE"])
+}
+
+func TestKafkaConfig_SetConfig_ExplicitFalse(t *testing.T) {
+	cfg := newTestConfig()
+	(&KafkaConfig{Enabled: boolptr(false)}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 1)
+	assert.Equal(t, "false", v["CONNECTORS_KAFKA_ENABLE"])
+}
+
+func TestKafkaConfig_SetConfig_ExplicitTrue(t *testing.T) {
+	cfg := newTestConfig()
+	(&KafkaConfig{Enabled: boolptr(true)}).SetConfig(cfg)
+	v := vars(cfg)
+	assert.Equal(t, "true", v["CONNECTORS_KAFKA_ENABLE"])
+}
+
+func TestKafkaConfig_SetConfig_AllFields(t *testing.T) {
+	cfg := newTestConfig()
+	(&KafkaConfig{
+		Enabled:         boolptr(true),
+		Port:            strptr("9092"),
+		TLSPort:         strptr("9093"),
+		AdvertisedHost:  strptr("kafka.example.com"),
+		AdvertisedPort:  ptr32(9092),
+		MaxConnections:  ptr32(1000),
+		MaxMessageBytes: ptr64(1048576),
+	}).SetConfig(cfg)
+	v := vars(cfg)
+	require.Len(t, v, 7) // ENABLE + 6 non-enable fields
+	assert.Equal(t, "true", v["CONNECTORS_KAFKA_ENABLE"])
+	assert.Equal(t, "9092", v["CONNECTORS_KAFKA_PORT"])
+	assert.Equal(t, "9093", v["CONNECTORS_KAFKA_TLS_PORT"])
+	assert.Equal(t, "kafka.example.com", v["CONNECTORS_KAFKA_ADVERTISED_HOST"])
+	assert.Equal(t, "9092", v["CONNECTORS_KAFKA_ADVERTISED_PORT"])
+	assert.Equal(t, "1000", v["CONNECTORS_KAFKA_MAX_CONNECTIONS"])
+	assert.Equal(t, "1048576", v["CONNECTORS_KAFKA_MAX_MESSAGE_BYTES"])
+}
+
+func TestKafkaConfig_SetConfig_Empty(t *testing.T) {
+	cfg := newTestConfig()
+	(&KafkaConfig{}).SetConfig(cfg)
+	// present-empty block always emits ENABLE=false (opt-in: nil → off)
+	assert.Len(t, vars(cfg), 1)
+	assert.Equal(t, "false", vars(cfg)["CONNECTORS_KAFKA_ENABLE"])
+}
+
+// Port/TLSPort are *string on KafkaConfig; a leading zero must survive
+// verbatim into the env value (proves the string is passed through, not
+// reformatted via a numeric round-trip).
+func TestKafkaConfig_SetConfig_PortStringVerbatim(t *testing.T) {
+	cfg := newTestConfig()
+	(&KafkaConfig{Enabled: boolptr(true), Port: strptr("09092")}).SetConfig(cfg)
+	v := vars(cfg)
+	assert.Equal(t, "09092", v["CONNECTORS_KAFKA_PORT"])
 }
 
 func TestApiConfig_SetConfig_Disabled(t *testing.T) {
@@ -613,12 +686,14 @@ func TestConnectorConfigs_DeepCopy_Independent(t *testing.T) {
 	assert.Equal(t, int32(30), *mcpCopy.ToolTimeoutSeconds)
 	assert.Equal(t, "a", mcpCopy.TrustedOrigins[0])
 
-	ag := &AgentsConfig{AgentMaxResponseBytes: ptr64(1), TrustedOrigins: []string{"x"}}
+	ag := &AgentsConfig{AgentMaxResponseBytes: ptr64(1), TrustedOrigins: []string{"x"}, MetricsRetentionHours: ptr32(72)}
 	agCopy := ag.DeepCopy()
 	*ag.AgentMaxResponseBytes = 2
 	ag.TrustedOrigins[0] = "y"
+	*ag.MetricsRetentionHours = 1
 	assert.Equal(t, int64(1), *agCopy.AgentMaxResponseBytes)
 	assert.Equal(t, "x", agCopy.TrustedOrigins[0])
+	assert.Equal(t, int32(72), *agCopy.MetricsRetentionHours)
 
 	ce := &CeConfig{SubBuffSize: ptr32(100)}
 	ceCopy := ce.DeepCopy()
@@ -626,24 +701,33 @@ func TestConnectorConfigs_DeepCopy_Independent(t *testing.T) {
 	assert.Equal(t, int32(100), *ceCopy.SubBuffSize)
 
 	mqtt := &MqttConfig{
-		Port:           ptr32(1883),
-		DefaultPattern: strptr("events"),
+		Port:                     ptr32(1883),
+		DefaultPattern:           strptr("events"),
+		DetailHistoryEnabled:     boolptr(true),
+		DetailHistoryMaxEntities: ptr32(500),
 		Capabilities: &MqttCapabilitiesConfig{
-			MaxClients: ptr64(10),
-			MaxQos:     ptr32(2),
+			MaxClients:                ptr64(10),
+			MaxQos:                    ptr32(2),
+			MaxSubscriptionsPerClient: ptr32(50),
 		},
 	}
 	mqttCopy := mqtt.DeepCopy()
 	*mqtt.Port = 9999
 	*mqtt.DefaultPattern = "mutated"
-	*mqtt.Capabilities.MaxClients = 999 // mutate nested pointer field
-	*mqtt.Capabilities.MaxQos = 0       // mutate nested pointer field
-	mqtt.Capabilities = nil             // detach source nested struct entirely
+	*mqtt.DetailHistoryEnabled = false
+	*mqtt.DetailHistoryMaxEntities = 1
+	*mqtt.Capabilities.MaxClients = 999                // mutate nested pointer field
+	*mqtt.Capabilities.MaxQos = 0                      // mutate nested pointer field
+	*mqtt.Capabilities.MaxSubscriptionsPerClient = 999 // mutate nested pointer field
+	mqtt.Capabilities = nil                            // detach source nested struct entirely
 	assert.Equal(t, int32(1883), *mqttCopy.Port)
 	assert.Equal(t, "events", *mqttCopy.DefaultPattern)
+	assert.Equal(t, true, *mqttCopy.DetailHistoryEnabled)
+	assert.Equal(t, int32(500), *mqttCopy.DetailHistoryMaxEntities)
 	require.NotNil(t, mqttCopy.Capabilities)
 	assert.Equal(t, int64(10), *mqttCopy.Capabilities.MaxClients)
 	assert.Equal(t, int32(2), *mqttCopy.Capabilities.MaxQos)
+	assert.Equal(t, int32(50), *mqttCopy.Capabilities.MaxSubscriptionsPerClient)
 
 	amqp := &AmqpConfig{Port: ptr32(5672), DefaultVhost: strptr("default")}
 	amqpCopy := amqp.DeepCopy()
@@ -674,15 +758,40 @@ func TestConnectorConfigs_DeepCopy_Independent(t *testing.T) {
 	assert.Equal(t, "kubemq", *awsCopy.Region)
 
 	pubsub := &GcpConfig{
-		Port:               ptr32(8085),
-		AdvertisedEndpoint: strptr("pubsub.example.com:443"),
-		EnableReflection:   boolptr(true),
+		Port:                 ptr32(8085),
+		AdvertisedEndpoint:   strptr("pubsub.example.com:443"),
+		EnableReflection:     boolptr(true),
+		MaxConcurrentStreams: ptr32(64),
 	}
 	pubsubCopy := pubsub.DeepCopy()
 	*pubsub.Port = 1
 	*pubsub.AdvertisedEndpoint = "mutated"
 	*pubsub.EnableReflection = false
+	*pubsub.MaxConcurrentStreams = 1
 	assert.Equal(t, int32(8085), *pubsubCopy.Port)
 	assert.Equal(t, "pubsub.example.com:443", *pubsubCopy.AdvertisedEndpoint)
 	assert.Equal(t, true, *pubsubCopy.EnableReflection)
+	assert.Equal(t, int32(64), *pubsubCopy.MaxConcurrentStreams)
+
+	kafka := &KafkaConfig{
+		Port:            strptr("9092"),
+		TLSPort:         strptr("9093"),
+		AdvertisedHost:  strptr("kafka.example.com"),
+		AdvertisedPort:  ptr32(9092),
+		MaxConnections:  ptr32(1000),
+		MaxMessageBytes: ptr64(1048576),
+	}
+	kafkaCopy := kafka.DeepCopy()
+	*kafka.Port = "mutated"
+	*kafka.TLSPort = "mutated"
+	*kafka.AdvertisedHost = "mutated"
+	*kafka.AdvertisedPort = 1
+	*kafka.MaxConnections = 1
+	*kafka.MaxMessageBytes = 1
+	assert.Equal(t, "9092", *kafkaCopy.Port)
+	assert.Equal(t, "9093", *kafkaCopy.TLSPort)
+	assert.Equal(t, "kafka.example.com", *kafkaCopy.AdvertisedHost)
+	assert.Equal(t, int32(9092), *kafkaCopy.AdvertisedPort)
+	assert.Equal(t, int32(1000), *kafkaCopy.MaxConnections)
+	assert.Equal(t, int64(1048576), *kafkaCopy.MaxMessageBytes)
 }

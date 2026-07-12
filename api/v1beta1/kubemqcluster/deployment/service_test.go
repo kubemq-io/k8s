@@ -87,8 +87,8 @@ func TestServiceConfig_Spec(t *testing.T) {
 func TestDefaultServiceConfig_ConnectorServices(t *testing.T) {
 	list := DefaultServiceConfig("some-id", "kubemq-namespace", "svc")
 
-	// the 5 connector services must be present (default-on)
-	for _, key := range []string{"mqtt", "amqp", "stomp", "aws", "gcp"} {
+	// the 6 connector services must be present (opt-in)
+	for _, key := range []string{"mqtt", "amqp", "stomp", "aws", "gcp", "kafka"} {
 		_, ok := list[key]
 		assert.Truef(t, ok, "expected connector service %q to be present", key)
 	}
@@ -135,6 +135,14 @@ func TestDefaultServiceConfig_ConnectorServices(t *testing.T) {
 			wantName: "svc-gcp",
 			ports: []ServicePort{
 				{Name: "gcp-grpc", Port: 8085, TargetPort: 8085},
+			},
+		},
+		{
+			key:      "kafka",
+			wantName: "svc-kafka",
+			ports: []ServicePort{
+				{Name: "kafka", Port: 9092, TargetPort: 9092},
+				{Name: "kafka-tls", Port: 9093, TargetPort: 9093},
 			},
 		},
 	}

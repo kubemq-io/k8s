@@ -6,24 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="1751179a-a2e5-46e7-9519-8017170a815c" name="Default Changelist" comment="change yaml types">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/configmap.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/configmap.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/secret.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1alpha1/kubemqcluster/deployment/secret.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/amqp.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/amqp.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/amqp10.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/amqp10.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/aws.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/aws.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/connector_service_ports_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/connector_service_ports_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/connectors_env_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/connectors_env_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/gcp.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/gcp.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/mqtt.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/mqtt.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/stomp.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/v1beta1/kubemqcluster/config/stomp.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/objects/crd_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/objects/crd_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/objects/objects_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/objects/objects_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/objects/v1alpha1/cluster_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/objects/v1alpha1/cluster_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/objects/v1alpha1/connector_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/objects/v1alpha1/connector_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/objects/v1alpha1/dashboard_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/objects/v1alpha1/dashboard_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/objects/v1alpha1/objects_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/objects/v1alpha1/objects_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/objects/v1beta1/dashboard_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/objects/v1beta1/dashboard_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/objects/v1beta1/objects_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/objects/v1beta1/objects_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +42,8 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="143" />
+    <option name="cachedIndexableFilesCount" value="148" />
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -78,9 +61,6 @@
       </GitPushTagMode>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="GithubDefaultAccount">
-    <option name="defaultAccountId" value="8e103510-8785-4797-ae76-76b2550cc4a3" />
   </component>
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="true" />

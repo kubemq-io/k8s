@@ -165,6 +165,8 @@ var connectorContainerPorts = map[string]int32{
 	"stomp-tls": 61614,
 	"aws-http":  4566,
 	"gcp-grpc":  8085,
+	"kafka":     9092,
+	"kafka-tls": 9093,
 }
 
 func TestStatefulSetConfig_ConnectorContainerPorts(t *testing.T) {

@@ -243,6 +243,17 @@ func DefaultServiceConfig(id, namespace, appName string) map[string]*ServiceConf
 			{Name: "gcp-grpc", Port: 8085, TargetPort: 8085},
 		},
 	}
+	list["kafka"] = &ServiceConfig{
+		Id:        id,
+		Name:      appName + "-kafka",
+		Namespace: namespace,
+		AppName:   appName,
+		Expose:    "ClusterIP",
+		Ports: []ServicePort{
+			{Name: "kafka", Port: 9092, TargetPort: 9092},
+			{Name: "kafka-tls", Port: 9093, TargetPort: 9093},
+		},
+	}
 	return list
 }
 
