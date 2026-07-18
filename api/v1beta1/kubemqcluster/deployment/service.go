@@ -77,8 +77,17 @@ spec:
       port: 5228
       protocol: TCP
       targetPort: 5228
+{{ if eq .Engine "next" }}
+    - name: raft-port
+      port: 5229
+      protocol: TCP
+      targetPort: 5229
+{{end}}
   sessionAffinity: None
   clusterIP: None
+{{ if eq .Engine "next" }}
+  publishNotReadyAddresses: true
+{{end}}
   selector:
     app: {{.AppName}}
 `
@@ -101,7 +110,17 @@ type ServiceConfig struct {
 	NodePort      int32
 	Ports         []ServicePort
 	Headless      bool
-	service       *apiv1.Service
+	// Engine, when "next", adds the raft replication port (5229) and
+	// publishNotReadyAddresses to the headless Service — set only for a clustered next
+	// engine so peers resolve each other's DNS during quorum formation (before Ready).
+	// Empty for legacy/standalone so an unchanged cluster's Service is byte-identical.
+	Engine  string
+	service *apiv1.Service
+}
+
+func (s *ServiceConfig) SetEngine(value string) *ServiceConfig {
+	s.Engine = value
+	return s
 }
 
 func ImportServiceConfig(spec []byte) (*ServiceConfig, error) {

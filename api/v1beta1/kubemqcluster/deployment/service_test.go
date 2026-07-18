@@ -5,6 +5,7 @@ import (
 	"github.com/ghodss/yaml"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	apiv1 "k8s.io/api/core/v1"
 	"testing"
 )
 
@@ -176,4 +177,32 @@ func TestDefaultServiceConfig_ConnectorServices(t *testing.T) {
 			fmt.Println(string(data))
 		})
 	}
+}
+
+// TestServiceConfig_Headless_NextRaft asserts the headless ("internal") Service gains
+// the raft port + publishNotReadyAddresses only for a clustered next engine; legacy is
+// byte-identical (no raft port, no publishNotReadyAddresses, cluster-port 5228 kept).
+func TestServiceConfig_Headless_NextRaft(t *testing.T) {
+	build := func(engine string) *apiv1.Service {
+		svc := DefaultServiceConfig("", "kubemq", "kubemq-cluster")["internal"]
+		svc.SetEngine(engine)
+		out, err := svc.Get()
+		require.NoError(t, err)
+		return out
+	}
+
+	next := build("next")
+	nextPorts := map[string]int32{}
+	for _, p := range next.Spec.Ports {
+		nextPorts[p.Name] = p.Port
+	}
+	assert.Equal(t, int32(5229), nextPorts["raft-port"], "clustered next headless svc must expose raft-port")
+	assert.Equal(t, int32(5228), nextPorts["cluster-port"], "cluster-port must remain")
+	assert.True(t, next.Spec.PublishNotReadyAddresses, "clustered next headless svc must publishNotReadyAddresses")
+
+	legacy := build("")
+	for _, p := range legacy.Spec.Ports {
+		assert.NotEqual(t, "raft-port", p.Name, "legacy headless svc must NOT expose raft-port")
+	}
+	assert.False(t, legacy.Spec.PublishNotReadyAddresses, "legacy headless svc must NOT publishNotReadyAddresses")
 }

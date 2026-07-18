@@ -14,6 +14,10 @@ LICENSE_KEY_*                                 # provided via spec.license / spec
 HOST                                          # pod host (os.Getenv special)
 KUBEMQ_TOKEN                                  # license token (os.Getenv special)
 
+# --- Dual-engine next store keys: not a typed CRD surface (ADD-015) ---
+STORE_NEXT_RAFT_ADDRESS                       # server-derived/advertised; operator must NOT emit it (F17)
+STORE_NEXT_SEGMENT_SIZE                       # server default; reachable via spec.configData only
+
 # --- Dead / latent-bug / map server bindings ---
 CONNECTORS_USAGE_REPORT_URL                   # dead server binding (no struct field; hardcoded URL) — pending server cleanup
 TELEMETRY_EXPORTER_HEADERS                    # map; no clean env mapping (+ latent server bug)

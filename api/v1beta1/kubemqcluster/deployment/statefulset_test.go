@@ -199,3 +199,71 @@ func TestStatefulSetConfig_ConnectorContainerPorts(t *testing.T) {
 		})
 	}
 }
+
+// TestStatefulSetConfig_NextClustered asserts the clustered-next surface renders
+// only when engine=next AND not standalone: the raft containerPort, POD_NAME
+// downward-API env, CLUSTER_REPLICATION_PEERS, podManagementPolicy=Parallel, and the
+// /ready readinessProbe. Legacy and standalone-next render none of it.
+func TestStatefulSetConfig_NextClustered(t *testing.T) {
+	const peers = "1@kubemq-cluster-0.kubemq-cluster.kubemq.svc.cluster.local:5229," +
+		"2@kubemq-cluster-1.kubemq-cluster.kubemq.svc.cluster.local:5229," +
+		"3@kubemq-cluster-2.kubemq-cluster.kubemq.svc.cluster.local:5229"
+
+	tests := []struct {
+		name        string
+		engine      string
+		standalone  bool
+		wantSurface bool
+	}{
+		{name: "clustered_next", engine: "next", standalone: false, wantSurface: true},
+		{name: "standalone_next", engine: "next", standalone: true, wantSurface: false},
+		{name: "legacy", engine: "", standalone: false, wantSurface: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := DefaultStatefulSetConfig("", "kubemq-cluster", "kubemq").
+				SetStandalone(tt.standalone).SetEngine(tt.engine).SetReplicationPeers(peers)
+			sts, err := cfg.Get()
+			require.NoError(t, err)
+			require.Len(t, sts.Spec.Template.Spec.Containers, 1)
+			c := sts.Spec.Template.Spec.Containers[0]
+
+			ports := map[string]int32{}
+			for _, p := range c.Ports {
+				ports[p.Name] = p.ContainerPort
+			}
+			env := map[string]string{}
+			var podName *string
+			for _, e := range c.Env {
+				env[e.Name] = e.Value
+				if e.Name == "POD_NAME" && e.ValueFrom != nil && e.ValueFrom.FieldRef != nil {
+					fp := e.ValueFrom.FieldRef.FieldPath
+					podName = &fp
+				}
+			}
+
+			if tt.wantSurface {
+				assert.Equal(t, int32(5229), ports["raft-port"], "raft-port must render")
+				require.NotNil(t, podName, "POD_NAME downward-API env must render")
+				assert.Equal(t, "metadata.name", *podName)
+				assert.Equal(t, peers, env["CLUSTER_REPLICATION_PEERS"])
+				assert.Equal(t, "Parallel", string(sts.Spec.PodManagementPolicy))
+				require.NotNil(t, c.ReadinessProbe, "readinessProbe must render")
+				require.NotNil(t, c.ReadinessProbe.HTTPGet)
+				assert.Equal(t, "/ready", c.ReadinessProbe.HTTPGet.Path)
+				assert.Equal(t, 8080, c.ReadinessProbe.HTTPGet.Port.IntValue())
+			} else {
+				_, hasRaft := ports["raft-port"]
+				assert.False(t, hasRaft, "raft-port must NOT render")
+				assert.Nil(t, podName, "POD_NAME must NOT render")
+				_, hasPeers := env["CLUSTER_REPLICATION_PEERS"]
+				assert.False(t, hasPeers, "CLUSTER_REPLICATION_PEERS must NOT render")
+				assert.NotEqual(t, "Parallel", string(sts.Spec.PodManagementPolicy))
+				assert.Nil(t, c.ReadinessProbe, "readinessProbe must NOT render")
+			}
+			// The operator never injects the server-derived replica id.
+			_, hasReplicaID := env["CLUSTER_REPLICATION_REPLICA_ID"]
+			assert.False(t, hasReplicaID, "CLUSTER_REPLICATION_REPLICA_ID must never render")
+		})
+	}
+}

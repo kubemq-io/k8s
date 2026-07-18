@@ -20,6 +20,9 @@ spec:
       app: {{.Name}}
   replicas: {{.Replicas}}
   serviceName: {{.Name}}
+{{ if .NextClustered }}
+  podManagementPolicy: Parallel
+{{end}}
   updateStrategy:
     type: RollingUpdate
   template:
@@ -45,6 +48,14 @@ spec:
             - name: CLUSTER_ENABLE
               value: 'true'
 {{end}}
+{{ if .NextClustered }}
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: CLUSTER_REPLICATION_PEERS
+              value: '{{.ReplicationPeers}}'
+{{end}}
             - name: CHECKSUM
               value: {{.ConfigCheckSum}}
           envFrom:
@@ -56,6 +67,12 @@ spec:
           imagePullPolicy: {{.ImagePullPolicy}}
           name: {{.Name}}
 {{ .Health }}
+{{ if .NextClustered }}
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: {{.ApiPort}}
+{{end}}
 {{ .Resources }}
           ports:
             - containerPort: {{.GrpcPort}}
@@ -103,6 +120,11 @@ spec:
 {{ if not .Standalone }}
             - containerPort: 5228
               name: cluster-port
+              protocol: TCP
+{{end}}
+{{ if .NextClustered }}
+            - containerPort: 5229
+              name: raft-port
               protocol: TCP
 {{end}}
 {{if .Volume  }}
@@ -154,6 +176,20 @@ type StatefulSetConfig struct {
 	ApiPort               int32
 	GrpcPort              int32
 	RestPort              int32
+	// Engine is the store engine ("" / "legacy" / "next"). ReplicationPeers is the
+	// operator-built Dragonboat initial-members list emitted for a clustered next
+	// engine. Both drive the NextClustered gate below.
+	Engine           string
+	ReplicationPeers string
+}
+
+// NextClustered reports whether this StatefulSet runs a clustered next engine
+// (engine=next AND not standalone). It gates the raft containerPort, the POD_NAME
+// downward-API env, the CLUSTER_REPLICATION_PEERS emit, podManagementPolicy=Parallel,
+// and the /ready readinessProbe. Standalone next runs a loopback raft with no
+// replication surface, so it is excluded.
+func (sc *StatefulSetConfig) NextClustered() bool {
+	return sc.Engine == "next" && !sc.Standalone
 }
 
 func DefaultStatefulSetConfig(id, name, namespace string) *StatefulSetConfig {
@@ -177,6 +213,8 @@ func DefaultStatefulSetConfig(id, name, namespace string) *StatefulSetConfig {
 		ApiPort:               8080,
 		GrpcPort:              50000,
 		RestPort:              9090,
+		Engine:                "",
+		ReplicationPeers:      "",
 	}
 }
 
@@ -235,6 +273,14 @@ func (sc *StatefulSetConfig) SetConfigChecksum(value string) *StatefulSetConfig 
 }
 func (sc *StatefulSetConfig) SetStandalone(value bool) *StatefulSetConfig {
 	sc.Standalone = value
+	return sc
+}
+func (sc *StatefulSetConfig) SetEngine(value string) *StatefulSetConfig {
+	sc.Engine = value
+	return sc
+}
+func (sc *StatefulSetConfig) SetReplicationPeers(value string) *StatefulSetConfig {
+	sc.ReplicationPeers = value
 	return sc
 }
 func (sc *StatefulSetConfig) SetStatefulsetConfigData(value string) *StatefulSetConfig {
