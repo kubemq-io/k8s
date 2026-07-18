@@ -98,10 +98,13 @@ func (c *StoreConfig) DeepCopy() *StoreConfig {
 	return out
 }
 func (c *StoreConfig) SetConfig(config *deployment.Config) *StoreConfig {
-	// Emit STORE_ENGINE only for "next" — unset and "legacy" emit nothing so an
-	// existing legacy CR's ConfigMap is byte-identical (stable CHECKSUM, no roll).
-	if c.Engine != nil && *c.Engine == "next" {
-		config.SetConfigMapStringValues(config.Name, "STORE_ENGINE", "next")
+	// Emit STORE_ENGINE for any explicit value (including "legacy") — only a nil
+	// (unset) Engine emits nothing, so an existing legacy CR that never set engine
+	// keeps a byte-identical ConfigMap (stable CHECKSUM, no roll). A CR that
+	// explicitly pins engine=legacy now emits STORE_ENGINE=legacy (one-time
+	// checksum roll on upgrade, release-noted).
+	if c.Engine != nil && *c.Engine != "" {
+		config.SetConfigMapStringValues(config.Name, "STORE_ENGINE", *c.Engine)
 	}
 
 	if c.Clean {

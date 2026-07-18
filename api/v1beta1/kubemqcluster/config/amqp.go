@@ -61,6 +61,10 @@ type AmqpConfig struct {
 	// +optional
 	// +kubebuilder:validation:Minimum=0
 	MaxReceiveCount *int32 `json:"maxReceiveCount,omitempty" yaml:"maxReceiveCount,omitempty"`
+
+	// +optional
+	// +kubebuilder:validation:Enum=ClusterIP;NodePort;LoadBalancer
+	Expose *string `json:"expose,omitempty" yaml:"expose,omitempty"`
 }
 
 func (c *AmqpConfig) DeepCopy() *AmqpConfig {
@@ -126,6 +130,11 @@ func (c *AmqpConfig) DeepCopy() *AmqpConfig {
 		*out.MaxReceiveCount = *c.MaxReceiveCount
 	}
 
+	if c.Expose != nil {
+		out.Expose = new(string)
+		*out.Expose = *c.Expose
+	}
+
 	return out
 }
 
@@ -144,6 +153,9 @@ func (c *AmqpConfig) SetConfig(config *deployment.Config) *AmqpConfig {
 		}
 		if c.TLSPort != nil {
 			svc.SetPort("amqp-tls", *c.TLSPort)
+		}
+		if c.Expose != nil {
+			svc.SetExpose(*c.Expose)
 		}
 	}
 

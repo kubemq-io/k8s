@@ -25,6 +25,14 @@ type Amqp10Config struct {
 	TLSPort *int32 `json:"tlsPort,omitempty" yaml:"tlsPort,omitempty"`
 
 	// +optional
+	// Expose sets the exposure type (ClusterIP, NodePort, or LoadBalancer) for
+	// the shared "amqp" K8s Service. AMQP 1.0 shares this Service with AMQP 0.9.1
+	// (AmqpConfig.Expose); if both connectors are enabled with differing values,
+	// whichever connector's SetConfig runs last wins.
+	// +kubebuilder:validation:Enum=ClusterIP;NodePort;LoadBalancer
+	Expose *string `json:"expose,omitempty" yaml:"expose,omitempty"`
+
+	// +optional
 	// +kubebuilder:validation:Minimum=512
 	MaxFrameSize *int32 `json:"maxFrameSize,omitempty" yaml:"maxFrameSize,omitempty"`
 
@@ -87,6 +95,11 @@ func (c *Amqp10Config) DeepCopy() *Amqp10Config {
 	if c.TLSPort != nil {
 		out.TLSPort = new(int32)
 		*out.TLSPort = *c.TLSPort
+	}
+
+	if c.Expose != nil {
+		out.Expose = new(string)
+		*out.Expose = *c.Expose
 	}
 
 	if c.MaxFrameSize != nil {
@@ -154,14 +167,19 @@ func (c *Amqp10Config) SetConfig(config *deployment.Config) *Amqp10Config {
 		return c
 	}
 
-	// Reflect custom ports onto the shared "amqp" K8s Service (AMQP 1.0 shares it
-	// with AMQP 0.9.1) so traffic reaches the listener.
+	// Reflect custom ports and exposure onto the shared "amqp" K8s Service (AMQP
+	// 1.0 shares it with AMQP 0.9.1) so traffic reaches the listener. Expose is
+	// SHARED with AmqpConfig.Expose on the same Service — last SetConfig call
+	// (across the two connectors) wins.
 	if svc, ok := config.Services["amqp"]; ok {
 		if c.Port != nil {
 			svc.SetPort("amqp", *c.Port)
 		}
 		if c.TLSPort != nil {
 			svc.SetPort("amqp-tls", *c.TLSPort)
+		}
+		if c.Expose != nil {
+			svc.SetExpose(*c.Expose)
 		}
 	}
 

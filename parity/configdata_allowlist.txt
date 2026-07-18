@@ -9,7 +9,17 @@
 BROKER_*                                      # broker perf tuning — configData-only (owner decision 2026-07-12)
 
 # --- Operator-injected / already-provided-via-other-mechanism (config-package guard can't observe) ---
-CLUSTER_*                                     # operator-injected into the StatefulSet pod template
+# CLUSTER_* is split per-key (F9) into two dispositions instead of one blanket prefix:
+#   operator-computed: the operator derives/injects the value itself (also denylisted from
+#     spec.env — see v1beta1.OperatorComputedEnvKeys / OperatorComputedEnvKeyPrefix, cross-checked
+#     by the parity_denylist_coupling_test.go coupling test).
+#   configData-only: no operator-computed source; reachable only via spec.configData.
+CLUSTER_ENABLE                                # operator-computed: derived from cluster topology (exact match)
+CLUSTER_NAME                                  # operator-computed: derived from metadata.name (exact match)
+CLUSTER_ROUTES                                # operator-computed: derived from peer discovery (exact match)
+CLUSTER_REPLICATION_*                         # operator-computed: next-engine raft membership (ReplicaID/Peers/mTLS/etc, ADD-015) injected into the StatefulSet pod template outside this config package (prefix match)
+CLUSTER_IS_SEED                               # configData-only: not operator-derived (exact match)
+CLUSTER_PORT                                  # configData-only: not operator-derived (exact match)
 LICENSE_KEY_*                                 # provided via spec.license / spec.key
 HOST                                          # pod host (os.Getenv special)
 KUBEMQ_TOKEN                                  # license token (os.Getenv special)
@@ -29,6 +39,11 @@ ROUTING_FILE_PATH                             # superseded by routing inline dat
 SECURITY_CERT_FILENAME                        # superseded by security cert inline data
 SECURITY_KEY_FILENAME                         # superseded by security key inline data
 SECURITY_CA_FILENAME                          # superseded by security ca inline data
+
+# --- Kafka OAUTHBEARER SASL (O28/M4, kafka-adoption PR #64) — landed in kubemq-server after the
+# last golden regen, unrelated to zero-config-coherence F9; surfaced by the F9 regen run.
+# configData-only until a typed CRD field is spec'd for it. ---
+CONNECTORS_KAFKAO_AUTH_BEARER_*               # kafka OAUTHBEARER SASL — not yet a typed CRD surface
 
 # --- Kafka advanced knobs deferred to v3.1 (D25), configData-only until promoted ---
 CONNECTORS_KAFKA_MAX_FETCH_WAIT_MS            # kafka deferred (D25)

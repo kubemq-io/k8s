@@ -56,6 +56,12 @@ type KafkaConfig struct {
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=1073741824
 	MaxMessageBytes *int64 `json:"maxMessageBytes,omitempty" yaml:"maxMessageBytes,omitempty"`
+
+	// Expose controls the K8s Service .spec.type for the kafka/kafka-tls ports.
+	// Unset leaves the catalog default (ClusterIP) untouched.
+	// +optional
+	// +kubebuilder:validation:Enum=ClusterIP;NodePort;LoadBalancer
+	Expose *string `json:"expose,omitempty" yaml:"expose,omitempty"`
 }
 
 func (c *KafkaConfig) DeepCopy() *KafkaConfig {
@@ -96,6 +102,11 @@ func (c *KafkaConfig) DeepCopy() *KafkaConfig {
 		*out.MaxMessageBytes = *c.MaxMessageBytes
 	}
 
+	if c.Expose != nil {
+		out.Expose = new(string)
+		*out.Expose = *c.Expose
+	}
+
 	return out
 }
 
@@ -120,6 +131,9 @@ func (c *KafkaConfig) SetConfig(config *deployment.Config) *KafkaConfig {
 				svc.SetPort("kafka-tls", int32(p))
 			}
 		}
+		if c.Expose != nil {
+			svc.SetExpose(*c.Expose)
+		}
 	}
 
 	if c.Port != nil {
@@ -132,6 +146,13 @@ func (c *KafkaConfig) SetConfig(config *deployment.Config) *KafkaConfig {
 
 	if c.AdvertisedHost != nil {
 		config.SetConfigMapStringValues(config.Name, "CONNECTORS_KAFKA_ADVERTISED_HOST", *c.AdvertisedHost)
+	} else {
+		// F4: leaving advertisedHost unset hangs every external client on
+		// reconnect (the M-23 connect-then-hang footgun) — default to the
+		// in-cluster short-form Service DNS name so at least in-cluster
+		// clients work out of the box. Custom-DNS-domain safe (short form,
+		// no ".cluster.local" suffix). Explicit value above always wins.
+		config.SetConfigMapStringValues(config.Name, "CONNECTORS_KAFKA_ADVERTISED_HOST", config.Name+"-kafka."+config.Namespace+".svc")
 	}
 
 	if c.AdvertisedPort != nil {

@@ -33,6 +33,10 @@ type AwsConfig struct {
 	AdvertisedURL *string `json:"advertisedUrl,omitempty" yaml:"advertisedUrl,omitempty"`
 
 	// +optional
+	// +kubebuilder:validation:Enum=ClusterIP;NodePort;LoadBalancer
+	Expose *string `json:"expose,omitempty" yaml:"expose,omitempty"`
+
+	// +optional
 	// +kubebuilder:validation:Minimum=1
 	MaxInflightPerQueue *int32 `json:"maxInflightPerQueue,omitempty" yaml:"maxInflightPerQueue,omitempty"`
 
@@ -87,6 +91,11 @@ func (c *AwsConfig) DeepCopy() *AwsConfig {
 		*out.AdvertisedURL = *c.AdvertisedURL
 	}
 
+	if c.Expose != nil {
+		out.Expose = new(string)
+		*out.Expose = *c.Expose
+	}
+
 	if c.MaxInflightPerQueue != nil {
 		out.MaxInflightPerQueue = new(int32)
 		*out.MaxInflightPerQueue = *c.MaxInflightPerQueue
@@ -136,6 +145,9 @@ func (c *AwsConfig) SetConfig(config *deployment.Config) *AwsConfig {
 	if svc, ok := config.Services["aws"]; ok {
 		if c.Port != nil {
 			svc.SetPort("aws-http", *c.Port)
+		}
+		if c.Expose != nil {
+			svc.SetExpose(*c.Expose)
 		}
 	}
 

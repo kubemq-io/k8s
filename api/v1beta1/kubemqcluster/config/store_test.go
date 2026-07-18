@@ -31,19 +31,23 @@ func TestStoreConfig_DeepCopy_Engine(t *testing.T) {
 }
 
 // TestStoreConfig_SetConfig_Engine pins the STORE_ENGINE wire contract (ADD-004,
-// load-bearing): only engine=next emits the key, and it emits the literal value
-// "next". Unset and "legacy" emit nothing so an existing legacy CR's ConfigMap is
-// byte-identical (stable CHECKSUM, no roll). The literal "STORE_ENGINE" key here is
-// the exact env-var name the server binds — a rename must break this test.
+// F2.8, load-bearing): any explicit engine value (including "legacy") emits the
+// key with that literal value; only a nil (unset) Engine emits nothing, so an
+// existing legacy CR that never set engine keeps a byte-identical ConfigMap
+// (stable CHECKSUM, no roll). An explicit engine=legacy now emits
+// STORE_ENGINE=legacy (one-time checksum roll on upgrade, release-noted). The
+// literal "STORE_ENGINE" key here is the exact env-var name the server binds —
+// a rename must break this test.
 func TestStoreConfig_SetConfig_Engine(t *testing.T) {
 	tests := []struct {
-		name    string
-		engine  *string
-		wantKey bool
+		name      string
+		engine    *string
+		wantKey   bool
+		wantValue string
 	}{
 		{name: "nil engine emits nothing", engine: nil, wantKey: false},
-		{name: "legacy emits nothing", engine: strptr("legacy"), wantKey: false},
-		{name: "next emits STORE_ENGINE", engine: strptr("next"), wantKey: true},
+		{name: "explicit legacy emits STORE_ENGINE=legacy", engine: strptr("legacy"), wantKey: true, wantValue: "legacy"},
+		{name: "next emits STORE_ENGINE=next", engine: strptr("next"), wantKey: true, wantValue: "next"},
 	}
 
 	for _, tt := range tests {
@@ -53,8 +57,8 @@ func TestStoreConfig_SetConfig_Engine(t *testing.T) {
 
 			got, ok := vars(cfg)["STORE_ENGINE"]
 			if tt.wantKey {
-				require.True(t, ok, "STORE_ENGINE must be emitted for engine=next")
-				assert.Equal(t, "next", got, "STORE_ENGINE wire-contract value")
+				require.True(t, ok, "STORE_ENGINE must be emitted for %s", tt.name)
+				assert.Equal(t, tt.wantValue, got, "STORE_ENGINE wire-contract value")
 			} else {
 				assert.False(t, ok, "STORE_ENGINE must not be emitted for %s", tt.name)
 			}

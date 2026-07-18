@@ -63,6 +63,10 @@ spec:
                 name: {{.Name}}
             - configMapRef:
                 name: {{.Name}}
+{{ range .ExtraSecretRefs }}
+            - secretRef:
+                name: {{.}}
+{{end}}
           image: {{.Image}}
           imagePullPolicy: {{.ImagePullPolicy}}
           name: {{.Name}}
@@ -181,6 +185,11 @@ type StatefulSetConfig struct {
 	// engine. Both drive the NextClustered gate below.
 	Engine           string
 	ReplicationPeers string
+	// ExtraSecretRefs is the list of additional Secret names to mount via
+	// envFrom, appended after the base configMapRef so user-provided secret
+	// keys win over ConfigMap-sourced defaults. An empty/nil slice is
+	// parse-neutral (renders no additional envFrom entries).
+	ExtraSecretRefs []string
 }
 
 // NextClustered reports whether this StatefulSet runs a clustered next engine
@@ -215,6 +224,7 @@ func DefaultStatefulSetConfig(id, name, namespace string) *StatefulSetConfig {
 		RestPort:              9090,
 		Engine:                "",
 		ReplicationPeers:      "",
+		ExtraSecretRefs:       nil,
 	}
 }
 
@@ -281,6 +291,10 @@ func (sc *StatefulSetConfig) SetEngine(value string) *StatefulSetConfig {
 }
 func (sc *StatefulSetConfig) SetReplicationPeers(value string) *StatefulSetConfig {
 	sc.ReplicationPeers = value
+	return sc
+}
+func (sc *StatefulSetConfig) SetExtraSecretRefs(value []string) *StatefulSetConfig {
+	sc.ExtraSecretRefs = value
 	return sc
 }
 func (sc *StatefulSetConfig) SetStatefulsetConfigData(value string) *StatefulSetConfig {
