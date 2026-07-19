@@ -28,6 +28,12 @@ type StompConfig struct {
 	// +kubebuilder:validation:Enum=events;queues;store;none
 	DefaultPattern *string `json:"defaultPattern,omitempty" yaml:"defaultPattern,omitempty"`
 
+	// Expose controls how the STOMP Service is exposed. Unset leaves the
+	// catalog default (ClusterIP) untouched.
+	// +optional
+	// +kubebuilder:validation:Enum=ClusterIP;NodePort;LoadBalancer
+	Expose *string `json:"expose,omitempty" yaml:"expose,omitempty"`
+
 	// +optional
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=10000
@@ -79,6 +85,11 @@ func (c *StompConfig) DeepCopy() *StompConfig {
 	if c.DefaultPattern != nil {
 		out.DefaultPattern = new(string)
 		*out.DefaultPattern = *c.DefaultPattern
+	}
+
+	if c.Expose != nil {
+		out.Expose = new(string)
+		*out.Expose = *c.Expose
 	}
 
 	if c.SubBuffSize != nil {
@@ -133,6 +144,9 @@ func (c *StompConfig) SetConfig(config *deployment.Config) *StompConfig {
 		}
 		if c.TLSPort != nil {
 			svc.SetPort("stomp-tls", *c.TLSPort)
+		}
+		if c.Expose != nil {
+			svc.SetExpose(*c.Expose)
 		}
 	}
 

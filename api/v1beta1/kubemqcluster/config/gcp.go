@@ -23,6 +23,10 @@ type GcpConfig struct {
 	AdvertisedEndpoint *string `json:"advertisedEndpoint,omitempty" yaml:"advertisedEndpoint,omitempty"`
 
 	// +optional
+	// +kubebuilder:validation:Enum=ClusterIP;NodePort;LoadBalancer
+	Expose *string `json:"expose,omitempty" yaml:"expose,omitempty"`
+
+	// +optional
 	// +kubebuilder:validation:Minimum=1
 	MaxMessageBytes *int32 `json:"maxMessageBytes,omitempty" yaml:"maxMessageBytes,omitempty"`
 
@@ -86,6 +90,11 @@ func (c *GcpConfig) DeepCopy() *GcpConfig {
 	if c.AdvertisedEndpoint != nil {
 		out.AdvertisedEndpoint = new(string)
 		*out.AdvertisedEndpoint = *c.AdvertisedEndpoint
+	}
+
+	if c.Expose != nil {
+		out.Expose = new(string)
+		*out.Expose = *c.Expose
 	}
 
 	if c.MaxMessageBytes != nil {
@@ -153,10 +162,13 @@ func (c *GcpConfig) SetConfig(config *deployment.Config) *GcpConfig {
 		return c
 	}
 
-	// Reflect a custom port onto the K8s Service so traffic reaches the listener.
+	// Reflect a custom port/expose onto the K8s Service so traffic reaches the listener.
 	if svc, ok := config.Services["gcp"]; ok {
 		if c.Port != nil {
 			svc.SetPort("gcp-grpc", *c.Port)
+		}
+		if c.Expose != nil {
+			svc.SetExpose(*c.Expose)
 		}
 	}
 

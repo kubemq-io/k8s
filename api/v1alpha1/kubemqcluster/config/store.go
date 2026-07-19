@@ -6,6 +6,15 @@ import (
 )
 
 type StoreConfig struct {
+	// Engine selects the persistence engine: "legacy" (default) or "next".
+	// Typed here only so the lockstep v1alpha1 store.engine enum is a real
+	// (round-trip-preserved) field, not a schema-only property the strategy-None
+	// converter would prune. The operator reconciles v1beta1 exclusively, so this
+	// v1alpha1 field emits nothing on its own.
+	// +optional
+	// +kubebuilder:validation:Enum=legacy;next
+	Engine *string `json:"engine,omitempty"`
+
 	// +optional
 	Clean bool `json:"clean,omitempty"`
 
@@ -39,6 +48,11 @@ type StoreConfig struct {
 
 func (c *StoreConfig) DeepCopy() *StoreConfig {
 	out := &StoreConfig{}
+
+	if c.Engine != nil {
+		out.Engine = new(string)
+		*out.Engine = *c.Engine
+	}
 
 	out.Clean = c.Clean
 	out.Path = c.Path

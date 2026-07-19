@@ -92,6 +92,17 @@ type KubemqClusterSpec struct {
 
 	// +optional
 	StatefulSetConfigData string `json:"statefulsetConfigData,omitempty"`
+
+	// Env sets additional environment variables on the StatefulSet's ConfigMap
+	// (the LEAN-CRD escape hatch for server tunables not typed in this CRD).
+	// Operator-computed keys are denied; collisions are dropped and surfaced.
+	// +optional
+	Env map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
+
+	// EnvFromSecrets lists additional Secret names whose keys are projected as
+	// environment variables onto the deployment.
+	// +optional
+	EnvFromSecrets []string `json:"envFromSecrets,omitempty" yaml:"envFromSecrets,omitempty"`
 }
 
 // KubemqClusterStatus defines the observed state of KubemqCluster

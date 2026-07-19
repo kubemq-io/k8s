@@ -1,5 +1,22 @@
+# ============================================================================
+# LEAN-CRD LEDGER (F8.3)
+# ----------------------------------------------------------------------------
+# This file is the LEAN-CRD doctrine's ledger, not a backlog. Each entry is a
+# server config key that is INTENTIONALLY NOT a typed CRD field — the CRD types
+# only Day-1 fields, and every other tunable is reached via spec.env (the
+# generic SERVER_ENV_NAME:value overlay) or spec.configData (raw config), NOT a
+# new typed field. See ../../CLAUDE.md §2 (LEAN-CRD doctrine).
+#
+# Adding a key here is a DELIBERATE LEAN-CRD decision that it stays overlay-
+# reachable — it is NOT a TODO to type it later. Type a field only when the
+# value is Day-1, must be validated at admission, or is operator-computed
+# (§2.1). Entries tagged "operator-computed" are ALSO denylisted from spec.env
+# (v1beta1.OperatorComputedEnvKeys / OperatorComputedEnvKeyPrefix) and are
+# cross-checked by parity_denylist_coupling_test.go.
+# ============================================================================
+
 # ADD-014 config-parity allowlist — server env keys intentionally NOT a typed CRD field.
-# Each is reachable via spec.configData (raw config) instead. One entry per line:
+# Each is reachable via spec.env (overlay) or spec.configData (raw config) instead. One entry per line:
 #   KEY          # reason        (exact match)
 #   PREFIX_*     # reason        (prefix match)
 # Guard rules (parity_test.go): every entry must be a real server key (no stale), no exact
@@ -9,10 +26,24 @@
 BROKER_*                                      # broker perf tuning — configData-only (owner decision 2026-07-12)
 
 # --- Operator-injected / already-provided-via-other-mechanism (config-package guard can't observe) ---
-CLUSTER_*                                     # operator-injected into the StatefulSet pod template
+# CLUSTER_* is split per-key (F9) into two dispositions instead of one blanket prefix:
+#   operator-computed: the operator derives/injects the value itself (also denylisted from
+#     spec.env — see v1beta1.OperatorComputedEnvKeys / OperatorComputedEnvKeyPrefix, cross-checked
+#     by the parity_denylist_coupling_test.go coupling test).
+#   configData-only: no operator-computed source; reachable only via spec.configData.
+CLUSTER_ENABLE                                # operator-computed: derived from cluster topology (exact match)
+CLUSTER_NAME                                  # operator-computed: derived from metadata.name (exact match)
+CLUSTER_ROUTES                                # operator-computed: derived from peer discovery (exact match)
+CLUSTER_REPLICATION_*                         # operator-computed: next-engine raft membership (ReplicaID/Peers/mTLS/etc, ADD-015) injected into the StatefulSet pod template outside this config package (prefix match)
+CLUSTER_IS_SEED                               # configData-only: not operator-derived (exact match)
+CLUSTER_PORT                                  # configData-only: not operator-derived (exact match)
 LICENSE_KEY_*                                 # provided via spec.license / spec.key
 HOST                                          # pod host (os.Getenv special)
 KUBEMQ_TOKEN                                  # license token (os.Getenv special)
+
+# --- Dual-engine next store keys: not a typed CRD surface (ADD-015) ---
+STORE_NEXT_RAFT_ADDRESS                       # server-derived/advertised; operator must NOT emit it (F17)
+STORE_NEXT_SEGMENT_SIZE                       # server default; reachable via spec.configData only
 
 # --- Dead / latent-bug / map server bindings ---
 CONNECTORS_USAGE_REPORT_URL                   # dead server binding (no struct field; hardcoded URL) — pending server cleanup
@@ -25,6 +56,11 @@ ROUTING_FILE_PATH                             # superseded by routing inline dat
 SECURITY_CERT_FILENAME                        # superseded by security cert inline data
 SECURITY_KEY_FILENAME                         # superseded by security key inline data
 SECURITY_CA_FILENAME                          # superseded by security ca inline data
+
+# --- Kafka OAUTHBEARER SASL (O28/M4, kafka-adoption PR #64) — landed in kubemq-server after the
+# last golden regen, unrelated to zero-config-coherence F9; surfaced by the F9 regen run.
+# configData-only until a typed CRD field is spec'd for it. ---
+CONNECTORS_KAFKAO_AUTH_BEARER_*               # kafka OAUTHBEARER SASL — not yet a typed CRD surface
 
 # --- Kafka advanced knobs deferred to v3.1 (D25), configData-only until promoted ---
 CONNECTORS_KAFKA_MAX_FETCH_WAIT_MS            # kafka deferred (D25)

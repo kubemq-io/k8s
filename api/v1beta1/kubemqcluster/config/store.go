@@ -6,6 +6,14 @@ import (
 )
 
 type StoreConfig struct {
+	// Engine selects the persistence engine: "legacy" (default) or "next".
+	// next-ness is immutable (born-one-mode) — enforced by a CEL transition rule
+	// on the store object in the CRD schema. Nil emits nothing (server defaults
+	// to legacy), so an existing legacy CR's ConfigMap stays byte-identical.
+	// +optional
+	// +kubebuilder:validation:Enum=legacy;next
+	Engine *string `json:"engine,omitempty" yaml:"engine,omitempty"`
+
 	// +optional
 	Clean bool `json:"clean,omitempty" yaml:"clean,omitempty"`
 
@@ -43,6 +51,11 @@ type StoreConfig struct {
 
 func (c *StoreConfig) DeepCopy() *StoreConfig {
 	out := &StoreConfig{}
+
+	if c.Engine != nil {
+		out.Engine = new(string)
+		*out.Engine = *c.Engine
+	}
 
 	out.Clean = c.Clean
 	out.Path = c.Path
@@ -85,6 +98,15 @@ func (c *StoreConfig) DeepCopy() *StoreConfig {
 	return out
 }
 func (c *StoreConfig) SetConfig(config *deployment.Config) *StoreConfig {
+	// Emit STORE_ENGINE for any explicit value (including "legacy") — only a nil
+	// (unset) Engine emits nothing, so an existing legacy CR that never set engine
+	// keeps a byte-identical ConfigMap (stable CHECKSUM, no roll). A CR that
+	// explicitly pins engine=legacy now emits STORE_ENGINE=legacy (one-time
+	// checksum roll on upgrade, release-noted).
+	if c.Engine != nil && *c.Engine != "" {
+		config.SetConfigMapStringValues(config.Name, "STORE_ENGINE", *c.Engine)
+	}
+
 	if c.Clean {
 		config.SetConfigMapStringValues(config.Name, "STORE_CLEAN_STORE", "true")
 	}

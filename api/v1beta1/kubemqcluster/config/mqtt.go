@@ -59,6 +59,10 @@ type MqttConfig struct {
 
 	// +optional
 	Capabilities *MqttCapabilitiesConfig `json:"capabilities,omitempty" yaml:"capabilities,omitempty"`
+
+	// +optional
+	// +kubebuilder:validation:Enum=ClusterIP;NodePort;LoadBalancer
+	Expose *string `json:"expose,omitempty" yaml:"expose,omitempty"`
 }
 
 // MqttCapabilitiesConfig configures the kubemq-server MQTT connector capabilities.
@@ -168,6 +172,11 @@ func (c *MqttConfig) DeepCopy() *MqttConfig {
 		out.Capabilities = c.Capabilities.DeepCopy()
 	}
 
+	if c.Expose != nil {
+		out.Expose = new(string)
+		*out.Expose = *c.Expose
+	}
+
 	return out
 }
 
@@ -239,6 +248,9 @@ func (c *MqttConfig) SetConfig(config *deployment.Config) *MqttConfig {
 		}
 		if c.WSPort != nil {
 			svc.SetPort("mqtt-ws", *c.WSPort)
+		}
+		if c.Expose != nil {
+			svc.SetExpose(*c.Expose)
 		}
 	}
 

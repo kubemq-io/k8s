@@ -24,6 +24,24 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
+// EstablishedEngineAnnotation records the persistence engine ("legacy" or "next")
+// the operator has established for this cluster's on-disk store. Consulted by the
+// operator's fail-closed derivation guard on every reconcile; once set it is
+// authoritative over spec.store.engine for guard purposes.
+const EstablishedEngineAnnotation = "core.k8s.kubemq.io/established-engine"
+
+// OperatorComputedEnvKeyPrefix is the reserved prefix for env var names the
+// operator computes and injects for next-engine cluster replication. Keys under
+// this prefix (and OperatorComputedEnvKeys) may not be set via spec.env.
+const OperatorComputedEnvKeyPrefix = "CLUSTER_REPLICATION_"
+
+// OperatorComputedEnvKeys lists the individual (non-prefixed) env var names the
+// operator computes and injects. Keys in this list may not be set via spec.env.
+var OperatorComputedEnvKeys = []string{
+	"STORE_ENGINE", "CLUSTER_ENABLE", "CLUSTER_NAME", "CLUSTER_ROUTES",
+	"API_BIND_ADDRESS", "CHECKSUM", "POD_NAME",
+}
+
 // KubemqClusterSpec defines the desired state of KubemqCluster
 type KubemqClusterSpec struct {
 	// +optional
@@ -131,6 +149,18 @@ type KubemqClusterSpec struct {
 
 	// +optional
 	StatefulSetConfigData string `json:"statefulsetConfigData,omitempty" yaml:"statefulsetConfigData,omitempty"`
+
+	// Env sets additional environment variables on the StatefulSet's ConfigMap
+	// overlay. Keys under OperatorComputedEnvKeyPrefix or in OperatorComputedEnvKeys
+	// are rejected by the operator (reserved for engine/cluster wiring).
+	// +optional
+	Env map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
+
+	// EnvFromSecrets lists additional Secret names whose keys are projected as
+	// environment variables on the StatefulSet pods, alongside the operator-owned
+	// ConfigMap envFrom source.
+	// +optional
+	EnvFromSecrets []string `json:"envFromSecrets,omitempty" yaml:"envFromSecrets,omitempty"`
 }
 
 // KubemqClusterStatus defines the observed state of KubemqCluster
@@ -156,6 +186,21 @@ type KubemqClusterStatus struct {
 	LicenseExpire string `json:"license_expire" yaml:"licenseExpire"`
 
 	Status string `json:"status" yaml:"status"`
+
+	// Engine reports the persistence engine ("legacy" or "next") the operator has
+	// established for this cluster. Display-only; the operator derives and stamps
+	// the effective engine via EstablishedEngineAnnotation, not this field.
+	// +optional
+	Engine string `json:"engine,omitempty" yaml:"engine,omitempty"`
+
+	// Conditions represent the latest available observations of the cluster's state.
+	// Known .status.conditions.type are: "ReconcileError" and "EphemeralNextStore".
+	// +optional
+	// +patchMergeKey=type
+	// +patchStrategy=merge
+	// +listType=map
+	// +listMapKey=type
+	Conditions []metav1.Condition `json:"conditions,omitempty" yaml:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
 }
 
 // +kubebuilder:object:root=true
@@ -179,6 +224,18 @@ type KubemqCluster struct {
 
 	Spec   KubemqClusterSpec   `json:"spec,omitempty" yaml:"spec,omitempty"`
 	Status KubemqClusterStatus `json:"status,omitempty" yaml:"status,omitempty"`
+}
+
+// GetConditions returns the cluster's status conditions. Satisfies the operator's
+// apis.ConditionsAware interface.
+func (in *KubemqCluster) GetConditions() []metav1.Condition {
+	return in.Status.Conditions
+}
+
+// SetConditions replaces the cluster's status conditions. Satisfies the operator's
+// apis.ConditionsAware interface.
+func (in *KubemqCluster) SetConditions(conditions []metav1.Condition) {
+	in.Status.Conditions = conditions
 }
 
 // +kubebuilder:object:root=true
