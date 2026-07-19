@@ -1,5 +1,22 @@
+# ============================================================================
+# LEAN-CRD LEDGER (F8.3)
+# ----------------------------------------------------------------------------
+# This file is the LEAN-CRD doctrine's ledger, not a backlog. Each entry is a
+# server config key that is INTENTIONALLY NOT a typed CRD field — the CRD types
+# only Day-1 fields, and every other tunable is reached via spec.env (the
+# generic SERVER_ENV_NAME:value overlay) or spec.configData (raw config), NOT a
+# new typed field. See ../../CLAUDE.md §2 (LEAN-CRD doctrine).
+#
+# Adding a key here is a DELIBERATE LEAN-CRD decision that it stays overlay-
+# reachable — it is NOT a TODO to type it later. Type a field only when the
+# value is Day-1, must be validated at admission, or is operator-computed
+# (§2.1). Entries tagged "operator-computed" are ALSO denylisted from spec.env
+# (v1beta1.OperatorComputedEnvKeys / OperatorComputedEnvKeyPrefix) and are
+# cross-checked by parity_denylist_coupling_test.go.
+# ============================================================================
+
 # ADD-014 config-parity allowlist — server env keys intentionally NOT a typed CRD field.
-# Each is reachable via spec.configData (raw config) instead. One entry per line:
+# Each is reachable via spec.env (overlay) or spec.configData (raw config) instead. One entry per line:
 #   KEY          # reason        (exact match)
 #   PREFIX_*     # reason        (prefix match)
 # Guard rules (parity_test.go): every entry must be a real server key (no stale), no exact
