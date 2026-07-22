@@ -908,6 +908,14 @@ spec:
                 type: string
               key:
                 type: string
+              keySecretRef:
+                type: string
+              keySecretKey:
+                type: string
+              licenseSecretRef:
+                type: string
+              licenseSecretKey:
+                type: string
               statefulsetConfigData:
                 type: string
               standalone:

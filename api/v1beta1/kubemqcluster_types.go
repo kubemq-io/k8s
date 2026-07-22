@@ -58,6 +58,26 @@ type KubemqClusterSpec struct {
 	Key string `json:"key,omitempty" yaml:"key,omitempty"`
 
 	// +optional
+	// KeySecretRef names an existing Secret holding the license key, so the raw key
+	// need not be a literal in the CR / Helm values. Mutually exclusive with Key.
+	KeySecretRef *string `json:"keySecretRef,omitempty" yaml:"keySecretRef,omitempty"`
+
+	// +optional
+	// KeySecretKey is the data key within KeySecretRef holding the license key.
+	// Defaults to "key".
+	KeySecretKey *string `json:"keySecretKey,omitempty" yaml:"keySecretKey,omitempty"`
+
+	// +optional
+	// LicenseSecretRef names an existing Secret holding the license data, so the raw
+	// license need not be a literal in the CR / Helm values. Mutually exclusive with License.
+	LicenseSecretRef *string `json:"licenseSecretRef,omitempty" yaml:"licenseSecretRef,omitempty"`
+
+	// +optional
+	// LicenseSecretKey is the data key within LicenseSecretRef holding the license data.
+	// Defaults to "license".
+	LicenseSecretKey *string `json:"licenseSecretKey,omitempty" yaml:"licenseSecretKey,omitempty"`
+
+	// +optional
 	Standalone bool `json:"standalone,omitempty" yaml:"standalone,omitempty"`
 
 	// +optional
