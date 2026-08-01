@@ -35,7 +35,9 @@ spec:
         prometheus.io/path: '/metrics'
     spec:
 {{ .NodeSelectors }}
-      serviceAccountName: {{.ServiceAccount}}
+{{ .Affinity }}
+{{ if .TerminationGracePeriodSeconds }}      terminationGracePeriodSeconds: {{.TerminationGracePeriodSeconds}}
+{{end}}      serviceAccountName: {{.ServiceAccount}}
       securityContext:
         fsGroup: 200
       containers:
@@ -55,6 +57,10 @@ spec:
                   fieldPath: metadata.name
             - name: CLUSTER_REPLICATION_PEERS
               value: '{{.ReplicationPeers}}'
+{{ if .KafkaAdvertisedHostSuffix }}
+            - name: CONNECTORS_KAFKA_ADVERTISED_HOST
+              value: '$(POD_NAME).{{.KafkaAdvertisedHostSuffix}}'
+{{end}}
 {{end}}
             - name: CHECKSUM
               value: {{.ConfigCheckSum}}
@@ -172,6 +178,22 @@ type StatefulSetConfig struct {
 	Health                string
 	Resources             string
 	NodeSelectors         string
+	// Affinity is a pre-rendered pod-spec `affinity:` block (6-space indented,
+	// same convention as NodeSelectors/Resources). Empty renders nothing.
+	Affinity string
+	// TerminationGracePeriodSeconds is the pod's shutdown budget. The server cannot
+	// read it (Kubernetes does not expose it through the downward API), so the same
+	// value is ALSO emitted as the KUBEMQ_TERMINATION_GRACE_PERIOD_SECONDS env key —
+	// the two describe one external constraint and must come from one source.
+	TerminationGracePeriodSeconds int32
+	// KafkaAdvertisedHostSuffix, when set, renders a per-pod
+	// CONNECTORS_KAFKA_ADVERTISED_HOST as `$(POD_NAME).<suffix>` in the container's
+	// literal env (kubelet expands $(POD_NAME); envFrom/ConfigMap values are NOT
+	// expanded, which is why this cannot live in the ConfigMap). Each broker then
+	// advertises its own stable pod DNS name instead of the round-robin Service
+	// address. Only meaningful for a clustered next engine (POD_NAME is declared
+	// there); rendered inside the same NextClustered gate, after POD_NAME.
+	KafkaAdvertisedHostSuffix string
 	Image                 string
 	ServiceAccount        string
 	ConfigCheckSum        string
@@ -271,6 +293,18 @@ func (sc *StatefulSetConfig) SetResources(value string) *StatefulSetConfig {
 }
 func (sc *StatefulSetConfig) SetNodeSelectors(value string) *StatefulSetConfig {
 	sc.NodeSelectors = value
+	return sc
+}
+func (sc *StatefulSetConfig) SetAffinity(value string) *StatefulSetConfig {
+	sc.Affinity = value
+	return sc
+}
+func (sc *StatefulSetConfig) SetTerminationGracePeriodSeconds(value int32) *StatefulSetConfig {
+	sc.TerminationGracePeriodSeconds = value
+	return sc
+}
+func (sc *StatefulSetConfig) SetKafkaAdvertisedHostSuffix(value string) *StatefulSetConfig {
+	sc.KafkaAdvertisedHostSuffix = value
 	return sc
 }
 func (sc *StatefulSetConfig) SetServiceAccount(value string) *StatefulSetConfig {

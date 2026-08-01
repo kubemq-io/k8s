@@ -33,8 +33,30 @@ type AwsConfig struct {
 	AdvertisedURL *string `json:"advertisedUrl,omitempty" yaml:"advertisedUrl,omitempty"`
 
 	// +optional
+	// +kubebuilder:default=ClusterIP
 	// +kubebuilder:validation:Enum=ClusterIP;NodePort;LoadBalancer
 	Expose *string `json:"expose,omitempty" yaml:"expose,omitempty"`
+
+	// SessionAffinity SHOULD be ClientIP for SQS. A receipt handle embeds the node
+	// that issued it and is the only way to delete a message; a delete that lands on
+	// another replica is refused with ReceiptHandleIsInvalid, the message reappears at
+	// the visibility timeout, and the queue never drains. A client holding one
+	// keep-alive connection is pinned by accident and never sees this — it bites when
+	// the connection breaks (pod death, idle timeout, LB reset, scale event) or with
+	// any client that does not pool connections.
+	// ClientIP is unreliable when clients share a NAT/egress IP; prefer ingress
+	// cookie affinity where an ingress exists.
+	// +optional
+	// +kubebuilder:validation:Enum=None;ClientIP
+	SessionAffinity *string `json:"sessionAffinity,omitempty" yaml:"sessionAffinity,omitempty"`
+
+	// NodePort pins the node port for the AWS listener. Honoured only when
+	// expose is NodePort; unset leaves it kernel-assigned, which cannot be
+	// configured into a client ahead of the install.
+	// +optional
+	// +kubebuilder:validation:Minimum=30000
+	// +kubebuilder:validation:Maximum=32767
+	NodePort *int32 `json:"nodePort,omitempty" yaml:"nodePort,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Minimum=1
@@ -96,6 +118,16 @@ func (c *AwsConfig) DeepCopy() *AwsConfig {
 		*out.Expose = *c.Expose
 	}
 
+	if c.SessionAffinity != nil {
+		out.SessionAffinity = new(string)
+		*out.SessionAffinity = *c.SessionAffinity
+	}
+
+	if c.NodePort != nil {
+		out.NodePort = new(int32)
+		*out.NodePort = *c.NodePort
+	}
+
 	if c.MaxInflightPerQueue != nil {
 		out.MaxInflightPerQueue = new(int32)
 		*out.MaxInflightPerQueue = *c.MaxInflightPerQueue
@@ -146,9 +178,7 @@ func (c *AwsConfig) SetConfig(config *deployment.Config) *AwsConfig {
 		if c.Port != nil {
 			svc.SetPort("aws-http", *c.Port)
 		}
-		if c.Expose != nil {
-			svc.SetExpose(*c.Expose)
-		}
+		applyServiceExposure(svc, c.Expose, c.SessionAffinity, map[string]*int32{"aws-http": c.NodePort})
 	}
 
 	if c.Port != nil {

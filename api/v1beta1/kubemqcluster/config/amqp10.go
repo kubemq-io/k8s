@@ -29,8 +29,29 @@ type Amqp10Config struct {
 	// the shared "amqp" K8s Service. AMQP 1.0 shares this Service with AMQP 0.9.1
 	// (AmqpConfig.Expose); if both connectors are enabled with differing values,
 	// whichever connector's SetConfig runs last wins.
+	// +kubebuilder:default=ClusterIP
 	// +kubebuilder:validation:Enum=ClusterIP;NodePort;LoadBalancer
 	Expose *string `json:"expose,omitempty" yaml:"expose,omitempty"`
+
+	// SessionAffinity is shared with AMQP 0.9.1 on the same "amqp" Service — if both
+	// connectors set it to different values, whichever SetConfig runs last wins.
+	// +optional
+	// +kubebuilder:validation:Enum=None;ClientIP
+	SessionAffinity *string `json:"sessionAffinity,omitempty" yaml:"sessionAffinity,omitempty"`
+
+	// NodePort / TLSNodePort pin the node ports for 5672 / 5671 on the SHARED "amqp"
+	// Service (last-wins with AMQP 0.9.1, like expose). Honoured only when expose is
+	// NodePort. The separate "amqp10" alias Service is a discoverability alias for
+	// the same listener and always takes its own kernel-assigned node ports.
+	// +optional
+	// +kubebuilder:validation:Minimum=30000
+	// +kubebuilder:validation:Maximum=32767
+	NodePort *int32 `json:"nodePort,omitempty" yaml:"nodePort,omitempty"`
+
+	// +optional
+	// +kubebuilder:validation:Minimum=30000
+	// +kubebuilder:validation:Maximum=32767
+	TLSNodePort *int32 `json:"tlsNodePort,omitempty" yaml:"tlsNodePort,omitempty"`
 
 	// +optional
 	// +kubebuilder:validation:Minimum=512
@@ -100,6 +121,21 @@ func (c *Amqp10Config) DeepCopy() *Amqp10Config {
 	if c.Expose != nil {
 		out.Expose = new(string)
 		*out.Expose = *c.Expose
+	}
+
+	if c.SessionAffinity != nil {
+		out.SessionAffinity = new(string)
+		*out.SessionAffinity = *c.SessionAffinity
+	}
+
+	if c.NodePort != nil {
+		out.NodePort = new(int32)
+		*out.NodePort = *c.NodePort
+	}
+
+	if c.TLSNodePort != nil {
+		out.TLSNodePort = new(int32)
+		*out.TLSNodePort = *c.TLSNodePort
 	}
 
 	if c.MaxFrameSize != nil {
@@ -178,9 +214,26 @@ func (c *Amqp10Config) SetConfig(config *deployment.Config) *Amqp10Config {
 		if c.TLSPort != nil {
 			svc.SetPort("amqp-tls", *c.TLSPort)
 		}
-		if c.Expose != nil {
-			svc.SetExpose(*c.Expose)
+		applyServiceExposure(svc, c.Expose, c.SessionAffinity, map[string]*int32{
+			"amqp":     c.NodePort,
+			"amqp-tls": c.TLSNodePort,
+		})
+	}
+
+	// The "amqp10" alias Service fronts the SAME 5672/5671 listener; it exists so a
+	// user who enables amqp10 can find it. It follows this connector's ports and
+	// affinity but deliberately NOT its expose: the alias stays ClusterIP so a
+	// LoadBalancer amqp10 does not provision (and bill for) a second load balancer
+	// onto one listener, and does not compete for node ports. External clients use
+	// the "amqp" Service, which carries the exposure.
+	if svc, ok := config.Services["amqp10"]; ok {
+		if c.Port != nil {
+			svc.SetPort("amqp10", *c.Port)
 		}
+		if c.TLSPort != nil {
+			svc.SetPort("amqp10-tls", *c.TLSPort)
+		}
+		applyServiceExposure(svc, nil, c.SessionAffinity, nil)
 	}
 
 	if c.Port != nil {

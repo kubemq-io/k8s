@@ -37,9 +37,20 @@ const OperatorComputedEnvKeyPrefix = "CLUSTER_REPLICATION_"
 
 // OperatorComputedEnvKeys lists the individual (non-prefixed) env var names the
 // operator computes and injects. Keys in this list may not be set via spec.env.
+// KUBEMQ_TERMINATION_GRACE_PERIOD_SECONDS is denied UNCONDITIONALLY: it describes an
+// external constraint the pod cannot read for itself (Kubernetes does not expose
+// terminationGracePeriodSeconds through the downward API), so setting it from spec.env
+// — with or without the matching pod-spec field — can only make the server believe a
+// shutdown budget it does not have. spec.terminationGracePeriodSeconds writes both.
+//
+// The Kafka addressing keys are NOT here: the operator computes them only for a
+// clustered cluster with the connector enabled, and denying them everywhere would fail
+// the reconcile of an existing cluster that reaches them through spec.env. The operator
+// rejects them contextually instead, on the path where it computes them.
 var OperatorComputedEnvKeys = []string{
 	"STORE_ENGINE", "CLUSTER_ENABLE", "CLUSTER_NAME", "CLUSTER_ROUTES",
 	"API_BIND_ADDRESS", "CHECKSUM", "POD_NAME",
+	"KUBEMQ_TERMINATION_GRACE_PERIOD_SECONDS",
 }
 
 // KubemqClusterSpec defines the desired state of KubemqCluster
@@ -56,6 +67,26 @@ type KubemqClusterSpec struct {
 
 	// +optional
 	Key string `json:"key,omitempty" yaml:"key,omitempty"`
+
+	// +optional
+	// KeySecretRef names an existing Secret holding the license key, so the raw key
+	// need not be a literal in the CR / Helm values. Mutually exclusive with Key.
+	KeySecretRef *string `json:"keySecretRef,omitempty" yaml:"keySecretRef,omitempty"`
+
+	// +optional
+	// KeySecretKey is the data key within KeySecretRef holding the license key.
+	// Defaults to "key".
+	KeySecretKey *string `json:"keySecretKey,omitempty" yaml:"keySecretKey,omitempty"`
+
+	// +optional
+	// LicenseSecretRef names an existing Secret holding the license data, so the raw
+	// license need not be a literal in the CR / Helm values. Mutually exclusive with License.
+	LicenseSecretRef *string `json:"licenseSecretRef,omitempty" yaml:"licenseSecretRef,omitempty"`
+
+	// +optional
+	// LicenseSecretKey is the data key within LicenseSecretRef holding the license data.
+	// Defaults to "license".
+	LicenseSecretKey *string `json:"licenseSecretKey,omitempty" yaml:"licenseSecretKey,omitempty"`
 
 	// +optional
 	Standalone bool `json:"standalone,omitempty" yaml:"standalone,omitempty"`
@@ -146,6 +177,23 @@ type KubemqClusterSpec struct {
 
 	// +optional
 	Http *config.HttpConfig `json:"http,omitempty" yaml:"http,omitempty"`
+
+	// TerminationGracePeriodSeconds is the pod's shutdown budget. The server splits it
+	// between connector teardown (which requeues in-flight messages) and store
+	// shutdown, and it cannot read the value itself — Kubernetes does not expose
+	// terminationGracePeriodSeconds through the downward API. The operator therefore
+	// writes it to BOTH the pod spec and the KUBEMQ_TERMINATION_GRACE_PERIOD_SECONDS
+	// env key. Unset leaves the Kubernetes default (30s), which is what the server
+	// assumes when it is not told.
+	// +optional
+	// +kubebuilder:validation:Minimum=1
+	TerminationGracePeriodSeconds *int32 `json:"terminationGracePeriodSeconds,omitempty" yaml:"terminationGracePeriodSeconds,omitempty"`
+
+	// +optional
+	PodDisruptionBudget *config.PodDisruptionBudgetConfig `json:"podDisruptionBudget,omitempty" yaml:"podDisruptionBudget,omitempty"`
+
+	// +optional
+	PodAntiAffinity *config.PodAntiAffinityConfig `json:"podAntiAffinity,omitempty" yaml:"podAntiAffinity,omitempty"`
 
 	// +optional
 	StatefulSetConfigData string `json:"statefulsetConfigData,omitempty" yaml:"statefulsetConfigData,omitempty"`

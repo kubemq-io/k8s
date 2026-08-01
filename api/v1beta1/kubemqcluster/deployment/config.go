@@ -57,6 +57,14 @@ func (c *Config) SetConfigMapStringValues(cmName, key, value string) {
 		cm.SetStringVariable(key, value)
 	}
 }
+// UnsetConfigMapValue removes a key a SetConfig already emitted. Needed when the
+// operator must supersede a ConfigMap-sourced env var with a per-pod literal in the
+// pod template — leaving both would put two different values on the same key.
+func (c *Config) UnsetConfigMapValue(cmName, key string) {
+	if cm, ok := c.ConfigMaps[cmName]; ok {
+		delete(cm.Variables, strings.ToUpper(key))
+	}
+}
 func (c *Config) SetConfigMapDataValues(cmName, key, value string) {
 	cm, ok := c.ConfigMaps[cmName]
 	if ok {

@@ -109,6 +109,26 @@ func (in *KubemqClusterSpec) DeepCopyInto(out *KubemqClusterSpec) {
 		*out = new(int32)
 		**out = **in
 	}
+	if in.KeySecretRef != nil {
+		in, out := &in.KeySecretRef, &out.KeySecretRef
+		*out = new(string)
+		**out = **in
+	}
+	if in.KeySecretKey != nil {
+		in, out := &in.KeySecretKey, &out.KeySecretKey
+		*out = new(string)
+		**out = **in
+	}
+	if in.LicenseSecretRef != nil {
+		in, out := &in.LicenseSecretRef, &out.LicenseSecretRef
+		*out = new(string)
+		**out = **in
+	}
+	if in.LicenseSecretKey != nil {
+		in, out := &in.LicenseSecretKey, &out.LicenseSecretKey
+		*out = new(string)
+		**out = **in
+	}
 	if in.Volume != nil {
 		in, out := &in.Volume, &out.Volume
 		*out = new(config.VolumeConfig)
@@ -231,6 +251,19 @@ func (in *KubemqClusterSpec) DeepCopyInto(out *KubemqClusterSpec) {
 	}
 	if in.Http != nil {
 		in, out := &in.Http, &out.Http
+		*out = (*in).DeepCopy()
+	}
+	if in.TerminationGracePeriodSeconds != nil {
+		in, out := &in.TerminationGracePeriodSeconds, &out.TerminationGracePeriodSeconds
+		*out = new(int32)
+		**out = **in
+	}
+	if in.PodDisruptionBudget != nil {
+		in, out := &in.PodDisruptionBudget, &out.PodDisruptionBudget
+		*out = (*in).DeepCopy()
+	}
+	if in.PodAntiAffinity != nil {
+		in, out := &in.PodAntiAffinity, &out.PodAntiAffinity
 		*out = (*in).DeepCopy()
 	}
 	if in.Env != nil {
