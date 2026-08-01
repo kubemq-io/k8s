@@ -31,7 +31,6 @@ type StompConfig struct {
 	// Expose controls how the STOMP Service is exposed. Unset leaves the
 	// catalog default (ClusterIP) untouched.
 	// +optional
-	// +kubebuilder:default=ClusterIP
 	// +kubebuilder:validation:Enum=ClusterIP;NodePort;LoadBalancer
 	Expose *string `json:"expose,omitempty" yaml:"expose,omitempty"`
 

@@ -34,7 +34,7 @@ BROKER_*                                      # broker perf tuning — configDat
 CLUSTER_ENABLE                                # operator-computed: derived from cluster topology (exact match)
 CLUSTER_NAME                                  # operator-computed: derived from metadata.name (exact match)
 CLUSTER_ROUTES                                # operator-computed: derived from peer discovery (exact match)
-CLUSTER_REPLICATION_*                         # operator-computed: next-engine raft membership (ReplicaID/Peers/mTLS/etc, ADD-015) injected into the StatefulSet pod template outside this config package (prefix match)
+CLUSTER_REPLICATION_*                         # operator-computed: next-engine raft membership (ReplicaID/Peers/mTLS/etc, ADD-015) injected into the StatefulSet pod template outside this config package (prefix match). Covers RAFT_ADDRESS: operator-managed clusters never need it set — the operator sets no replica id, the server derives it from the pod ordinal, and the address is always present in the peers map. The node-rebuild docs naming it are stale for this deployment shape; spec.env could not have delivered a per-pod value anyway.
 CLUSTER_IS_SEED                               # configData-only: not operator-derived (exact match)
 CLUSTER_PORT                                  # configData-only: not operator-derived (exact match)
 LICENSE_KEY_*                                 # provided via spec.license / spec.key

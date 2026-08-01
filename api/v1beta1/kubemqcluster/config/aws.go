@@ -33,7 +33,6 @@ type AwsConfig struct {
 	AdvertisedURL *string `json:"advertisedUrl,omitempty" yaml:"advertisedUrl,omitempty"`
 
 	// +optional
-	// +kubebuilder:default=ClusterIP
 	// +kubebuilder:validation:Enum=ClusterIP;NodePort;LoadBalancer
 	Expose *string `json:"expose,omitempty" yaml:"expose,omitempty"`
 

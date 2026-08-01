@@ -63,12 +63,12 @@ type AmqpConfig struct {
 	MaxReceiveCount *int32 `json:"maxReceiveCount,omitempty" yaml:"maxReceiveCount,omitempty"`
 
 	// +optional
-	// +kubebuilder:default=ClusterIP
 	// +kubebuilder:validation:Enum=ClusterIP;NodePort;LoadBalancer
 	Expose *string `json:"expose,omitempty" yaml:"expose,omitempty"`
 
-	// SessionAffinity is shared with AMQP 1.0 on the same "amqp" Service — if both
-	// connectors set it to different values, whichever SetConfig runs last wins.
+	// SessionAffinity is shared with AMQP 1.0 on the same "amqp" Service. If the two
+	// disagree the operator keeps ClientIP and emits a Warning event — losing
+	// stickiness silently is what breaks connectors that require it.
 	// +optional
 	// +kubebuilder:validation:Enum=None;ClientIP
 	SessionAffinity *string `json:"sessionAffinity,omitempty" yaml:"sessionAffinity,omitempty"`

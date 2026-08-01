@@ -85,7 +85,6 @@ type KafkaConfig struct {
 	// or a per-pod NodePort), listed in Peers. Exposing without Peers on a clustered
 	// cluster is rejected by the operator rather than left to fail at runtime.
 	// +optional
-	// +kubebuilder:default=ClusterIP
 	// +kubebuilder:validation:Enum=ClusterIP;NodePort;LoadBalancer
 	Expose *string `json:"expose,omitempty" yaml:"expose,omitempty"`
 

@@ -61,7 +61,6 @@ type MqttConfig struct {
 	Capabilities *MqttCapabilitiesConfig `json:"capabilities,omitempty" yaml:"capabilities,omitempty"`
 
 	// +optional
-	// +kubebuilder:default=ClusterIP
 	// +kubebuilder:validation:Enum=ClusterIP;NodePort;LoadBalancer
 	Expose *string `json:"expose,omitempty" yaml:"expose,omitempty"`
 

@@ -23,7 +23,6 @@ type GcpConfig struct {
 	AdvertisedEndpoint *string `json:"advertisedEndpoint,omitempty" yaml:"advertisedEndpoint,omitempty"`
 
 	// +optional
-	// +kubebuilder:default=ClusterIP
 	// +kubebuilder:validation:Enum=ClusterIP;NodePort;LoadBalancer
 	Expose *string `json:"expose,omitempty" yaml:"expose,omitempty"`
 
