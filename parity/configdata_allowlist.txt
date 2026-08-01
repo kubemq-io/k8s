@@ -44,6 +44,9 @@ KUBEMQ_TOKEN                                  # license token (os.Getenv special
 # --- Dual-engine next store keys: not a typed CRD surface (ADD-015) ---
 STORE_NEXT_RAFT_ADDRESS                       # server-derived/advertised; operator must NOT emit it (F17)
 STORE_NEXT_SEGMENT_SIZE                       # server default; reachable via spec.configData only
+STORE_NEXT_ACK_POLICY                         # durability-vs-latency tuning (strict|fast); server default, spec.env-reachable
+STORE_NEXT_SHARDS                             # shard-pool size K; server-validated (<=16) and NOT resizable after establishment
+STORE_NEXT_BALANCE_LEADERS                    # leader-balancer opt-in; server-validated against clustered-next + shards>1
 
 # --- Dead / latent-bug / map server bindings ---
 CONNECTORS_USAGE_REPORT_URL                   # dead server binding (no struct field; hardcoded URL) — pending server cleanup
@@ -77,3 +80,4 @@ CONNECTORS_KAFKA_MAX_TRANSACTION_TIMEOUT_MS    # kafka deferred (D25)
 CONNECTORS_KAFKA_TRANSACTIONAL_ID_EXPIRATION_MS # kafka deferred (D25)
 CONNECTORS_KAFKA_MAX_TRANSACTIONAL_I_DS         # kafka deferred (D25)
 CONNECTORS_KAFKA_PRODUCER_ID_BLOCK_SIZE         # kafka deferred (D25)
+CONNECTORS_KAFKA_PRODUCE_PIPELINE_DEPTH         # kafka deferred (D25); server-clamped to its own floor/ceiling
