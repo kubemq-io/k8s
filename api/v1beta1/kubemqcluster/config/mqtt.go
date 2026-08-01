@@ -63,6 +63,29 @@ type MqttConfig struct {
 	// +optional
 	// +kubebuilder:validation:Enum=ClusterIP;NodePort;LoadBalancer
 	Expose *string `json:"expose,omitempty" yaml:"expose,omitempty"`
+
+	// SessionAffinity SHOULD be ClientIP when clients rely on persistent MQTT
+	// sessions: session state lives on the replica that accepted the connection.
+	// +optional
+	// +kubebuilder:validation:Enum=None;ClientIP
+	SessionAffinity *string `json:"sessionAffinity,omitempty" yaml:"sessionAffinity,omitempty"`
+
+	// NodePort / TLSNodePort / WSNodePort pin the node ports for 1883 / 8883 / 8083.
+	// Honoured only when expose is NodePort; unset leaves them kernel-assigned.
+	// +optional
+	// +kubebuilder:validation:Minimum=30000
+	// +kubebuilder:validation:Maximum=32767
+	NodePort *int32 `json:"nodePort,omitempty" yaml:"nodePort,omitempty"`
+
+	// +optional
+	// +kubebuilder:validation:Minimum=30000
+	// +kubebuilder:validation:Maximum=32767
+	TLSNodePort *int32 `json:"tlsNodePort,omitempty" yaml:"tlsNodePort,omitempty"`
+
+	// +optional
+	// +kubebuilder:validation:Minimum=30000
+	// +kubebuilder:validation:Maximum=32767
+	WSNodePort *int32 `json:"wsNodePort,omitempty" yaml:"wsNodePort,omitempty"`
 }
 
 // MqttCapabilitiesConfig configures the kubemq-server MQTT connector capabilities.
@@ -177,6 +200,26 @@ func (c *MqttConfig) DeepCopy() *MqttConfig {
 		*out.Expose = *c.Expose
 	}
 
+	if c.SessionAffinity != nil {
+		out.SessionAffinity = new(string)
+		*out.SessionAffinity = *c.SessionAffinity
+	}
+
+	if c.NodePort != nil {
+		out.NodePort = new(int32)
+		*out.NodePort = *c.NodePort
+	}
+
+	if c.TLSNodePort != nil {
+		out.TLSNodePort = new(int32)
+		*out.TLSNodePort = *c.TLSNodePort
+	}
+
+	if c.WSNodePort != nil {
+		out.WSNodePort = new(int32)
+		*out.WSNodePort = *c.WSNodePort
+	}
+
 	return out
 }
 
@@ -249,9 +292,11 @@ func (c *MqttConfig) SetConfig(config *deployment.Config) *MqttConfig {
 		if c.WSPort != nil {
 			svc.SetPort("mqtt-ws", *c.WSPort)
 		}
-		if c.Expose != nil {
-			svc.SetExpose(*c.Expose)
-		}
+		applyServiceExposure(svc, c.Expose, c.SessionAffinity, map[string]*int32{
+			"mqtt":     c.NodePort,
+			"mqtt-tls": c.TLSNodePort,
+			"mqtt-ws":  c.WSNodePort,
+		})
 	}
 
 	if c.Port != nil {

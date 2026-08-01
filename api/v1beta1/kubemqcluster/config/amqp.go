@@ -65,6 +65,25 @@ type AmqpConfig struct {
 	// +optional
 	// +kubebuilder:validation:Enum=ClusterIP;NodePort;LoadBalancer
 	Expose *string `json:"expose,omitempty" yaml:"expose,omitempty"`
+
+	// SessionAffinity is shared with AMQP 1.0 on the same "amqp" Service. If the two
+	// disagree the operator keeps ClientIP and emits a Warning event — losing
+	// stickiness silently is what breaks connectors that require it.
+	// +optional
+	// +kubebuilder:validation:Enum=None;ClientIP
+	SessionAffinity *string `json:"sessionAffinity,omitempty" yaml:"sessionAffinity,omitempty"`
+
+	// NodePort / TLSNodePort pin the node ports for 5672 / 5671. Honoured only when
+	// expose is NodePort; unset leaves them kernel-assigned.
+	// +optional
+	// +kubebuilder:validation:Minimum=30000
+	// +kubebuilder:validation:Maximum=32767
+	NodePort *int32 `json:"nodePort,omitempty" yaml:"nodePort,omitempty"`
+
+	// +optional
+	// +kubebuilder:validation:Minimum=30000
+	// +kubebuilder:validation:Maximum=32767
+	TLSNodePort *int32 `json:"tlsNodePort,omitempty" yaml:"tlsNodePort,omitempty"`
 }
 
 func (c *AmqpConfig) DeepCopy() *AmqpConfig {
@@ -135,6 +154,21 @@ func (c *AmqpConfig) DeepCopy() *AmqpConfig {
 		*out.Expose = *c.Expose
 	}
 
+	if c.SessionAffinity != nil {
+		out.SessionAffinity = new(string)
+		*out.SessionAffinity = *c.SessionAffinity
+	}
+
+	if c.NodePort != nil {
+		out.NodePort = new(int32)
+		*out.NodePort = *c.NodePort
+	}
+
+	if c.TLSNodePort != nil {
+		out.TLSNodePort = new(int32)
+		*out.TLSNodePort = *c.TLSNodePort
+	}
+
 	return out
 }
 
@@ -154,9 +188,10 @@ func (c *AmqpConfig) SetConfig(config *deployment.Config) *AmqpConfig {
 		if c.TLSPort != nil {
 			svc.SetPort("amqp-tls", *c.TLSPort)
 		}
-		if c.Expose != nil {
-			svc.SetExpose(*c.Expose)
-		}
+		applyServiceExposure(svc, c.Expose, c.SessionAffinity, map[string]*int32{
+			"amqp":     c.NodePort,
+			"amqp-tls": c.TLSNodePort,
+		})
 	}
 
 	if c.Port != nil {

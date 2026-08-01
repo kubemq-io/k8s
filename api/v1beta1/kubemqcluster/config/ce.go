@@ -8,6 +8,12 @@ import (
 
 // CeConfig configures the kubemq-server CloudEvents (CE) connector.
 // Maps to server Connectors.CE. The connector is enabled by default server-side.
+//
+// EXPOSURE: CloudEvents has no port or Service of its own — it registers on the
+// server's shared HTTP listener (the REST port, 9090) alongside REST, MCP and A2A.
+// It is therefore reached through the "rest" Service and configured by
+// spec.rest.expose / spec.rest.nodePort. There is deliberately no ce.expose: a
+// second exposure field on the same Service would silently fight spec.rest.expose.
 type CeConfig struct {
 	// +optional
 	Disabled bool `json:"disabled,omitempty" yaml:"disabled,omitempty"`

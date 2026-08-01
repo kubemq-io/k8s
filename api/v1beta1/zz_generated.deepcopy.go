@@ -253,6 +253,19 @@ func (in *KubemqClusterSpec) DeepCopyInto(out *KubemqClusterSpec) {
 		in, out := &in.Http, &out.Http
 		*out = (*in).DeepCopy()
 	}
+	if in.TerminationGracePeriodSeconds != nil {
+		in, out := &in.TerminationGracePeriodSeconds, &out.TerminationGracePeriodSeconds
+		*out = new(int32)
+		**out = **in
+	}
+	if in.PodDisruptionBudget != nil {
+		in, out := &in.PodDisruptionBudget, &out.PodDisruptionBudget
+		*out = (*in).DeepCopy()
+	}
+	if in.PodAntiAffinity != nil {
+		in, out := &in.PodAntiAffinity, &out.PodAntiAffinity
+		*out = (*in).DeepCopy()
+	}
 	if in.Env != nil {
 		in, out := &in.Env, &out.Env
 		*out = make(map[string]string, len(*in))

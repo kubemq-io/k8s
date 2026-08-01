@@ -18,6 +18,15 @@
 // independently — including the same acronym-splitting regexes — so ReplicaID -> REPLICA_ID,
 // MutualTLS -> MUTUAL_TLS, RTTMillisecond -> RTT_MILLISECOND, CAFile -> CA_FILE.
 //
+// KEY ARGUMENTS ARE RESOLVED THROUGH PACKAGE-LEVEL SLICE VARS, and an unresolvable binder
+// call is FATAL. Both matter: the server moved its replication keys out of the call site
+// into `var clusterReplicationEnvKeys = []string{...}` and called
+// `bindClusterReplicationEnv(clusterReplicationEnvKeys...)`. A literal-only extractor
+// silently produced zero keys, so a regen quietly dropped all fourteen — the golden then
+// under-reported what the server honors, and the parity gate it backs went partly blind
+// on exactly the family the operator injects. Failing closed is the point: an extractor
+// that finds nothing must stop, not shrink the golden.
+//
 // Usage (see `task parity:regen`):
 //
 //	go run ./parity/gen -server ../kubemq-server/config -out parity/server_env_keys.txt
@@ -85,6 +94,7 @@ func main() {
 		fatal("read server dir %s: %v", *serverDir, err)
 	}
 	fset := token.NewFileSet()
+	var files []*ast.File
 	for _, e := range entries {
 		if e.IsDir() || !strings.HasSuffix(e.Name(), ".go") || strings.HasSuffix(e.Name(), "_test.go") {
 			continue
@@ -93,7 +103,24 @@ func main() {
 		if err != nil {
 			fatal("parse %s: %v", e.Name(), err)
 		}
-		extractKeys(f, keys, naturalKeys)
+		files = append(files, f)
+	}
+
+	// Package-level `var x = []string{...}` first: a binder call may spread one, and the
+	// declaration can live in a different file from the call.
+	sliceVars := map[string][]string{}
+	for _, f := range files {
+		collectStringSliceVars(f, sliceVars)
+	}
+
+	var unresolved []string
+	for _, f := range files {
+		unresolved = append(unresolved, extractKeys(f, keys, naturalKeys, sliceVars, fset)...)
+	}
+	if len(unresolved) > 0 {
+		fatal("these binder calls resolved to no config keys — the extractor cannot see their "+
+			"arguments, and generating anyway would silently shrink the golden:\n  %s",
+			strings.Join(unresolved, "\n  "))
 	}
 	if len(keys) == 0 && len(naturalKeys) == 0 {
 		fatal("no config keys found under %s — wrong path?", *serverDir)
@@ -128,7 +155,16 @@ func main() {
 // passed to bindViperEnv / bindCeEnvAliases / viper.BindEnv into keys, and every dotted config
 // key passed to bindClusterReplicationEnv into naturalKeys (mutated in place; extracted from
 // main's per-file loop so it is independently unit-testable against an in-memory AST).
-func extractKeys(f *ast.File, keys, naturalKeys map[string]bool) {
+// It returns a description of every binder call whose arguments it could not resolve to a
+// single config key, so the caller can fail instead of emitting a short golden.
+func extractKeys(f *ast.File, keys, naturalKeys map[string]bool, sliceVars map[string][]string, fset *token.FileSet) []string {
+	var unresolved []string
+	where := func(call *ast.CallExpr, name string) string {
+		if fset == nil {
+			return name
+		}
+		return fmt.Sprintf("%s at %s", name, fset.Position(call.Pos()))
+	}
 	ast.Inspect(f, func(n ast.Node) bool {
 		call, ok := n.(*ast.CallExpr)
 		if !ok {
@@ -136,12 +172,22 @@ func extractKeys(f *ast.File, keys, naturalKeys map[string]bool) {
 		}
 		name := callName(call.Fun)
 		switch name {
-		case "bindViperEnv", "bindCeEnvAliases":
-			for _, lit := range stringLits(call.Args) {
-				keys[lit] = true
+		// bindKafkaOAuthBearerEnvAliases binds each key to BOTH convertEnvFormat and a
+		// friendlier CONNECTORS_KAFKA_OAUTH_BEARER_* alias. Like the CE aliases, only the
+		// collapsed form is listed: one canonical name per config key keeps the allowlist
+		// from needing a second entry for the same underlying setting.
+		case "bindViperEnv", "bindCeEnvAliases", "bindKafkaOAuthBearerEnvAliases":
+			args := configKeyArgs(call, sliceVars)
+			if len(args) == 0 {
+				unresolved = append(unresolved, where(call, name))
+			}
+			for _, k := range args {
+				keys[k] = true
 			}
 		case "viper.BindEnv":
 			// arg0 is the dotted config key (the env-name args are derived, not keys).
+			// Non-literal arg0 is normal here — the binder helpers call it in a loop over
+			// their own parameter — so this case is deliberately not fail-closed.
 			if lits := stringLits(call.Args); len(lits) > 0 {
 				keys[lits[0]] = true
 			}
@@ -150,12 +196,69 @@ func extractKeys(f *ast.File, keys, naturalKeys map[string]bool) {
 			// to the natural CLUSTER_REPLICATION_* env name (see naturalEnvName), not the
 			// acronym-collapsed convertEnvFormat name — kept in a separate set so the two
 			// naming schemes don't cross-pollinate.
-			for _, lit := range stringLits(call.Args) {
-				naturalKeys[lit] = true
+			args := configKeyArgs(call, sliceVars)
+			if len(args) == 0 {
+				unresolved = append(unresolved, where(call, name))
+			}
+			for _, k := range args {
+				naturalKeys[k] = true
 			}
 		}
 		return true
 	})
+	return unresolved
+}
+
+// collectStringSliceVars records every package-level `var name = []string{"a", "b"}` so a
+// binder call that spreads one can be resolved back to its literals.
+func collectStringSliceVars(f *ast.File, into map[string][]string) {
+	for _, decl := range f.Decls {
+		gen, ok := decl.(*ast.GenDecl)
+		if !ok || gen.Tok != token.VAR {
+			continue
+		}
+		for _, spec := range gen.Specs {
+			vs, ok := spec.(*ast.ValueSpec)
+			if !ok {
+				continue
+			}
+			for i, ident := range vs.Names {
+				if i >= len(vs.Values) {
+					continue
+				}
+				lit, ok := vs.Values[i].(*ast.CompositeLit)
+				if !ok || !isStringSliceType(lit.Type) {
+					continue
+				}
+				if vals := stringLits(lit.Elts); len(vals) > 0 {
+					into[ident.Name] = vals
+				}
+			}
+		}
+	}
+}
+
+func isStringSliceType(expr ast.Expr) bool {
+	arr, ok := expr.(*ast.ArrayType)
+	if !ok || arr.Len != nil {
+		return false
+	}
+	elt, ok := arr.Elt.(*ast.Ident)
+	return ok && elt.Name == "string"
+}
+
+// configKeyArgs resolves a binder call's arguments to dotted config keys: inline string
+// literals, plus any identifier (spread or not) naming a package-level string slice.
+func configKeyArgs(call *ast.CallExpr, sliceVars map[string][]string) []string {
+	out := stringLits(call.Args)
+	for _, a := range call.Args {
+		ident, ok := a.(*ast.Ident)
+		if !ok {
+			continue
+		}
+		out = append(out, sliceVars[ident.Name]...)
+	}
+	return out
 }
 
 // buildEnvNames folds the two dotted-key sets extractKeys collects into the final env-name set:

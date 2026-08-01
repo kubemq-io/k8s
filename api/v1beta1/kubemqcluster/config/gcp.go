@@ -26,6 +26,23 @@ type GcpConfig struct {
 	// +kubebuilder:validation:Enum=ClusterIP;NodePort;LoadBalancer
 	Expose *string `json:"expose,omitempty" yaml:"expose,omitempty"`
 
+	// SessionAffinity SHOULD be ClientIP for Pub/Sub, and this one bites without any
+	// disruption: an ack id minted by one replica and acked on another is a foreign
+	// ack, which the server logs as a sticky-load-balancer misconfiguration. Ordered
+	// subscriptions additionally require stickiness for per-key ordering.
+	// ClientIP is unreliable when clients share a NAT/egress IP; prefer ingress
+	// cookie affinity where an ingress exists.
+	// +optional
+	// +kubebuilder:validation:Enum=None;ClientIP
+	SessionAffinity *string `json:"sessionAffinity,omitempty" yaml:"sessionAffinity,omitempty"`
+
+	// NodePort pins the node port for the GCP listener. Honoured only when
+	// expose is NodePort; unset leaves it kernel-assigned.
+	// +optional
+	// +kubebuilder:validation:Minimum=30000
+	// +kubebuilder:validation:Maximum=32767
+	NodePort *int32 `json:"nodePort,omitempty" yaml:"nodePort,omitempty"`
+
 	// +optional
 	// +kubebuilder:validation:Minimum=1
 	MaxMessageBytes *int32 `json:"maxMessageBytes,omitempty" yaml:"maxMessageBytes,omitempty"`
@@ -95,6 +112,16 @@ func (c *GcpConfig) DeepCopy() *GcpConfig {
 	if c.Expose != nil {
 		out.Expose = new(string)
 		*out.Expose = *c.Expose
+	}
+
+	if c.SessionAffinity != nil {
+		out.SessionAffinity = new(string)
+		*out.SessionAffinity = *c.SessionAffinity
+	}
+
+	if c.NodePort != nil {
+		out.NodePort = new(int32)
+		*out.NodePort = *c.NodePort
 	}
 
 	if c.MaxMessageBytes != nil {
@@ -167,9 +194,7 @@ func (c *GcpConfig) SetConfig(config *deployment.Config) *GcpConfig {
 		if c.Port != nil {
 			svc.SetPort("gcp-grpc", *c.Port)
 		}
-		if c.Expose != nil {
-			svc.SetExpose(*c.Expose)
-		}
+		applyServiceExposure(svc, c.Expose, c.SessionAffinity, map[string]*int32{"gcp-grpc": c.NodePort})
 	}
 
 	if c.Port != nil {

@@ -21,7 +21,7 @@ spec:
       protocol: TCP
       targetPort: {{.TargetPort}}
       nodePort: {{.NodePort}}
-  sessionAffinity: None
+  sessionAffinity: {{.SessionAffinity}}
 {{ if not .Headless }}
   type: {{.Expose}}
 {{else}}
@@ -45,9 +45,10 @@ spec:
       port: {{.Port}}
       protocol: TCP
       targetPort: {{.TargetPort}}
-{{end}}
+{{if .NodePort}}      nodePort: {{.NodePort}}
+{{end}}{{end}}
   type: {{.Expose}}
-  sessionAffinity: None
+  sessionAffinity: {{.SessionAffinity}}
   selector:
     app: {{.AppName}}
 `
@@ -96,6 +97,10 @@ type ServicePort struct {
 	Name       string
 	Port       int32
 	TargetPort int32
+	// NodePort pins the node port for this entry of a multi-port Service. Zero
+	// (the default) leaves the port kernel-assigned, which is what every
+	// connector Service did before this field existed.
+	NodePort int32
 }
 
 type ServiceConfig struct {
@@ -109,7 +114,13 @@ type ServiceConfig struct {
 	PortName      string
 	NodePort      int32
 	Ports         []ServicePort
-	Headless      bool
+	// SessionAffinity is the Service .spec.sessionAffinity ("None" or "ClientIP").
+	// Empty renders as "None" (see Spec). ClientIP is REQUIRED by the AWS SQS and
+	// GCP Pub/Sub connectors: both mint client-visible tokens (SQS receipt handles,
+	// Pub/Sub ack ids) that embed the issuing node and are refused elsewhere, so a
+	// round-robin Service breaks delete/ack whenever a client re-dials.
+	SessionAffinity string
+	Headless        bool
 	// Engine, when "next", adds the raft replication port (5229) and
 	// publishNotReadyAddresses to the headless Service — set only for a clustered next
 	// engine so peers resolve each other's DNS during quorum formation (before Ready).
@@ -231,6 +242,20 @@ func DefaultServiceConfig(id, namespace, appName string) map[string]*ServiceConf
 			{Name: "amqp-tls", Port: 5671, TargetPort: 5671},
 		},
 	}
+	// AMQP 1.0 is served on the SAME listener as AMQP 0.9.1 (5672/5671) — this is a
+	// discoverability alias, not a second listener. Without it a user who enables
+	// only amqp10 sees no amqp10 Service and concludes the dialect is not exposed.
+	list["amqp10"] = &ServiceConfig{
+		Id:        id,
+		Name:      appName + "-amqp10",
+		Namespace: namespace,
+		AppName:   appName,
+		Expose:    "ClusterIP",
+		Ports: []ServicePort{
+			{Name: "amqp10", Port: 5672, TargetPort: 5672},
+			{Name: "amqp10-tls", Port: 5671, TargetPort: 5671},
+		},
+	}
 	list["stomp"] = &ServiceConfig{
 		Id:        id,
 		Name:      appName + "-stomp",
@@ -301,6 +326,30 @@ func (s *ServiceConfig) SetHeadless(value bool) *ServiceConfig {
 	return s
 }
 
+// SetSessionAffinity sets .spec.sessionAffinity. An empty value is ignored so a
+// nil CRD field keeps the "None" default.
+func (s *ServiceConfig) SetSessionAffinity(value string) *ServiceConfig {
+	if value != "" {
+		s.SessionAffinity = value
+	}
+	return s
+}
+
+// SetPortNodePort pins the node port of the named entry in a multi-port Service.
+// No-op if name is absent or nodePort is not positive. Single-port Services use
+// SetNodePort instead.
+func (s *ServiceConfig) SetPortNodePort(name string, nodePort int32) *ServiceConfig {
+	if nodePort <= 0 {
+		return s
+	}
+	for i := range s.Ports {
+		if s.Ports[i].Name == name {
+			s.Ports[i].NodePort = nodePort
+		}
+	}
+	return s
+}
+
 // SetPort updates the named entry in a multi-port Service (Ports) so both the
 // exposed port and the targetPort follow a connector's custom port. These
 // connectors emit their own *_PORT env var (the server listens on the custom
@@ -316,7 +365,9 @@ func (s *ServiceConfig) SetPort(name string, port int32) *ServiceConfig {
 }
 
 func (s *ServiceConfig) Spec() ([]byte, error) {
-
+	if s.SessionAffinity == "" {
+		s.SessionAffinity = "None"
+	}
 	if s.service == nil {
 		tmpl := defaultKubeMQServiceTemplate
 		if s.Headless {

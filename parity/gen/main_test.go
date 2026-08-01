@@ -1,9 +1,11 @@
 package main
 
 import (
+	"go/ast"
 	"go/parser"
 	"go/token"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"testing"
@@ -46,7 +48,7 @@ func TestNaturalEnvName_ClusterReplicationAcronyms(t *testing.T) {
 }
 
 // fakeClusterReplicationSource mirrors the SHAPE of kubemq-server/config/cluster.go's
-// defaultClusterReplicationConfig — the exact 13 variadic string-literal args passed to
+// defaultClusterReplicationConfig — variadic string-literal args passed to
 // bindClusterReplicationEnv — without importing or depending on the real sibling repo, so this
 // test is self-contained and stays deterministic even if the server file moves/reformats.
 const fakeClusterReplicationSource = `package fakeconfig
@@ -70,6 +72,22 @@ func defaultClusterReplicationConfig() {
 }
 `
 
+// fakeClusterReplicationSliceVarSource is the shape the server ACTUALLY uses today: the keys
+// live in a package-level slice and the call spreads it. A literal-only extractor produced zero
+// keys here and silently dropped the whole family from the golden — this pins the resolution.
+const fakeClusterReplicationSliceVarSource = `package fakeconfig
+
+var clusterReplicationEnvKeys = []string{
+	"Cluster.Replication.ReplicaID",
+	"Cluster.Replication.Peers",
+	"Cluster.Replication.RaftAddress",
+}
+
+func defaultClusterReplicationConfig() {
+	bindClusterReplicationEnv(clusterReplicationEnvKeys...)
+}
+`
+
 // TestExtractKeys_BindClusterReplicationEnv is the F9 gen unit test: it feeds the
 // "bindClusterReplicationEnv" case an in-memory AST shaped exactly like the server's
 // defaultClusterReplicationConfig call and asserts the generated env-name set is EXACTLY the 13
@@ -82,7 +100,7 @@ func TestExtractKeys_BindClusterReplicationEnv(t *testing.T) {
 
 	keys := map[string]bool{}
 	naturalKeys := map[string]bool{}
-	extractKeys(f, keys, naturalKeys)
+	require.Empty(t, extractKeys(f, keys, naturalKeys, map[string][]string{}, fset))
 
 	require.Empty(t, keys, "bindClusterReplicationEnv literals must not leak into the "+
 		"convertEnvFormat (collapsed) key set")
@@ -117,15 +135,151 @@ func TestExtractKeys_BindClusterReplicationEnv(t *testing.T) {
 		"CLUSTER_REPLICATION_* names — no more, no less")
 }
 
-// TestServerEnvKeysGolden_ContainsClusterReplication13 pins the committed golden
-// (parity/server_env_keys.txt) itself: it must carry exactly the 13 CLUSTER_REPLICATION_* names
-// this F9 change adds, alongside the CLUSTER_* prefix's pre-existing keys — regold drift (missing
-// or extra CLUSTER_REPLICATION_* entries) fails loudly here instead of silently in the downstream
-// parity test.
-func TestServerEnvKeysGolden_ContainsClusterReplication13(t *testing.T) {
+// TestExtractKeys_ResolvesPackageLevelSliceVar pins the shape the server uses today. The
+// literal-only extractor silently returned zero keys here, so a regen dropped all fourteen
+// CLUSTER_REPLICATION_* names and shrank the golden without a word.
+func TestExtractKeys_ResolvesPackageLevelSliceVar(t *testing.T) {
+	fset := token.NewFileSet()
+	f, err := parser.ParseFile(fset, "fakeconfig.go", fakeClusterReplicationSliceVarSource, 0)
+	require.NoError(t, err)
+
+	sliceVars := map[string][]string{}
+	collectStringSliceVars(f, sliceVars)
+	require.Len(t, sliceVars["clusterReplicationEnvKeys"], 3)
+
+	keys := map[string]bool{}
+	naturalKeys := map[string]bool{}
+	require.Empty(t, extractKeys(f, keys, naturalKeys, sliceVars, fset))
+
+	require.Empty(t, keys)
+	got := make([]string, 0, len(naturalKeys))
+	for k := range buildEnvNames(keys, naturalKeys) {
+		got = append(got, k)
+	}
+	sort.Strings(got)
+	require.Equal(t, []string{
+		"CLUSTER_REPLICATION_PEERS",
+		"CLUSTER_REPLICATION_RAFT_ADDRESS",
+		"CLUSTER_REPLICATION_REPLICA_ID",
+	}, got)
+}
+
+// A binder call whose arguments the extractor cannot see must be REPORTED, not skipped.
+// Silently emitting a shorter golden is how the replication family went missing.
+func TestExtractKeys_UnresolvableBinderCallIsReported(t *testing.T) {
+	const src = `package fakeconfig
+
+func f(keys []string) {
+	bindClusterReplicationEnv(keys...)
+	bindViperEnv(someUnknownVar...)
+}
+`
+	fset := token.NewFileSet()
+	f, err := parser.ParseFile(fset, "fakeconfig.go", src, 0)
+	require.NoError(t, err)
+
+	unresolved := extractKeys(f, map[string]bool{}, map[string]bool{}, map[string][]string{}, fset)
+	require.Len(t, unresolved, 2, "both unresolvable binder calls must be reported")
+}
+
+// The OAUTHBEARER binder folds to the COLLAPSED name, like the CE aliases: one canonical env
+// name per config key, so the allowlist needs a single entry per setting. The server also binds
+// a friendlier CONNECTORS_KAFKA_OAUTH_BEARER_* alias, deliberately not listed.
+func TestExtractKeys_KafkaOAuthBearerAliasesUseCollapsedName(t *testing.T) {
+	const src = `package fakeconfig
+
+func defaultKafkaConfig() {
+	bindKafkaOAuthBearerEnvAliases(
+		"Connectors.Kafka.OAuthBearer.Issuer",
+		"Connectors.Kafka.OAuthBearer.ClientID",
+	)
+}
+`
+	fset := token.NewFileSet()
+	f, err := parser.ParseFile(fset, "fakeconfig.go", src, 0)
+	require.NoError(t, err)
+
+	keys := map[string]bool{}
+	naturalKeys := map[string]bool{}
+	require.Empty(t, extractKeys(f, keys, naturalKeys, map[string][]string{}, fset))
+	require.Empty(t, naturalKeys)
+
+	got := make([]string, 0, 2)
+	for k := range buildEnvNames(keys, naturalKeys) {
+		got = append(got, k)
+	}
+	sort.Strings(got)
+	require.Equal(t, []string{
+		"CONNECTORS_KAFKAO_AUTH_BEARER_CLIENT_ID",
+		"CONNECTORS_KAFKAO_AUTH_BEARER_ISSUER",
+	}, got)
+}
+
+// TestServerEnvKeysGolden_MatchesServer closes the staleness loop the previous pin could not:
+// instead of hard-coding a key count, it re-runs the extractor against the real kubemq-server
+// checkout and requires the committed golden to equal it exactly. A server that gains or renames
+// an env key now fails HERE, naming the drift, rather than leaving the golden quietly behind and
+// the parity gate it backs partly blind. Skips when the sibling is absent (standalone checkout),
+// the same convention the CRD sibling tests use.
+func TestServerEnvKeysGolden_MatchesServer(t *testing.T) {
+	const serverDir = "../../../kubemq-server/config"
+	if _, err := os.Stat(serverDir); os.IsNotExist(err) {
+		t.Skipf("SKIP sibling: %s not present (standalone checkout?)", serverDir)
+	}
+
+	entries, err := os.ReadDir(serverDir)
+	require.NoError(t, err)
+
+	fset := token.NewFileSet()
+	var files []*ast.File
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".go") || strings.HasSuffix(e.Name(), "_test.go") {
+			continue
+		}
+		f, err := parser.ParseFile(fset, filepath.Join(serverDir, e.Name()), nil, 0)
+		require.NoError(t, err, "parse %s", e.Name())
+		files = append(files, f)
+	}
+
+	sliceVars := map[string][]string{}
+	for _, f := range files {
+		collectStringSliceVars(f, sliceVars)
+	}
+	keys := map[string]bool{}
+	naturalKeys := map[string]bool{}
+	var unresolved []string
+	for _, f := range files {
+		unresolved = append(unresolved, extractKeys(f, keys, naturalKeys, sliceVars, fset)...)
+	}
+	require.Empty(t, unresolved, "the extractor cannot see these binder calls — it would emit a short golden")
+
+	envNames := buildEnvNames(keys, naturalKeys)
+	for _, s := range specials {
+		envNames[s] = true
+	}
+	want := make([]string, 0, len(envNames))
+	for e := range envNames {
+		want = append(want, e)
+	}
+	sort.Strings(want)
+
+	goldenSet := readGoldenKeys(t, "../server_env_keys.txt")
+	got := make([]string, 0, len(goldenSet))
+	for k := range goldenSet {
+		got = append(got, k)
+	}
+	sort.Strings(got)
+
+	require.Equal(t, want, got, "parity/server_env_keys.txt is out of date with the kubemq-server "+
+		"checkout — regenerate it with `task parity:regen`")
+}
+
+// The replication family is the one the operator itself injects, and the one a regression
+// already dropped once. Keep a direct floor on it so a partial regen cannot quietly halve it.
+func TestServerEnvKeysGolden_CarriesClusterReplicationFamily(t *testing.T) {
 	golden := readGoldenKeys(t, "../server_env_keys.txt")
 
-	want := []string{
+	for _, w := range []string{
 		"CLUSTER_REPLICATION_BOOT_TIMEOUT_SECONDS",
 		"CLUSTER_REPLICATION_CA_FILE",
 		"CLUSTER_REPLICATION_CERT_FILE",
@@ -136,24 +290,13 @@ func TestServerEnvKeysGolden_ContainsClusterReplication13(t *testing.T) {
 		"CLUSTER_REPLICATION_KEY_FILE",
 		"CLUSTER_REPLICATION_MUTUAL_TLS",
 		"CLUSTER_REPLICATION_PEERS",
+		"CLUSTER_REPLICATION_RAFT_ADDRESS",
 		"CLUSTER_REPLICATION_REPLICA_ID",
 		"CLUSTER_REPLICATION_RTT_MILLISECOND",
 		"CLUSTER_REPLICATION_SNAPSHOT_ENTRIES",
-	}
-	for _, w := range want {
+	} {
 		require.True(t, golden[w], "parity/server_env_keys.txt missing %s — regen via `task parity:regen`", w)
 	}
-
-	var gotReplication []string
-	for k := range golden {
-		if strings.HasPrefix(k, "CLUSTER_REPLICATION_") {
-			gotReplication = append(gotReplication, k)
-		}
-	}
-	sort.Strings(gotReplication)
-	sort.Strings(want)
-	require.Equal(t, want, gotReplication, "parity/server_env_keys.txt CLUSTER_REPLICATION_* keys "+
-		"must be exactly the 13 F9 names — no stragglers, none missing")
 }
 
 func readGoldenKeys(t *testing.T, path string) map[string]bool {
