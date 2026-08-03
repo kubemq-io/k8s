@@ -94,9 +94,14 @@ func (c *AuthenticationConfig) IsConfigured() bool {
 
 func (c *AuthenticationConfig) SetConfig(config *deployment.Config) *AuthenticationConfig {
 	// Mutually-exclusive error case: OIDC and JWT settings cannot both be set.
-	// Emit nothing and return — reconcile-level validation should reject this
-	// before it ever reaches SetConfig; guarding here avoids emitting a
-	// contradictory mix of OIDC and JWT env vars.
+	// Emit nothing and return, rather than a contradictory mix of OIDC and JWT
+	// env vars. Emitting nothing is only safe because the combination never
+	// reaches here on a live cluster: the CRD refuses it at admission (a CEL
+	// rule on the authentication object) and the operator refuses it again at
+	// reconcile (validateAuthentication → ManageError). Both existed only after
+	// a campaign found that, without them, this silent return produced a
+	// healthy, Deployed, entirely unauthenticated broker. Do not rely on this
+	// branch alone.
 	if c.Oidc != nil && (c.Key != nil || c.SignatureType != nil) {
 		return c
 	}
